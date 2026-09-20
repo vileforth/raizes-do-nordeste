@@ -1,1 +1,111 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+@import "@heroui/react/styles";
+
+:root {
+  --raizes-brand: #FF4B00;
+  --raizes-brand-deep: #B72300;
+  --raizes-brand-soft: rgba(255, 75, 0, 0.08);
+  --raizes-brand-soft-strong: rgba(255, 75, 0, 0.14);
+  --raizes-brand-ring: rgba(255, 75, 0, 0.22);
+  --raizes-brand-text: #B72300;
+  --raizes-petrol: #072F33;
+  --raizes-petrol-hover: #0A4347;
+  --raizes-petrol-soft: rgba(7, 47, 51, 0.08);
+  --raizes-petrol-text: #0A4347;
+  --raizes-cta: #FF4B00;
+  --raizes-cta-hover: #B72300;
+  --raizes-cyan-soft: rgba(0, 122, 255, 0.10);
+  --raizes-cyan-text: #0a64d0;
+  --raizes-green-soft: rgba(52, 199, 89, 0.12);
+  --raizes-green-text: #1a7a3a;
+  --raizes-amber-soft: rgba(255, 149, 0, 0.12);
+  --raizes-amber-text: #a45f00;
+  --raizes-rose-soft: rgba(255, 59, 48, 0.10);
+  --raizes-rose-text: #a72015;
+  --raizes-bg: #ffffff;
+  --raizes-app-bg: #f5f5f7;
+  --raizes-canvas-gradient: linear-gradient(135deg, #e8ecf5 0%, #f4f7fb 28%, #f8f9fc 50%, #f4f7fb 72%, #e8ecf5 100%);
+  --raizes-glass-bg: rgba(255, 255, 255, 0.72);
+  --raizes-glass-border: rgba(255, 255, 255, 0.7);
+  --raizes-border: rgba(0, 0, 0, 0.06);
+  --raizes-border-strong: rgba(0, 0, 0, 0.10);
+  --raizes-text-secondary: #86868b;
+  --raizes-text-primary: #1d1d1f;
+  --raizes-surface: #ffffff;
+  --raizes-surface-raised: #f7f6f4;
+  --raizes-sidebar: #fbfaf8;
+  --raizes-sidebar-border: rgba(0, 0, 0, 0.05);
+  --raizes-sidebar-active: rgba(255, 75, 0, 0.10);
+  --raizes-sidebar-text: #6e6e73;
+  --raizes-sidebar-text-active: #1d1d1f;
+}
+
+@theme inline {
+  --color-background: var(--raizes-bg);
+  --color-foreground: var(--raizes-text-primary);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html, body {
+  background: var(--raizes-bg);
+  color: var(--raizes-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--raizes-brand);
+  color: #fff;
+}
+
+.t-page-title {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.t-subtitle {
+  font-size: 0.75rem;
+  color: var(--raizes-text-secondary);
+}
+.t-section {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.t-eyebrow {
+  font-size: 0.6875rem;
+  color: var(--raizes-text-secondary);
+}
+.t-stat-lg {
+  font-size: 1.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.surface-card {
+  background: var(--raizes-surface);
+  border: 1px solid var(--raizes-border);
+  border-radius: 14px;
+}
+.row-hover:hover {
+  background: rgba(0, 0, 0, 0.018);
+}
+.input-soft {
+  height: 2.375rem;
+  width: 100%;
+  padding: 0 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--raizes-border-strong);
+  font-size: 0.875rem;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.375rem;
+  padding: 0 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--raizes-cta);
+}

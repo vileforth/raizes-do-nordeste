@@ -1,0 +1,10 @@
+{
+  "title": "Reports",
+  "period": "Period",
+  "from": "From",
+  "to": "To",
+  "orders": "Orders",
+  "revenue": "Revenue",
+  "promotions": "Promotions",
+  "loyaltyMembers": "Loyalty members"
+}

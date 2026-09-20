@@ -1,0 +1,18 @@
+{
+  "title": "Pedidos",
+  "new": "Novo pedido",
+  "board": "Quadro",
+  "detail": "Detalhe do pedido",
+  "status": "Status",
+  "total": "Total",
+  "client": "Cliente",
+  "unit": "Unidade",
+  "type": "Tipo de consumo",
+  "code": "Código",
+  "statuses": {
+    "RECEBIDO": "Recebido",
+    "EM_PREPARACAO": "Em preparação",
+    "PRONTO": "Pronto",
+    "RETIRADO": "Retirado"
+  }
+}

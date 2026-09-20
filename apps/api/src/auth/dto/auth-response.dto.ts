@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '@raizes/shared';
 
 export class AuthTokenResponseDto {
   @ApiProperty()
@@ -22,4 +23,18 @@ export class ForgotPasswordResponseDto {
 export class RegisterResponseDto extends AuthTokenResponseDto {
   @ApiProperty()
   userId!: number;
+}
+
+export class CurrentUserResponseDto {
+  @ApiProperty()
+  id!: number;
+
+  @ApiProperty()
+  email!: string;
+
+  @ApiProperty()
+  name!: string;
+
+  @ApiProperty({ enum: UserRole, isArray: true })
+  roles!: UserRole[];
 }

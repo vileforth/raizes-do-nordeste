@@ -1,0 +1,18 @@
+{
+  "appName": "Raízes do Nordeste",
+  "loading": "Carregando...",
+  "save": "Salvar",
+  "cancel": "Cancelar",
+  "create": "Criar",
+  "edit": "Editar",
+  "delete": "Excluir",
+  "search": "Buscar",
+  "actions": "Ações",
+  "back": "Voltar",
+  "noResults": "Nenhum registro encontrado",
+  "success": "Operação realizada com sucesso",
+  "error": "Ocorreu um erro",
+  "exportCsv": "Exportar CSV",
+  "greeting": "Olá, {name}",
+  "live": "Ao vivo"
+}

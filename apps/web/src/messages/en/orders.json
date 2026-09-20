@@ -1,0 +1,18 @@
+{
+  "title": "Orders",
+  "new": "New order",
+  "board": "Board",
+  "detail": "Order detail",
+  "status": "Status",
+  "total": "Total",
+  "client": "Client",
+  "unit": "Unit",
+  "type": "Consumption type",
+  "code": "Code",
+  "statuses": {
+    "RECEBIDO": "Received",
+    "EM_PREPARACAO": "In preparation",
+    "PRONTO": "Ready",
+    "RETIRADO": "Picked up"
+  }
+}
