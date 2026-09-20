@@ -40,10 +40,22 @@ export default function RegisterPage() {
     <div className="space-y-6">
       <h1 className="t-page-title">{t('registerTitle')}</h1>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-        <Input label={t('name')} {...form.register('name')} />
-        <Input label={t('email')} type="email" {...form.register('email')} />
-        <Input label={t('phone')} {...form.register('phone')} />
-        <Input label={t('password')} type="password" {...form.register('password')} />
+        <label className="block text-sm font-medium">
+          {t('name')}
+          <Input className="mt-1" placeholder={t('name')} {...form.register('name')} />
+        </label>
+        <label className="block text-sm font-medium">
+          {t('email')}
+          <Input className="mt-1" type="email" placeholder={t('email')} {...form.register('email')} />
+        </label>
+        <label className="block text-sm font-medium">
+          {t('phone')}
+          <Input className="mt-1" placeholder={t('phone')} {...form.register('phone')} />
+        </label>
+        <label className="block text-sm font-medium">
+          {t('password')}
+          <Input className="mt-1" type="password" placeholder={t('password')} {...form.register('password')} />
+        </label>
         <Button color="primary" type="submit" className="w-full">{t('register')}</Button>
       </form>
       <p className="text-sm text-center">

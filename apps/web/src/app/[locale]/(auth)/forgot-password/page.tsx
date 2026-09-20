@@ -29,7 +29,10 @@ export default function ForgotPasswordPage() {
       <h1 className="t-page-title">{t('forgotTitle')}</h1>
       <p className="t-subtitle">{t('forgotHint')}</p>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-        <Input label={t('email')} type="email" {...form.register('email')} />
+        <label className="block text-sm font-medium">
+          {t('email')}
+          <Input className="mt-1" type="email" placeholder={t('email')} {...form.register('email')} />
+        </label>
         <Button color="primary" type="submit" className="w-full">{t('sendLink')}</Button>
       </form>
       <p className="text-sm text-center">

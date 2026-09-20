@@ -41,8 +41,14 @@ export default function LoginPage() {
     <div className="space-y-6">
       <h1 className="t-page-title">{t('loginTitle')}</h1>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-        <Input label={t('email')} type="email" {...form.register('email')} />
-        <Input label={t('password')} type="password" {...form.register('password')} />
+        <label className="block text-sm font-medium">
+          {t('email')}
+          <Input className="mt-1" type="email" placeholder={t('email')} {...form.register('email')} />
+        </label>
+        <label className="block text-sm font-medium">
+          {t('password')}
+          <Input className="mt-1" type="password" placeholder={t('password')} {...form.register('password')} />
+        </label>
         <Button color="primary" type="submit" className="w-full">{t('login')}</Button>
       </form>
       <p className="text-sm text-center">
