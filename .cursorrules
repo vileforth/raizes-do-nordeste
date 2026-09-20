@@ -1,0 +1,51 @@
+# Raizes do Nordeste — Project Rules
+
+Always look for and follow this `.cursorrules` file before making changes.
+
+## Naming
+
+- Variable, function, component, hook, file, and folder names in English.
+- Database table and column names in Portuguese snake_case.
+
+## Architecture
+
+- Never fetch the NestJS API from the browser; always use Next.js BFF routes `/api/*`.
+- Frontend must honor user roles (CLIENTE, ATENDENTE, COZINHEIRO, GERENTE, ADMINISTRADOR).
+- BFF only for client-to-backend communication.
+- React Query (TanStack Query) only for client data fetching.
+- Zod + React Hook Form on all forms.
+- Componentize UI; extract logic into hooks.
+- Types in `*.types.ts`, schemas in `*.schema.ts`.
+- Files under 200-300 lines; split when larger.
+
+## UX
+
+- Every data page must have skeleton loading.
+- Every mutation must toast success/error.
+
+## Backend
+
+- Swagger on every NestJS HTTP endpoint.
+- Winston logger service used in every backend module.
+- Role guards on every protected route.
+
+## Quality
+
+- Unit tests are mandatory for every module, hook, service, and component of business logic.
+- No comments in source code.
+
+## Environment
+
+- Do not read or overwrite `.env` files; only create `.env.example`.
+
+## Integrations
+
+- Reuse plataform-brasil layout/component patterns (HeroUI + Tailwind tokens); do not invent a new design system.
+- Payment is mocked; geolocation uses Nominatim; email uses Resend.
+- i18n required (pt-BR + en).
+- Remote Supabase is used (no local Supabase container).
+
+## Tooling
+
+- PowerShell: never use `&&` as a command separator; use `;` instead.
+- Use pnpm and Turborepo for monorepo tasks.
