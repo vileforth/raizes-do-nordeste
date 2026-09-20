@@ -2,6 +2,11 @@
 
 Always look for and follow this `.cursorrules` file before making changes.
 
+## Workspace Scope
+
+- Work only under `C:\Users\AMD\Documents\raizes-project\raizes-do-nordeste`.
+- Commit after the task is complete and tests pass.
+
 ## Naming
 
 - Variable, function, component, hook, file, and folder names in English.
@@ -10,10 +15,10 @@ Always look for and follow this `.cursorrules` file before making changes.
 ## Architecture
 
 - Never fetch the NestJS API from the browser; always use Next.js BFF routes `/api/*`.
-- Frontend must honor user roles (CLIENTE, ATENDENTE, COZINHEIRO, GERENTE, ADMINISTRADOR).
 - BFF only for client-to-backend communication.
 - React Query (TanStack Query) only for client data fetching.
 - Zod + React Hook Form on all forms.
+- Frontend must honor user roles (CLIENTE, ATENDENTE, COZINHEIRO, GERENTE, ADMINISTRADOR).
 - Componentize UI; extract logic into hooks.
 - Types in `*.types.ts`, schemas in `*.schema.ts`.
 - Files under 200-300 lines; split when larger.
@@ -37,6 +42,10 @@ Always look for and follow this `.cursorrules` file before making changes.
 ## Environment
 
 - Do not read or overwrite `.env` files; only create `.env.example`.
+
+## Documentation
+
+- No README or docs unless the task explicitly requires them.
 
 ## Integrations
 
