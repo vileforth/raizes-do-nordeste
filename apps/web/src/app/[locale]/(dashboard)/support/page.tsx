@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { EntityListPage } from '@/components/entity-list-page';
 import { supportResource } from '@/services/support';
@@ -16,6 +17,7 @@ export default function SupportPage() {
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/support/${r.id}`}
+      actions={<Link href="/support/new" className="btn-primary">{t('open')}</Link>}
       columns={[
         { key: 'protocol', header: t('protocol'), cell: (r) => r.protocol },
         { key: 'type', header: t('type'), cell: (r) => r.type },

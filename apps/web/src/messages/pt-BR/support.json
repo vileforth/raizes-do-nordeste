@@ -3,5 +3,12 @@
   "detail": "Detalhe do atendimento",
   "protocol": "Protocolo",
   "type": "Tipo",
-  "open": "Abrir chamado"
+  "description": "Descrição",
+  "open": "Abrir chamado",
+  "types": {
+    "PEDIDO": "Pedido",
+    "SUPORTE": "Suporte",
+    "PAGAMENTO": "Pagamento",
+    "FIDELIDADE": "Fidelidade"
+  }
 }

@@ -3,5 +3,7 @@
   "points": "Points",
   "level": "Level",
   "benefits": "Benefits",
-  "redeem": "Redeem"
+  "benefit": "Benefit",
+  "redeem": "Redeem",
+  "clientId": "Client"
 }

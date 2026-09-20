@@ -23,7 +23,11 @@ describe('loginSchema', () => {
 
 describe('clientSchema', () => {
   it('requires cpf', () => {
-    const result = clientSchema.safeParse({ cpf: '12345678901', active: true });
+    const result = clientSchema.safeParse({
+      userId: 1,
+      cpf: '12345678901',
+      active: true,
+    });
     expect(result.success).toBe(true);
   });
 });

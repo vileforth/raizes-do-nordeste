@@ -3,5 +3,7 @@
   "points": "Pontos",
   "level": "Nível",
   "benefits": "Benefícios",
-  "redeem": "Resgatar"
+  "benefit": "Benefício",
+  "redeem": "Resgatar",
+  "clientId": "Cliente"
 }

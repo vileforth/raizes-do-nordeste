@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Shared UI components: DataTable, ListPageScaffold, FormPageScaffold, KpiCard, StatusBadge, GlassPanel, FilterPill, skeletons
 - `createResource` factory, `useTableState`, Zod + RHF forms, toast mutations
 - Vitest tests for api path join, schemas, menu mapping, query keys, helpers
+- Order creation with product/unit/consumption type, payment mock on order detail, client/support create forms, loyalty redeem
 - Root README with mermaid DER, package READMEs, and docker instructions
 
 ### Skills used (historical)
