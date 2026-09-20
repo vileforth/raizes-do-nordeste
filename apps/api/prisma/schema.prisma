@@ -66,6 +66,7 @@ enum SupportType {
   PEDIDO
   SUPORTE
   PAGAMENTO
+  FIDELIDADE
 }
 
 enum SupportStatus {
@@ -77,11 +78,14 @@ enum SupportStatus {
 }
 
 enum AuditAction {
-  CREATE
-  UPDATE
-  DELETE
+  ALTERAR
+  ALTERAR_STATUS
+  APLICAR_CUPOM
+  CADASTRO
+  CONSULTAR
+  CRIAR
   LOGIN
-  LOGOUT
+  PAGAMENTO
 }
 
 model User {
