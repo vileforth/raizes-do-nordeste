@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -5,7 +6,9 @@ import { AppModule } from './app.module';
 import { LoggerService } from './logger/logger.service';
 
 async function bootstrap() {
-  process.loadEnvFile();
+  if (existsSync('.env')) {
+    process.loadEnvFile();
+  }
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const loggerService = app.get(LoggerService);
 
@@ -32,7 +35,7 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, swaggerDocument);
 
   const port = Number(process.env.PORT ?? 3001);
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   loggerService.info('API started', { port });
 }
 
