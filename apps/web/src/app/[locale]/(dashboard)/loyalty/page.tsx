@@ -6,7 +6,10 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
 import { FormField } from '@/components/form-field';
+import { Pagination } from '@/components/pagination';
 import { SectionCard } from '@/components/section-card';
+import { StatusBadge } from '@/components/status-badge';
+import { useTableState } from '@/hooks/use-table-state';
 import { useToast } from '@/providers/toast-provider';
 import {
   benefitPoints,
@@ -21,8 +24,12 @@ export default function LoyaltyPage() {
   const tCommon = useTranslations('common');
   const toast = useToast();
   const [clientId, setClientId] = useState(1);
+  const { setPage, params } = useTableState();
   const program = useQuery({ queryKey: ['loyalty', 'program'], queryFn: getLoyaltyProgram });
-  const benefits = useQuery({ queryKey: ['loyalty', 'benefits'], queryFn: getBenefits });
+  const benefits = useQuery({
+    queryKey: ['loyalty', 'benefits', params],
+    queryFn: () => getBenefits(params),
+  });
   const loyalty = useQuery({
     queryKey: ['loyalty', 'client', clientId],
     queryFn: () => getClientLoyalty(clientId),
@@ -43,7 +50,10 @@ export default function LoyaltyPage() {
     <div className="space-y-6">
       <h1 className="t-page-title">{t('title')}</h1>
       <SectionCard title={program.data?.name ?? t('title')}>
-        <p className="text-sm text-[var(--raizes-text-secondary)]">{program.data?.description}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          {program.data?.status ? <StatusBadge status={program.data.status} /> : null}
+          <p className="text-sm text-[var(--raizes-text-secondary)]">{program.data?.description}</p>
+        </div>
         <div className="mt-4 max-w-xs">
           <FormField label={t('clientId')}>
             <Input
@@ -54,14 +64,18 @@ export default function LoyaltyPage() {
           </FormField>
         </div>
         {loyalty.data ? (
-          <p className="mt-4 text-sm">
-            {t('level')}: {loyalty.data.level} · {t('points')}: {loyalty.data.pointsBalance}
-          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+            <StatusBadge status={loyalty.data.level} />
+            {loyalty.data.status ? <StatusBadge status={loyalty.data.status} /> : null}
+            <span>
+              {t('points')}: {loyalty.data.pointsBalance}
+            </span>
+          </div>
         ) : null}
       </SectionCard>
       <SectionCard title={t('benefits')}>
         <DataTable
-          rows={benefits.data ?? []}
+          rows={benefits.data?.data ?? []}
           isLoading={benefits.isLoading}
           emptyMessage={tCommon('noResults')}
           rowKey={(r) => r.id}
@@ -79,6 +93,9 @@ export default function LoyaltyPage() {
             },
           ]}
         />
+        {benefits.data?.pagination ? (
+          <Pagination {...benefits.data.pagination} onPageChange={setPage} />
+        ) : null}
       </SectionCard>
     </div>
   );

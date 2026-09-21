@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { SectionCard } from '@/components/section-card';
+import { StatusBadge } from '@/components/status-badge';
 import { promotionsResource } from '@/services/promotions';
 
 export default function PromotionDetailPage() {
@@ -16,7 +17,7 @@ export default function PromotionDetailPage() {
       <dl className="grid gap-3 text-sm">
         <div><dt className="t-eyebrow">Name</dt><dd>{data.name}</dd></div>
         <div><dt className="t-eyebrow">{t('rule')}</dt><dd>{data.rule}</dd></div>
-        <div><dt className="t-eyebrow">Status</dt><dd>{data.status}</dd></div>
+        <div><dt className="t-eyebrow">Status</dt><dd><StatusBadge status={data.status} /></dd></div>
       </dl>
     </SectionCard>
   );

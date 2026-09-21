@@ -1,5 +1,6 @@
 import { apiGet, apiPost, apiPut } from '@/lib/api';
-import { createResource } from './_factory/create-resource';
+import { toQueryString, type ListQuery } from '@/lib/list-query';
+import { createResource, type Paginated } from './_factory/create-resource';
 
 export type Unit = {
   id: number;
@@ -13,7 +14,7 @@ export type Unit = {
 };
 
 export const unitsResource = createResource<Unit>('units', {
-  list: () => apiGet<Unit[]>('/units'),
+  list: (params?: ListQuery) => apiGet<Paginated<Unit>>(`/units${toQueryString(params)}`),
   detail: (id) => apiGet<Unit>(`/units/${id}`),
   create: (input) => apiPost<Unit>('/units', input),
   update: (id, input) => apiPut<Unit>(`/units/${id}`, input),

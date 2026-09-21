@@ -9,6 +9,14 @@ import { AuthenticatedUser } from '../auth/types/auth-user.types';
 import { assertAnyRole, hasRole } from '../common/utils/access-scope.util';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildPaginated,
+  normalizePagination,
+  resolveOrderBy,
+  searchContains,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientResponseDto } from './dto/client-response.dto';
@@ -20,7 +28,10 @@ export class ClientsService {
     private readonly logger: LoggerService,
   ) {}
 
-  async findAll(actor: AuthenticatedUser): Promise<ClientResponseDto[]> {
+  async findAll(
+    actor: AuthenticatedUser,
+    query: PaginationInput = {},
+  ): Promise<Paginated<ClientResponseDto>> {
     if (hasRole(actor, UserRole.CLIENTE)) {
       throw new ForbiddenException('Insufficient role permissions');
     }
@@ -31,11 +42,20 @@ export class ClientsService {
       UserRole.ADMINISTRADOR,
     ]);
 
-    const clients = await this.prisma.client.findMany({
-      orderBy: { id: 'asc' },
-    });
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const where = searchContains(['cpf'], search) ?? {};
+    const orderBy = resolveOrderBy(query.orderBy, ['id', 'cpf'], { id: 'asc' });
+    const [clients, total] = await Promise.all([
+      this.prisma.client.findMany({ where, orderBy, skip, take }),
+      this.prisma.client.count({ where }),
+    ]);
 
-    return clients.map((client) => this.toResponse(client));
+    return buildPaginated(
+      clients.map((client) => this.toResponse(client)),
+      page,
+      pageSize,
+      total,
+    );
   }
 
   async findOne(actor: AuthenticatedUser, id: number): Promise<ClientResponseDto> {

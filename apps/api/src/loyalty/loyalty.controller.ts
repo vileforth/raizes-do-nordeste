@@ -5,10 +5,12 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { RedeemBenefitDto } from './dto/redeem-benefit.dto';
 import { LoyaltyService } from './loyalty.service';
 
@@ -49,8 +51,8 @@ export class LoyaltyController {
 
   @Get('benefits')
   @ApiOperation({ summary: 'List available benefits' })
-  getBenefits() {
-    return this.loyaltyService.getBenefits();
+  getBenefits(@Query() query: PaginationQueryDto) {
+    return this.loyaltyService.getBenefits(query);
   }
 
   @Post('benefits/:id/redeem')

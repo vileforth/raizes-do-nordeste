@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { UpdateUnitDto } from './dto/update-unit.dto';
 import { UnitResponseDto } from './dto/unit-response.dto';
@@ -18,9 +19,12 @@ export class UnitsController {
   @Get()
   @Roles(UserRole.GERENTE, UserRole.ADMINISTRADOR)
   @ApiOperation({ summary: 'List units' })
-  @ApiResponse({ status: 200, type: [UnitResponseDto] })
-  findAll(@CurrentUser() user: AuthenticatedUser): Promise<UnitResponseDto[]> {
-    return this.unitsService.findAll(user);
+  @ApiResponse({ status: 200 })
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.unitsService.findAll(user, query);
   }
 
   @Get(':id')

@@ -9,12 +9,10 @@ import { clientsResource } from '@/services/clients';
 export default function ClientsPage() {
   const t = useTranslations('clients');
   const tCommon = useTranslations('common');
-  const { data = [], isLoading } = clientsResource.useList();
   return (
     <EntityListPage
       title={t('title')}
-      rows={data}
-      isLoading={isLoading}
+      useList={clientsResource.useList}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/clients/${r.id}`}
@@ -26,7 +24,7 @@ export default function ClientsPage() {
           key: 'active',
           header: t('active'),
           cell: (r) => (
-            <StatusBadge label={r.active ? 'Active' : 'Inactive'} tone={r.active ? 'success' : 'muted'} />
+            <StatusBadge status={r.active ? 'ATIVO' : 'INATIVO'} />
           ),
         },
       ]}

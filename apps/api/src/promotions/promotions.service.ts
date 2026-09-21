@@ -5,6 +5,14 @@ import { resolveEmployeeUnitId } from '../common/helpers/employee-scope.helper';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import {
+  buildPaginated,
+  normalizePagination,
+  resolveOrderBy,
+  searchContains,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
 
@@ -15,25 +23,33 @@ export class PromotionsService {
     private readonly logger: LoggerService,
   ) {}
 
-  async findAll(user: AuthenticatedUser): Promise<Promotion[]> {
-    if (user.roles.includes(UserRole.ADMINISTRADOR)) {
-      return this.prisma.promotion.findMany({
-        orderBy: { startDate: 'desc' },
-      });
-    }
+  async findAll(
+    user: AuthenticatedUser,
+    query: PaginationInput = {},
+  ): Promise<Paginated<Promotion>> {
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const searchWhere = searchContains(['name', 'description'], search);
+    const scope = await this.buildListScope(user);
+    const where = { ...scope, ...(searchWhere ?? {}) };
+    const orderBy = resolveOrderBy(query.orderBy, ['id', 'name', 'startDate'], {
+      startDate: 'desc',
+    });
+    const [promotions, total] = await Promise.all([
+      this.prisma.promotion.findMany({ where, orderBy, skip, take }),
+      this.prisma.promotion.count({ where }),
+    ]);
+    return buildPaginated(promotions, page, pageSize, total);
+  }
 
+  private async buildListScope(user: AuthenticatedUser): Promise<Prisma.PromotionWhereInput> {
+    if (user.roles.includes(UserRole.ADMINISTRADOR)) {
+      return {};
+    }
     if (user.roles.includes(UserRole.GERENTE)) {
       const unitId = await resolveEmployeeUnitId(this.prisma, user.id);
-      return this.prisma.promotion.findMany({
-        where: { promotionUnits: { some: { unitId } } },
-        orderBy: { startDate: 'desc' },
-      });
+      return { promotionUnits: { some: { unitId } } };
     }
-
-    return this.prisma.promotion.findMany({
-      where: this.activePromotionFilter(),
-      orderBy: { startDate: 'desc' },
-    });
+    return this.activePromotionFilter();
   }
 
   async findOne(id: number, user: AuthenticatedUser): Promise<Promotion> {

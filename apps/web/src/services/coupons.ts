@@ -1,5 +1,6 @@
 import { apiGet, apiPost, apiPut } from '@/lib/api';
-import { createResource } from './_factory/create-resource';
+import { toQueryString, type ListQuery } from '@/lib/list-query';
+import { createResource, type Paginated } from './_factory/create-resource';
 
 export type Coupon = {
   id: number;
@@ -11,7 +12,7 @@ export type Coupon = {
 };
 
 export const couponsResource = createResource<Coupon>('coupons', {
-  list: () => apiGet<Coupon[]>('/coupons'),
+  list: (params?: ListQuery) => apiGet<Paginated<Coupon>>(`/coupons${toQueryString(params)}`),
   create: (input) => apiPost<Coupon>('/coupons', input),
   update: (id, input) => apiPut<Coupon>(`/coupons/${id}`, input),
 });

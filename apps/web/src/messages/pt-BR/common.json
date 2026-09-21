@@ -19,5 +19,9 @@
   "greetingEvening": "Boa noite",
   "greetingFallback": "por aí",
   "clockLabel": "Horário de Fortaleza",
-  "live": "Ao vivo"
+  "live": "Ao vivo",
+  "paginationRange": "{start}–{end} de {total}",
+  "previousPage": "Página anterior",
+  "nextPage": "Próxima página",
+  "status": "Status"
 }

@@ -27,6 +27,11 @@ Always look for and follow this `.cursorrules` file before making changes.
 
 - Every data page must have skeleton loading.
 - Every mutation must toast success/error.
+- Every list page must be server-paginated. Never load a full collection into the client.
+- List endpoints return `{ data, pagination }` with `page`, `pageSize`, `total`, `totalPages`, `hasNext`, `hasPrev`.
+- Query params: `page` (default 1), `pageSize` (default 20, max 100), optional `search` and `orderBy`.
+- Pagination controls are required on every list surface (table, grid, kanban column).
+- Status enums and active flags are never shown raw (`EM_ATENDIMENTO`). Always use `StatusBadge` with i18n labels from `messages/*/status.json`.
 
 ## Backend
 

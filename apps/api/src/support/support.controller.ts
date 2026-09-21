@@ -6,12 +6,14 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { CreateSupportDto } from './dto/create-support.dto';
 import { UpdateSupportDto } from './dto/update-support.dto';
 import { SupportService } from './support.service';
@@ -39,8 +41,11 @@ export class SupportController {
     UserRole.CLIENTE,
   )
   @ApiOperation({ summary: 'List support tickets' })
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.supportService.findAll(user);
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.supportService.findAll(user, query);
   }
 
   @Get(':id')

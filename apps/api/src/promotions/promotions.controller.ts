@@ -7,12 +7,14 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { AssociateProductsDto } from './dto/associate-products.dto';
 import { AssociateUnitsDto } from './dto/associate-units.dto';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
@@ -32,8 +34,11 @@ export class PromotionsController {
     UserRole.ATENDENTE,
   )
   @ApiOperation({ summary: 'List promotions scoped by role' })
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.promotionsService.findAll(user);
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.promotionsService.findAll(user, query);
   }
 
   @Get(':id')

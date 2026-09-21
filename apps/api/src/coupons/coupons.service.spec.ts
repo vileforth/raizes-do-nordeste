@@ -13,6 +13,7 @@ describe('CouponsService', () => {
       create: jest.Mock;
       update: jest.Mock;
       delete: jest.Mock;
+      count: jest.Mock;
     };
     promotion: {
       findUnique: jest.Mock;
@@ -35,6 +36,7 @@ describe('CouponsService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       promotion: {
         findUnique: jest.fn(),

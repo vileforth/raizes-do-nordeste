@@ -7,10 +7,12 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
@@ -31,8 +33,8 @@ export class CouponsController {
   @Get()
   @Roles(UserRole.ADMINISTRADOR)
   @ApiOperation({ summary: 'List coupons' })
-  findAll() {
-    return this.couponsService.findAll();
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.couponsService.findAll(query);
   }
 
   @Post()

@@ -13,7 +13,7 @@ describe('LoyaltyService', () => {
       update: jest.Mock;
     };
     pointMovement: { findMany: jest.Mock; create: jest.Mock };
-    benefit: { findMany: jest.Mock; findUnique: jest.Mock };
+    benefit: { findMany: jest.Mock; findUnique: jest.Mock; count: jest.Mock };
     benefitRedemption: { create: jest.Mock };
     $transaction: jest.Mock;
   };
@@ -27,7 +27,7 @@ describe('LoyaltyService', () => {
         update: jest.fn(),
       },
       pointMovement: { findMany: jest.fn(), create: jest.fn() },
-      benefit: { findMany: jest.fn(), findUnique: jest.fn() },
+      benefit: { findMany: jest.fn(), findUnique: jest.fn(), count: jest.fn().mockResolvedValue(0) },
       benefitRedemption: { create: jest.fn() },
       $transaction: jest.fn((callback) => callback(prisma)),
     };

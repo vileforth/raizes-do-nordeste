@@ -6,16 +6,12 @@ const SIZE_CLASS: Record<BrandLogoSize, string> = {
   auth: 'h-[7.5rem] w-auto max-w-[260px]',
 };
 
-const SRC: Record<BrandLogoSize, string> = {
-  rail: '/brand/logo-mark.svg',
-  header: '/brand/logo-mark.svg',
-  auth: '/brand/logo-wordmark.svg',
-};
+const LOGO_SRC = '/brand/logo.png';
 
 export function BrandLogo({ size = 'header' }: { size?: BrandLogoSize }) {
   return (
     <img
-      src={SRC[size]}
+      src={LOGO_SRC}
       alt="Raízes do Nordeste"
       className={`object-contain ${SIZE_CLASS[size]}`}
     />

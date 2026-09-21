@@ -13,6 +13,7 @@ describe('PromotionsService', () => {
       findUnique: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
     promotionUnit: {
       findFirst: jest.Mock;
@@ -31,6 +32,7 @@ describe('PromotionsService', () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       promotionUnit: {
         findFirst: jest.fn(),
@@ -56,6 +58,7 @@ describe('PromotionsService', () => {
 
   it('returns all promotions for admin', async () => {
     prisma.promotion.findMany.mockResolvedValue([{ id: 1 }]);
+    prisma.promotion.count.mockResolvedValue(1);
     const result = await service.findAll({
       id: 1,
       email: 'admin@test.com',
@@ -64,7 +67,7 @@ describe('PromotionsService', () => {
       roles: [UserRole.ADMINISTRADOR],
       sub: 'sub',
     });
-    expect(result).toHaveLength(1);
+    expect(result.data).toHaveLength(1);
     expect(prisma.promotion.findMany).toHaveBeenCalled();
   });
 

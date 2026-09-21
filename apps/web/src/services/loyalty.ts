@@ -1,4 +1,6 @@
 import { apiGet, apiPost } from '@/lib/api';
+import { toQueryString, type ListQuery } from '@/lib/list-query';
+import type { Paginated } from './_factory/create-resource';
 
 export type LoyaltyProgram = {
   id: number;
@@ -27,8 +29,8 @@ export function getLoyaltyProgram() {
   return apiGet<LoyaltyProgram>('/loyalty/program');
 }
 
-export function getBenefits() {
-  return apiGet<Benefit[]>('/benefits');
+export function getBenefits(params?: ListQuery) {
+  return apiGet<Paginated<Benefit>>(`/benefits${toQueryString(params)}`);
 }
 
 export function getClientLoyalty(clientId: number) {

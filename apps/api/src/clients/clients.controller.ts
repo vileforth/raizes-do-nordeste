@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientResponseDto } from './dto/client-response.dto';
@@ -22,9 +23,12 @@ export class ClientsController {
     UserRole.ADMINISTRADOR,
   )
   @ApiOperation({ summary: 'List clients' })
-  @ApiResponse({ status: 200, type: [ClientResponseDto] })
-  findAll(@CurrentUser() user: AuthenticatedUser): Promise<ClientResponseDto[]> {
-    return this.clientsService.findAll(user);
+  @ApiResponse({ status: 200 })
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.clientsService.findAll(user, query);
   }
 
   @Get(':id')

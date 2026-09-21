@@ -18,6 +18,7 @@ describe('OrdersService', () => {
       create: jest.Mock;
       update: jest.Mock;
       findMany: jest.Mock;
+      count: jest.Mock;
     };
     orderItem: { deleteMany: jest.Mock };
     orderStatusHistory: { findMany: jest.Mock };
@@ -45,6 +46,7 @@ describe('OrdersService', () => {
         create: jest.fn(),
         update: jest.fn(),
         findMany: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       orderItem: { deleteMany: jest.fn() },
       orderStatusHistory: { findMany: jest.fn() },

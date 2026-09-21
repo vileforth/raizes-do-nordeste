@@ -1,30 +1,43 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import type { ListQuery } from '@/lib/list-query';
 
-export function useTableState<T extends Record<string, unknown>>(
-  initial: T = {} as T,
-) {
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState<T>(initial);
-  const [orderBy, setOrderBy] = useState<string | null>(null);
+export function useTableState(options?: { defaultPageSize?: number }) {
+  const defaultPageSize = options?.defaultPageSize ?? 20;
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(defaultPageSize);
+  const [search, setSearchValue] = useState('');
+  const [orderBy, setOrderByValue] = useState<string | null>(null);
 
-  const params = useMemo(
+  function setSearch(value: string) {
+    setSearchValue(value);
+    setPage(1);
+  }
+
+  function setOrderBy(value: string | null) {
+    setOrderByValue(value);
+    setPage(1);
+  }
+
+  const params: ListQuery = useMemo(
     () => ({
-      ...filters,
+      page,
+      pageSize,
       search: search || undefined,
       orderBy: orderBy || undefined,
     }),
-    [filters, search, orderBy],
+    [page, pageSize, search, orderBy],
   );
 
   return {
+    page,
+    pageSize,
     search,
     setSearch,
-    filters,
-    setFilters,
     orderBy,
     setOrderBy,
+    setPage,
     params,
   };
 }

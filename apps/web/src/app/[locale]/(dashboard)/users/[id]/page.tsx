@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { SectionCard } from '@/components/section-card';
+import { StatusBadge } from '@/components/status-badge';
 import { usersResource } from '@/services/users';
 
 export default function UserDetailPage() {
@@ -16,7 +17,15 @@ export default function UserDetailPage() {
       <dl className="grid gap-3 text-sm">
         <div><dt className="t-eyebrow">Name</dt><dd>{data.name}</dd></div>
         <div><dt className="t-eyebrow">Email</dt><dd>{data.email}</dd></div>
-        <div><dt className="t-eyebrow">Profiles</dt><dd>{data.profiles.join(', ')}</dd></div>
+        <div><dt className="t-eyebrow">Status</dt><dd><StatusBadge status={data.status} /></dd></div>
+        <div>
+          <dt className="t-eyebrow">Profiles</dt>
+          <dd className="flex flex-wrap gap-1.5">
+            {data.profiles.map((profile) => (
+              <StatusBadge key={profile} status={profile} />
+            ))}
+          </dd>
+        </div>
       </dl>
     </SectionCard>
   );

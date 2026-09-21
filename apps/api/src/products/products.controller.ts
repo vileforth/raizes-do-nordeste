@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
@@ -23,9 +24,9 @@ export class ProductsController {
     UserRole.ADMINISTRADOR,
   )
   @ApiOperation({ summary: 'List products' })
-  @ApiResponse({ status: 200, type: [ProductResponseDto] })
-  findAll(): Promise<ProductResponseDto[]> {
-    return this.productsService.findAll();
+  @ApiResponse({ status: 200 })
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.productsService.findAll(query);
   }
 
   @Get(':id')

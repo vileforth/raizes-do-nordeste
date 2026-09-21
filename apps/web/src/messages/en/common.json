@@ -19,5 +19,9 @@
   "greetingEvening": "Good evening",
   "greetingFallback": "there",
   "clockLabel": "Fortaleza time",
-  "live": "Live"
+  "live": "Live",
+  "paginationRange": "{start}–{end} of {total}",
+  "previousPage": "Previous page",
+  "nextPage": "Next page",
+  "status": "Status"
 }

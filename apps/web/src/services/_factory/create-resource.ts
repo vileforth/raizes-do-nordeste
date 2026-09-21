@@ -8,6 +8,7 @@ import {
   type UseQueryOptions,
 } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
+import type { ListQuery } from '@/lib/list-query';
 
 export type PaginationMeta = {
   page: number;
@@ -24,7 +25,7 @@ export type Paginated<T> = {
 };
 
 type ResourceFns<TItem, TListParams, TCreateInput, TUpdateInput> = {
-  list: (params?: TListParams) => Promise<TItem[] | Paginated<TItem>>;
+  list: (params?: TListParams) => Promise<Paginated<TItem>>;
   detail?: (id: string) => Promise<TItem>;
   create?: (input: TCreateInput) => Promise<TItem>;
   update?: (id: string, input: TUpdateInput) => Promise<TItem>;
@@ -33,7 +34,7 @@ type ResourceFns<TItem, TListParams, TCreateInput, TUpdateInput> = {
 
 export function createResource<
   TItem,
-  TListParams = Record<string, unknown>,
+  TListParams extends ListQuery = ListQuery,
   TCreateInput = Partial<TItem>,
   TUpdateInput = Partial<TItem>,
 >(
@@ -42,14 +43,11 @@ export function createResource<
 ) {
   function useList(
     params?: TListParams,
-    options?: Omit<UseQueryOptions<TItem[], Error>, 'queryKey' | 'queryFn'>,
+    options?: Omit<UseQueryOptions<Paginated<TItem>, Error>, 'queryKey' | 'queryFn'>,
   ) {
-    return useQuery<TItem[], Error>({
+    return useQuery<Paginated<TItem>, Error>({
       queryKey: queryKeys.list(resourceKey, params),
-      queryFn: async () => {
-        const result = await fns.list(params);
-        return Array.isArray(result) ? result : result.data;
-      },
+      queryFn: () => fns.list(params),
       ...options,
     });
   }

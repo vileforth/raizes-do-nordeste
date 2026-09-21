@@ -13,6 +13,14 @@ import {
 import { GeoService } from '../geo/geo.service';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildPaginated,
+  normalizePagination,
+  resolveOrderBy,
+  searchContains,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { UpdateUnitDto } from './dto/update-unit.dto';
 import { UnitResponseDto } from './dto/unit-response.dto';
@@ -25,19 +33,31 @@ export class UnitsService {
     private readonly logger: LoggerService,
   ) {}
 
-  async findAll(actor: AuthenticatedUser): Promise<UnitResponseDto[]> {
+  async findAll(
+    actor: AuthenticatedUser,
+    query: PaginationInput = {},
+  ): Promise<Paginated<UnitResponseDto>> {
     assertAnyRole(actor, [UserRole.GERENTE, UserRole.ADMINISTRADOR]);
 
-    const where = hasRole(actor, UserRole.ADMINISTRADOR)
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const scope = hasRole(actor, UserRole.ADMINISTRADOR)
       ? {}
       : { id: await resolveManagerUnitId(this.prisma, actor.id) };
+    const searchWhere = searchContains(['name', 'address'], search);
+    const where = { ...scope, ...(searchWhere ?? {}) };
+    const orderBy = resolveOrderBy(query.orderBy, ['id', 'name'], { id: 'asc' });
 
-    const units = await this.prisma.unit.findMany({
-      where,
-      orderBy: { id: 'asc' },
-    });
+    const [units, total] = await Promise.all([
+      this.prisma.unit.findMany({ where, orderBy, skip, take }),
+      this.prisma.unit.count({ where }),
+    ]);
 
-    return units.map((unit) => this.toResponse(unit));
+    return buildPaginated(
+      units.map((unit) => this.toResponse(unit)),
+      page,
+      pageSize,
+      total,
+    );
   }
 
   async findOne(actor: AuthenticatedUser, id: number): Promise<UnitResponseDto> {

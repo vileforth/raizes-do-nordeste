@@ -135,8 +135,9 @@ describe('StockService', () => {
 
     const result = await service.findLowStock(admin);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].productName).toBe('Tapioca');
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].productName).toBe('Tapioca');
+    expect(result.pagination.total).toBe(1);
   });
 
   it('throws when stock not found', async () => {

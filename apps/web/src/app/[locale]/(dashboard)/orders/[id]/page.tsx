@@ -3,12 +3,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@heroui/react';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useMessages, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { StatusBadge } from '@/components/status-badge';
 import { formatMoney } from '@/lib/helpers/money';
-import { getNextOrderStatus, orderStatusTone } from '@/lib/helpers/order-status';
+import { getNextOrderStatus } from '@/lib/helpers/order-status';
 import { useToast } from '@/providers/toast-provider';
 import { getOrderStatusHistory, ordersResource, updateOrderStatus } from '@/services/orders';
 import { confirmPayment, createPayment } from '@/services/payments';
@@ -19,6 +19,8 @@ export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const t = useTranslations('orders');
   const tCommon = useTranslations('common');
+  const messages = useMessages() as { status?: Record<string, string> };
+  const statusLabel = (code: string) => messages.status?.[code] ?? code;
   const toast = useToast();
   const [method, setMethod] = useState<(typeof PAYMENT_METHODS)[number]>('PIX');
   const { data, isLoading, refetch } = ordersResource.useDetail(id);
@@ -70,7 +72,7 @@ export default function OrderDetailPage() {
         actions={
           nextStatus ? (
             <Button size="sm" onPress={advanceStatus}>
-              {t(`statuses.${nextStatus}`)}
+              {statusLabel(nextStatus)}
             </Button>
           ) : null
         }
@@ -79,12 +81,12 @@ export default function OrderDetailPage() {
           <div>
             <dt className="t-eyebrow">{t('status')}</dt>
             <dd>
-              <StatusBadge label={t(`statuses.${data.status}`)} tone={orderStatusTone(data.status)} />
+              <StatusBadge status={data.status} />
             </dd>
           </div>
           <div>
             <dt className="t-eyebrow">{t('type')}</dt>
-            <dd>{data.consumptionType}</dd>
+            <dd><StatusBadge status={data.consumptionType} /></dd>
           </div>
           <div>
             <dt className="t-eyebrow">{t('total')}</dt>
@@ -106,15 +108,17 @@ export default function OrderDetailPage() {
       </SectionCard>
       <SectionCard title={t('payment')}>
         {data.payment ? (
-          <p className="text-sm">
-            {data.payment.method} · {data.payment.status} · {data.payment.transactionCode}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <StatusBadge status={data.payment.method} />
+            <StatusBadge status={data.payment.status} />
+            <span className="text-[var(--raizes-text-secondary)]">{data.payment.transactionCode}</span>
+          </div>
         ) : (
           <div className="flex flex-wrap items-end gap-3">
             <select className="input-soft" value={method} onChange={(event) => setMethod(event.target.value as typeof method)}>
               {PAYMENT_METHODS.map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {statusLabel(value)}
                 </option>
               ))}
             </select>
@@ -130,8 +134,11 @@ export default function OrderDetailPage() {
       <SectionCard title={t('history')}>
         <ol className="space-y-2 text-sm">
           {(history.data ?? []).map((entry) => (
-            <li key={entry.id}>
-              {t(`statuses.${entry.status}`)} · {new Date(entry.occurredAt).toLocaleString()}
+            <li key={entry.id} className="flex items-center gap-2">
+              <StatusBadge status={entry.status} />
+              <span className="text-[var(--raizes-text-secondary)]">
+                {new Date(entry.occurredAt).toLocaleString()}
+              </span>
             </li>
           ))}
         </ol>

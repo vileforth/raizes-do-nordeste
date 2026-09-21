@@ -1,38 +1,45 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { DataTable } from '@/components/data-table';
 import { ListPageScaffold } from '@/components/list-page-scaffold';
+import { Pagination } from '@/components/pagination';
 import type { Column } from '@/components/data-table/data-table.types';
 import { useTableState } from '@/hooks/use-table-state';
+import type { ListQuery } from '@/lib/list-query';
+import type { Paginated } from '@/services/_factory/create-resource';
+
+type ListResult<T> = {
+  data?: Paginated<T>;
+  isLoading: boolean;
+};
 
 type Props<T> = {
   title: string;
-  rows: T[];
   columns: Column<T>[];
   rowKey: (row: T) => string | number;
-  isLoading: boolean;
   emptyMessage: string;
   detailPath?: (row: T) => string;
   actions?: React.ReactNode;
+  useList: (params?: ListQuery) => ListResult<T>;
 };
 
 export function EntityListPage<T>({
   title,
-  rows,
   columns,
   rowKey,
-  isLoading,
   emptyMessage,
   detailPath,
   actions,
+  useList,
 }: Props<T>) {
   const router = useRouter();
-  const { search, setSearch, orderBy, setOrderBy } = useTableState();
-  const filtered = rows.filter((row) => {
-    if (!search) return true;
-    return JSON.stringify(row).toLowerCase().includes(search.toLowerCase());
-  });
+  const t = useTranslations('common');
+  const { search, setSearch, orderBy, setOrderBy, setPage, params } = useTableState();
+  const { data, isLoading } = useList(params);
+  const rows = data?.data ?? [];
+  const pagination = data?.pagination;
 
   return (
     <ListPageScaffold
@@ -41,16 +48,16 @@ export function EntityListPage<T>({
         <div className="flex items-center gap-2">
           <input
             className="input-soft !w-48"
-            placeholder="Search"
+            placeholder={t('search')}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(event) => setSearch(event.target.value)}
           />
           {actions}
         </div>
       }
     >
       <DataTable
-        rows={filtered}
+        rows={rows}
         columns={columns}
         rowKey={rowKey}
         isLoading={isLoading}
@@ -59,6 +66,9 @@ export function EntityListPage<T>({
         onOrderByChange={setOrderBy}
         onRowClick={detailPath ? (row) => router.push(detailPath(row)) : undefined}
       />
+      {pagination ? (
+        <Pagination {...pagination} onPageChange={setPage} />
+      ) : null}
     </ListPageScaffold>
   );
 }

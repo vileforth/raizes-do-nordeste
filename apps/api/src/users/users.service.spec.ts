@@ -15,6 +15,7 @@ describe('UsersService', () => {
       findFirst: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
     employee: { findUnique: jest.Mock };
     profile: { findMany: jest.Mock };
@@ -49,6 +50,7 @@ describe('UsersService', () => {
         findFirst: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       employee: { findUnique: jest.fn() },
       profile: { findMany: jest.fn() },
@@ -81,11 +83,13 @@ describe('UsersService', () => {
         userProfiles: [{ profile: { name: UserRole.CLIENTE } }],
       },
     ]);
+    prisma.user.count.mockResolvedValue(1);
 
     const result = await service.findAll(admin);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].profiles).toEqual([UserRole.CLIENTE]);
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].profiles).toEqual([UserRole.CLIENTE]);
+    expect(result.pagination.total).toBe(1);
   });
 
   it('scopes user list to manager unit', async () => {
@@ -98,6 +102,8 @@ describe('UsersService', () => {
       where: { employee: { unitId: 5 } },
       include: expect.any(Object),
       orderBy: { id: 'asc' },
+      skip: 0,
+      take: 20,
     });
   });
 

@@ -18,6 +18,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserProfilesDto } from './dto/update-user-profiles.dto';
+import {
+  buildPaginated,
+  normalizePagination,
+  resolveOrderBy,
+  searchContains,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { UserResponseDto } from './dto/user-response.dto';
 
 const userInclude = {
@@ -38,23 +46,46 @@ export class UsersService {
     private readonly logger: LoggerService,
   ) {}
 
-  async findAll(actor: AuthenticatedUser): Promise<UserResponseDto[]> {
+  async findAll(
+    actor: AuthenticatedUser,
+    query: PaginationInput = {},
+  ): Promise<Paginated<UserResponseDto>> {
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const searchWhere = searchContains(['name', 'email'], search);
+    const orderBy = resolveOrderBy(query.orderBy, ['id', 'name', 'email'], { id: 'asc' });
+
     if (hasRole(actor, UserRole.ADMINISTRADOR)) {
-      const users = await this.prisma.user.findMany({
-        include: userInclude,
-        orderBy: { id: 'asc' },
-      });
-      return users.map((user) => this.toResponse(user));
+      const where = searchWhere ?? {};
+      const [users, total] = await Promise.all([
+        this.prisma.user.findMany({
+          where,
+          include: userInclude,
+          orderBy,
+          skip,
+          take,
+        }),
+        this.prisma.user.count({ where }),
+      ]);
+      return buildPaginated(users.map((user) => this.toResponse(user)), page, pageSize, total);
     }
 
     if (hasRole(actor, UserRole.GERENTE)) {
       const unitId = await resolveManagerUnitId(this.prisma, actor.id);
-      const users = await this.prisma.user.findMany({
-        where: { employee: { unitId } },
-        include: userInclude,
-        orderBy: { id: 'asc' },
-      });
-      return users.map((user) => this.toResponse(user));
+      const where = {
+        employee: { unitId },
+        ...(searchWhere ?? {}),
+      };
+      const [users, total] = await Promise.all([
+        this.prisma.user.findMany({
+          where,
+          include: userInclude,
+          orderBy,
+          skip,
+          take,
+        }),
+        this.prisma.user.count({ where }),
+      ]);
+      return buildPaginated(users.map((user) => this.toResponse(user)), page, pageSize, total);
     }
 
     throw new ForbiddenException('Insufficient role permissions');

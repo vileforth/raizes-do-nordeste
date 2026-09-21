@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { SectionCard } from '@/components/section-card';
+import { StatusBadge } from '@/components/status-badge';
 import { useToast } from '@/providers/toast-provider';
 import { geocodeAddress, unitsResource } from '@/services/units';
 
@@ -42,6 +43,7 @@ export default function UnitDetailPage() {
     <SectionCard title={t('detail')}>
       <dl className="mb-4 grid gap-3 text-sm">
         <div><dt className="t-eyebrow">Name</dt><dd>{data.name}</dd></div>
+        <div><dt className="t-eyebrow">Status</dt><dd><StatusBadge status={data.status} /></dd></div>
         <div><dt className="t-eyebrow">{t('address')}</dt><dd>{data.address}</dd></div>
         <div><dt className="t-eyebrow">Coords</dt><dd>{data.latitude}, {data.longitude}</dd></div>
       </dl>

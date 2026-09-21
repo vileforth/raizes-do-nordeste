@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { SectionCard } from '@/components/section-card';
+import { StatusBadge } from '@/components/status-badge';
 import { clientsResource } from '@/services/clients';
 
 export default function ClientDetailPage() {
@@ -16,6 +17,7 @@ export default function ClientDetailPage() {
       <dl className="grid gap-3 text-sm">
         <div><dt className="t-eyebrow">ID</dt><dd>{data.id}</dd></div>
         <div><dt className="t-eyebrow">{t('cpf')}</dt><dd>{data.cpf}</dd></div>
+        <div><dt className="t-eyebrow">{t('active')}</dt><dd><StatusBadge status={data.active ? 'ATIVO' : 'INATIVO'} /></dd></div>
         <div><dt className="t-eyebrow">{t('registeredAt')}</dt><dd>{new Date(data.registeredAt).toLocaleString()}</dd></div>
       </dl>
     </SectionCard>

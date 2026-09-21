@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { SectionCard } from '@/components/section-card';
+import { StatusBadge } from '@/components/status-badge';
 import { productsResource } from '@/services/products';
 
 export default function ProductDetailPage() {
@@ -17,6 +18,7 @@ export default function ProductDetailPage() {
         <div><dt className="t-eyebrow">{t('name')}</dt><dd>{data.name}</dd></div>
         <div><dt className="t-eyebrow">{t('description')}</dt><dd>{data.description}</dd></div>
         <div><dt className="t-eyebrow">{t('price')}</dt><dd>{data.price}</dd></div>
+        <div><dt className="t-eyebrow">Status</dt><dd><StatusBadge status={data.active ? 'ATIVO' : 'INATIVO'} /></dd></div>
       </dl>
     </SectionCard>
   );

@@ -15,6 +15,7 @@ describe('UnitsService', () => {
       findUnique: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
     employee: { findUnique: jest.Mock };
     stock: { create: jest.Mock };
@@ -38,6 +39,7 @@ describe('UnitsService', () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       employee: { findUnique: jest.fn() },
       stock: { create: jest.fn() },

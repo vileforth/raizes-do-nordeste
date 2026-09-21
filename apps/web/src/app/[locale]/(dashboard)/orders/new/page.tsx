@@ -19,8 +19,10 @@ export default function NewOrderPage() {
   const toast = useToast();
   const router = useRouter();
   const create = ordersResource.useCreate();
-  const products = productsResource.useList();
-  const units = unitsResource.useList();
+  const products = productsResource.useList({ page: 1, pageSize: 100 });
+  const units = unitsResource.useList({ page: 1, pageSize: 100 });
+  const productRows = products.data?.data ?? [];
+  const unitRows = units.data?.data ?? [];
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
@@ -50,7 +52,7 @@ export default function NewOrderPage() {
         </FormField>
         <FormField label={t('unit')}>
           <select className="input-soft w-full" {...form.register('unitId', { valueAsNumber: true })}>
-            {(units.data ?? []).map((unit) => (
+            {unitRows.map((unit) => (
               <option key={unit.id} value={unit.id}>
                 {unit.name}
               </option>
@@ -68,7 +70,7 @@ export default function NewOrderPage() {
           {items.fields.map((field, index) => (
             <div key={field.id} className="grid gap-3 sm:grid-cols-[1fr_120px_auto]">
               <select className="input-soft w-full" {...form.register(`items.${index}.productId`, { valueAsNumber: true })}>
-                {(products.data ?? []).map((product) => (
+                {productRows.map((product) => (
                   <option key={product.id} value={product.id}>
                     {product.name}
                   </option>
@@ -82,7 +84,7 @@ export default function NewOrderPage() {
               ) : null}
             </div>
           ))}
-          <Button type="button" onPress={() => items.append({ productId: products.data?.[0]?.id ?? 1, quantity: 1 })}>
+          <Button type="button" onPress={() => items.append({ productId: productRows[0]?.id ?? 1, quantity: 1 })}>
             {t('addItem')}
           </Button>
         </div>

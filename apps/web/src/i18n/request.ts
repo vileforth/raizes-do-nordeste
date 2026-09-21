@@ -14,6 +14,7 @@ const namespaces = [
   'units',
   'reports',
   'dashboard',
+  'status',
 ] as const;
 
 async function loadMessages(locale: Locale) {

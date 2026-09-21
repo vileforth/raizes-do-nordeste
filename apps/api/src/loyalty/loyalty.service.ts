@@ -14,6 +14,13 @@ import { PointMovementType } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildPaginated,
+  normalizePagination,
+  searchContains,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { resolveLoyaltyLevel } from './loyalty-level';
 
 @Injectable()
@@ -50,12 +57,25 @@ export class LoyaltyService {
     });
   }
 
-  getBenefits(): Promise<Benefit[]> {
+  async getBenefits(query: PaginationInput = {}): Promise<Paginated<Benefit>> {
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
     const now = new Date();
-    return this.prisma.benefit.findMany({
-      where: { active: true, expiry: { gte: now } },
-      orderBy: { requiredPoints: 'asc' },
-    });
+    const searchWhere = searchContains(['name'], search);
+    const where = {
+      active: true,
+      expiry: { gte: now },
+      ...(searchWhere ?? {}),
+    };
+    const [benefits, total] = await Promise.all([
+      this.prisma.benefit.findMany({
+        where,
+        orderBy: { requiredPoints: 'asc' },
+        skip,
+        take,
+      }),
+      this.prisma.benefit.count({ where }),
+    ]);
+    return buildPaginated(benefits, page, pageSize, total);
   }
 
   async redeemBenefit(

@@ -13,6 +13,14 @@ import {
 } from '../common/utils/access-scope.util';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildPaginated,
+  normalizePagination,
+  resolveOrderBy,
+  searchContains,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeResponseDto } from './dto/employee-response.dto';
@@ -24,19 +32,33 @@ export class EmployeesService {
     private readonly logger: LoggerService,
   ) {}
 
-  async findAll(actor: AuthenticatedUser): Promise<EmployeeResponseDto[]> {
+  async findAll(
+    actor: AuthenticatedUser,
+    query: PaginationInput = {},
+  ): Promise<Paginated<EmployeeResponseDto>> {
     assertAnyRole(actor, [UserRole.GERENTE, UserRole.ADMINISTRADOR]);
 
-    const where = hasRole(actor, UserRole.ADMINISTRADOR)
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const scope = hasRole(actor, UserRole.ADMINISTRADOR)
       ? {}
       : { unitId: await resolveManagerUnitId(this.prisma, actor.id) };
-
-    const employees = await this.prisma.employee.findMany({
-      where,
-      orderBy: { id: 'asc' },
+    const searchWhere = searchContains(['registrationNumber', 'role'], search);
+    const where = { ...scope, ...(searchWhere ?? {}) };
+    const orderBy = resolveOrderBy(query.orderBy, ['id', 'registrationNumber'], {
+      id: 'asc',
     });
 
-    return employees.map((employee) => this.toResponse(employee));
+    const [employees, total] = await Promise.all([
+      this.prisma.employee.findMany({ where, orderBy, skip, take }),
+      this.prisma.employee.count({ where }),
+    ]);
+
+    return buildPaginated(
+      employees.map((employee) => this.toResponse(employee)),
+      page,
+      pageSize,
+      total,
+    );
   }
 
   async findOne(actor: AuthenticatedUser, id: number): Promise<EmployeeResponseDto> {

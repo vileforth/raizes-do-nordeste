@@ -1,5 +1,6 @@
 import { apiGet, apiPost, apiPut } from '@/lib/api';
-import { createResource } from './_factory/create-resource';
+import { toQueryString, type ListQuery } from '@/lib/list-query';
+import { createResource, type Paginated } from './_factory/create-resource';
 
 export type Client = {
   id: number;
@@ -10,7 +11,7 @@ export type Client = {
 };
 
 export const clientsResource = createResource<Client>('clients', {
-  list: () => apiGet<Client[]>('/clients'),
+  list: (params?: ListQuery) => apiGet<Paginated<Client>>(`/clients${toQueryString(params)}`),
   detail: (id) => apiGet<Client>(`/clients/${id}`),
   create: (input) => apiPost<Client>('/clients', input),
   update: (id, input) => apiPut<Client>(`/clients/${id}`, input),

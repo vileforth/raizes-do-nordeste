@@ -47,11 +47,12 @@ export default function DashboardPage() {
     queryKey: ['reports', 'orders', range],
     queryFn: () => getReport('orders', range) as Promise<OrderReportRow[]>,
   });
-  const units = unitsResource.useList();
+  const units = unitsResource.useList({ page: 1, pageSize: 100 });
+  const unitRows = units.data?.data ?? [];
 
   const points = useMemo<MapUnitPoint[]>(
     () =>
-      (units.data ?? [])
+      unitRows
         .filter((unit) => unit.latitude != null && unit.longitude != null)
         .map((unit) => ({
           key: String(unit.id),
@@ -61,7 +62,7 @@ export default function DashboardPage() {
           lng: Number(unit.longitude),
           active: unit.status === 'ATIVA',
         })),
-    [units.data],
+    [unitRows],
   );
 
   const kpis = indicators.data
@@ -77,7 +78,7 @@ export default function DashboardPage() {
           Icon: Storefront,
           accent: 'var(--raizes-brand)',
           label: t('unitsKpi'),
-          raw: units.data?.length ?? 0,
+          raw: units.data?.pagination.total ?? 0,
           format: (value: number) => value.toLocaleString(locale),
         },
       ]

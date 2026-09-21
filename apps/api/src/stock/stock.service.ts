@@ -12,6 +12,12 @@ import {
 } from '../common/utils/access-scope.util';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildPaginated,
+  normalizePagination,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { UpdateStockProductDto } from './dto/update-stock-product.dto';
 import {
   StockProductResponseDto,
@@ -83,22 +89,31 @@ export class StockService {
     return this.toStockProductResponse(updated);
   }
 
-  async findLowStock(actor: AuthenticatedUser): Promise<StockProductResponseDto[]> {
+  async findLowStock(
+    actor: AuthenticatedUser,
+    query: PaginationInput = {},
+  ): Promise<Paginated<StockProductResponseDto>> {
     assertAnyRole(actor, [UserRole.GERENTE, UserRole.ADMINISTRADOR]);
 
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
     const unitFilter = hasRole(actor, UserRole.ADMINISTRADOR)
       ? {}
       : { stock: { unitId: await resolveManagerUnitId(this.prisma, actor.id) } };
+    const productSearch = search
+      ? { product: { name: { contains: search, mode: 'insensitive' as const } } }
+      : {};
 
     const stockProducts = await this.prisma.stockProduct.findMany({
-      where: unitFilter,
+      where: { ...unitFilter, ...productSearch },
       include: { product: true },
       orderBy: { id: 'asc' },
     });
 
-    return stockProducts
+    const lowStock = stockProducts
       .filter((item) => item.quantity <= item.minimumStock)
       .map((item) => this.toStockProductResponse(item));
+    const total = lowStock.length;
+    return buildPaginated(lowStock.slice(skip, skip + take), page, pageSize, total);
   }
 
   private async assertCanAccessUnit(

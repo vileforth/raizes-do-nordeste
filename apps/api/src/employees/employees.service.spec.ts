@@ -15,6 +15,7 @@ describe('EmployeesService', () => {
       findFirst: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
     user: { findUnique: jest.Mock };
     unit: { findUnique: jest.Mock };
@@ -38,6 +39,7 @@ describe('EmployeesService', () => {
         findFirst: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       user: { findUnique: jest.fn() },
       unit: { findUnique: jest.fn() },
@@ -65,6 +67,8 @@ describe('EmployeesService', () => {
     expect(prisma.employee.findMany).toHaveBeenCalledWith({
       where: { unitId: 3 },
       orderBy: { id: 'asc' },
+      skip: 0,
+      take: 20,
     });
   });
 

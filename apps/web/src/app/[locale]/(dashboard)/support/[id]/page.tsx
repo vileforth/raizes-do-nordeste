@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { SectionCard } from '@/components/section-card';
+import { StatusBadge } from '@/components/status-badge';
 import { supportResource } from '@/services/support';
 
 export default function SupportDetailPage() {
@@ -15,7 +16,8 @@ export default function SupportDetailPage() {
     <SectionCard title={t('detail')}>
       <dl className="grid gap-3 text-sm">
         <div><dt className="t-eyebrow">{t('protocol')}</dt><dd>{data.protocol}</dd></div>
-        <div><dt className="t-eyebrow">{t('type')}</dt><dd>{data.type}</dd></div>
+        <div><dt className="t-eyebrow">{t('type')}</dt><dd><StatusBadge status={data.type} /></dd></div>
+        <div><dt className="t-eyebrow">Status</dt><dd><StatusBadge status={data.status} /></dd></div>
         <div><dt className="t-eyebrow">Description</dt><dd>{data.description}</dd></div>
       </dl>
     </SectionCard>

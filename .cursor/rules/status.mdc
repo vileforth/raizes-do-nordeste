@@ -1,0 +1,14 @@
+---
+description: Status enums and active flags are always badges with i18n labels
+alwaysApply: true
+---
+
+# Status
+
+Never render a raw enum or boolean as text (`EM_ATENDIMENTO`, `ATIVO`, `true`).
+
+- Display every status, role, level, type, payment method, and active flag with `StatusBadge`.
+- Labels live in `apps/web/src/messages/*/status.json`. Fallback is `humanizeStatus`.
+- Tones come from `toneFor` in `apps/web/src/lib/helpers/status.ts`.
+- Booleans use `statusFromBoolean` (`ATIVO` / `INATIVO`).
+- Buttons and select options may show the translated label, not a badge.

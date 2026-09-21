@@ -15,6 +15,7 @@ describe('ProductsService', () => {
       findUnique: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
   };
   let logger: jest.Mocked<LoggerService>;
@@ -44,6 +45,7 @@ describe('ProductsService', () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
     };
 
@@ -72,9 +74,12 @@ describe('ProductsService', () => {
       },
     ]);
 
+    prisma.product.count.mockResolvedValue(1);
+
     const result = await service.findAll();
 
-    expect(result[0].price).toBe(10);
+    expect(result.data[0].price).toBe(10);
+    expect(result.pagination.total).toBe(1);
   });
 
   it('blocks atendente from creating products', async () => {

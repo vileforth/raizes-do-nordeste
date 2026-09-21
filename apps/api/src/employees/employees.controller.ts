@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeResponseDto } from './dto/employee-response.dto';
@@ -18,9 +19,12 @@ export class EmployeesController {
   @Get()
   @Roles(UserRole.GERENTE, UserRole.ADMINISTRADOR)
   @ApiOperation({ summary: 'List employees' })
-  @ApiResponse({ status: 200, type: [EmployeeResponseDto] })
-  findAll(@CurrentUser() user: AuthenticatedUser): Promise<EmployeeResponseDto[]> {
-    return this.employeesService.findAll(user);
+  @ApiResponse({ status: 200 })
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.employeesService.findAll(user, query);
   }
 
   @Get(':id')

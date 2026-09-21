@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { SupportStatus, SupportTicket } from '@prisma/client';
+import { Prisma, SupportStatus, SupportTicket } from '@prisma/client';
 import { UserRole } from '@raizes/shared';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
 import {
@@ -9,6 +9,14 @@ import {
 import { EmailService } from '../email/email.service';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildPaginated,
+  normalizePagination,
+  resolveOrderBy,
+  searchContains,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { CreateSupportDto } from './dto/create-support.dto';
 import { UpdateSupportDto } from './dto/update-support.dto';
 import { buildSupportProtocol } from './support-protocol';
@@ -64,36 +72,36 @@ export class SupportService {
     return ticket;
   }
 
-  async findAll(user: AuthenticatedUser): Promise<SupportTicket[]> {
-    if (user.roles.includes(UserRole.ADMINISTRADOR)) {
-      return this.prisma.supportTicket.findMany({
-        orderBy: { openedAt: 'desc' },
-      });
-    }
+  async findAll(
+    user: AuthenticatedUser,
+    query: PaginationInput = {},
+  ): Promise<Paginated<SupportTicket>> {
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const scope = await this.buildListScope(user);
+    const searchWhere = searchContains(['protocol', 'description'], search);
+    const where = { ...scope, ...(searchWhere ?? {}) };
+    const orderBy = resolveOrderBy(query.orderBy, ['id', 'openedAt', 'protocol'], {
+      openedAt: 'desc',
+    });
+    const [tickets, total] = await Promise.all([
+      this.prisma.supportTicket.findMany({ where, orderBy, skip, take }),
+      this.prisma.supportTicket.count({ where }),
+    ]);
+    return buildPaginated(tickets, page, pageSize, total);
+  }
 
+  private async buildListScope(
+    user: AuthenticatedUser,
+  ): Promise<Prisma.SupportTicketWhereInput> {
+    if (user.roles.includes(UserRole.ADMINISTRADOR) || user.roles.includes(UserRole.ATENDENTE)) {
+      return {};
+    }
     if (user.roles.includes(UserRole.GERENTE)) {
       const unitId = await resolveEmployeeUnitId(this.prisma, user.id);
-      return this.prisma.supportTicket.findMany({
-        where: {
-          client: {
-            orders: { some: { unitId } },
-          },
-        },
-        orderBy: { openedAt: 'desc' },
-      });
+      return { client: { orders: { some: { unitId } } } };
     }
-
-    if (user.roles.includes(UserRole.ATENDENTE)) {
-      return this.prisma.supportTicket.findMany({
-        orderBy: { openedAt: 'desc' },
-      });
-    }
-
     const clientId = await resolveClientId(this.prisma, user.id);
-    return this.prisma.supportTicket.findMany({
-      where: { clientId },
-      orderBy: { openedAt: 'desc' },
-    });
+    return { clientId };
   }
 
   async findOne(id: number): Promise<SupportTicket> {

@@ -7,7 +7,14 @@ import { OrderStatus } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildPaginated,
+  normalizePagination,
+  resolveOrderBy,
+  searchContains,
+} from '../common/pagination/pagination';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { ListOrdersQueryDto } from './dto/list-orders.query';
 import { UpdateOrderItemsDto } from './dto/update-order-items.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import {
@@ -77,13 +84,34 @@ export class OrdersService {
     return order;
   }
 
-  async findAll(user: AuthenticatedUser) {
-    const where = await buildOrderScopeFilter(this.prisma, user);
-    return this.prisma.order.findMany({
-      where,
-      include: { items: true },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(user: AuthenticatedUser, query: ListOrdersQueryDto = {}) {
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const scope = await buildOrderScopeFilter(this.prisma, user);
+    const searchWhere = searchContains(['orderCode'], search);
+    const statusWhere = query.status
+      ? { status: query.status as OrderStatus }
+      : {};
+    const where = {
+      ...scope,
+      ...statusWhere,
+      ...(searchWhere ?? {}),
+    };
+    const orderBy = resolveOrderBy(
+      query.orderBy,
+      ['createdAt', 'orderCode', 'totalValue'],
+      { createdAt: 'desc' },
+    );
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        include: { items: true },
+        orderBy,
+        skip,
+        take,
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+    return buildPaginated(orders, page, pageSize, total);
   }
 
   async findOne(id: number, user: AuthenticatedUser) {

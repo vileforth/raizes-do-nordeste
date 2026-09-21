@@ -6,6 +6,14 @@ import {
 import { Coupon, PromotionStatus } from '@prisma/client';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  buildPaginated,
+  normalizePagination,
+  resolveOrderBy,
+  searchContains,
+  type Paginated,
+  type PaginationInput,
+} from '../common/pagination/pagination';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { ValidateCouponDto } from './dto/validate-coupon.dto';
@@ -17,8 +25,15 @@ export class CouponsService {
     private readonly logger: LoggerService,
   ) {}
 
-  findAll(): Promise<Coupon[]> {
-    return this.prisma.coupon.findMany({ orderBy: { id: 'desc' } });
+  async findAll(query: PaginationInput = {}): Promise<Paginated<Coupon>> {
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const where = searchContains(['code'], search) ?? {};
+    const orderBy = resolveOrderBy(query.orderBy, ['id', 'code'], { id: 'desc' });
+    const [coupons, total] = await Promise.all([
+      this.prisma.coupon.findMany({ where, orderBy, skip, take }),
+      this.prisma.coupon.count({ where }),
+    ]);
+    return buildPaginated(coupons, page, pageSize, total);
   }
 
   async findOne(id: number): Promise<Coupon> {

@@ -1,0 +1,39 @@
+---
+description: Server pagination is required on every list endpoint and list page
+alwaysApply: true
+---
+
+# Pagination
+
+Every list is server-paginated. Never return or fetch an entire collection.
+
+## API
+
+- Accept `page`, `pageSize`, optional `search` and `orderBy` via `PaginationQueryDto`.
+- Default `page=1`, `pageSize=20`, max `pageSize=100`.
+- Respond with `{ data, pagination }` where pagination has `page`, `pageSize`, `total`, `totalPages`, `hasNext`, `hasPrev`.
+- Use `normalizePagination` + `buildPaginated` from `apps/api/src/common/pagination`.
+- Apply `skip`/`take` and `count` on the same `where` (including role scope and search).
+
+```ts
+// BAD
+return this.prisma.order.findMany({ where });
+
+// GOOD
+const { page, pageSize, skip, take } = normalizePagination(query);
+const [rows, total] = await Promise.all([
+  this.prisma.order.findMany({ where, skip, take, orderBy }),
+  this.prisma.order.count({ where }),
+]);
+return buildPaginated(rows, page, pageSize, total);
+```
+
+## Frontend
+
+- BFF only: `/api/*` with the same query string.
+- `createResource.useList` returns `Paginated<T>`, never a raw array.
+- List pages use `EntityListPage` or the shared `Pagination` component.
+- Table search/sort/page live in `useTableState` and are sent to the API.
+- Kanban/grid lists paginate each column or the grid — not by loading everything.
+
+Reports/dashboard KPIs are not lists and do not use this contract.

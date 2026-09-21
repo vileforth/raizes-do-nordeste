@@ -5,12 +5,14 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { UpdateStockProductDto } from './dto/update-stock-product.dto';
 import {
   StockProductResponseDto,
@@ -50,10 +52,11 @@ export class StockController {
   @Get('stock/low')
   @Roles(UserRole.GERENTE, UserRole.ADMINISTRADOR)
   @ApiOperation({ summary: 'List low stock products' })
-  @ApiResponse({ status: 200, type: [StockProductResponseDto] })
+  @ApiResponse({ status: 200 })
   findLowStock(
     @CurrentUser() user: AuthenticatedUser,
-  ): Promise<StockProductResponseDto[]> {
-    return this.stockService.findLowStock(user);
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.stockService.findLowStock(user, query);
   }
 }

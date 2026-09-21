@@ -15,6 +15,7 @@ describe('ClientsService', () => {
       findFirst: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
     user: { findUnique: jest.Mock };
   };
@@ -46,6 +47,7 @@ describe('ClientsService', () => {
         findFirst: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       user: { findUnique: jest.fn() },
     };
@@ -68,7 +70,8 @@ describe('ClientsService', () => {
 
     const result = await service.findAll(atendente);
 
-    expect(result).toEqual([]);
+    expect(result.data).toEqual([]);
+    expect(result.pagination.total).toBe(0);
   });
 
   it('blocks cliente from listing clients', async () => {
