@@ -22,7 +22,11 @@ export class SupabaseJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       algorithms: ['ES256', 'HS256'],
-      secretOrKeyProvider: (_request, rawJwtToken, done) => {
+      secretOrKeyProvider: (
+        _request: unknown,
+        rawJwtToken: string,
+        done: (error: Error | null, key?: string) => void,
+      ) => {
         resolveSupabaseJwtKey(rawJwtToken)
           .then((key) => done(null, key))
           .catch((error: unknown) =>
