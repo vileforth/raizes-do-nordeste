@@ -3,7 +3,13 @@
 import { Fragment } from 'react';
 import { CircleMarker, MapContainer, TileLayer, Tooltip, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { BRAZIL_BOUNDS, BRAZIL_CENTER, positronTileUrl } from '@/lib/map-tiles';
+import {
+  BRAZIL_BOUNDS,
+  BRAZIL_CENTER,
+  positronTileAttribution,
+  positronTileSubdomains,
+  positronTileUrl,
+} from '@/lib/map-tiles';
 import { FitBounds, MapSizer } from './map-helpers';
 import type { MapUnitPoint } from './map-types';
 
@@ -40,7 +46,11 @@ export default function GeoHeroMap({
         keyboard={interactive}
         attributionControl={false}
       >
-        <TileLayer url={positronTileUrl} />
+        <TileLayer
+          url={positronTileUrl}
+          attribution={positronTileAttribution}
+          subdomains={positronTileSubdomains}
+        />
         {interactive ? <ZoomControl position="bottomright" /> : null}
         <MapSizer />
         <FitBounds
