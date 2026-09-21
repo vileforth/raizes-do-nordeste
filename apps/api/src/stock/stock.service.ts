@@ -18,6 +18,7 @@ import {
   type Paginated,
   type PaginationInput,
 } from '../common/pagination/pagination';
+import { ListStockQueryDto } from './dto/list-stock.query';
 import { UpdateStockProductDto } from './dto/update-stock-product.dto';
 import {
   StockProductResponseDto,
@@ -40,6 +41,7 @@ export class StockService {
     const stock = await this.prisma.stock.findUnique({
       where: { unitId },
       include: {
+        unit: true,
         stockProducts: {
           include: { product: true },
           orderBy: { id: 'asc' },
@@ -109,6 +111,39 @@ export class StockService {
     });
   }
 
+  async findAll(
+    actor: AuthenticatedUser,
+    query: ListStockQueryDto = {},
+  ): Promise<Paginated<StockProductResponseDto>> {
+    assertAnyRole(actor, [UserRole.GERENTE, UserRole.ADMINISTRADOR]);
+    const { page, pageSize, skip, take, search } = normalizePagination(query);
+    const unitId = hasRole(actor, UserRole.ADMINISTRADOR)
+      ? query.unitId
+      : await resolveManagerUnitId(this.prisma, actor.id);
+    const where = {
+      ...(unitId ? { stock: { unitId } } : {}),
+      ...(search
+        ? { product: { name: { contains: search, mode: 'insensitive' as const } } }
+        : {}),
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.stockProduct.findMany({
+        where,
+        include: { product: true, stock: { include: { unit: true } } },
+        orderBy: { id: 'asc' },
+        skip,
+        take,
+      }),
+      this.prisma.stockProduct.count({ where }),
+    ]);
+    return buildPaginated(
+      rows.map((item) => this.toStockProductResponse(item)),
+      page,
+      pageSize,
+      total,
+    );
+  }
+
   async findLowStock(
     actor: AuthenticatedUser,
     query: PaginationInput = {},
@@ -125,7 +160,7 @@ export class StockService {
 
     const stockProducts = await this.prisma.stockProduct.findMany({
       where: { ...unitFilter, ...productSearch },
-      include: { product: true },
+      include: { product: true, stock: { include: { unit: true } } },
       orderBy: { id: 'asc' },
     });
 
@@ -158,6 +193,7 @@ export class StockService {
     id: number;
     unitId: number;
     status: string;
+    unit?: { name: string };
     stockProducts: Array<{
       id: number;
       productId: number;
@@ -170,7 +206,12 @@ export class StockService {
       stockId: stock.id,
       unitId: stock.unitId,
       status: stock.status,
-      products: stock.stockProducts.map((item) => this.toStockProductResponse(item)),
+      products: stock.stockProducts.map((item) =>
+        this.toStockProductResponse({
+          ...item,
+          stock: { unitId: stock.unitId, unit: stock.unit },
+        }),
+      ),
     };
   }
 
@@ -180,11 +221,14 @@ export class StockService {
     quantity: number;
     minimumStock: number;
     product: { name: string };
+    stock?: { unitId: number; unit?: { name: string } };
   }): StockProductResponseDto {
     return {
       id: item.id,
       productId: item.productId,
       productName: item.product.name,
+      unitId: item.stock?.unitId ?? 0,
+      unitName: item.stock?.unit?.name ?? '',
       quantity: item.quantity,
       minimumStock: item.minimumStock,
     };

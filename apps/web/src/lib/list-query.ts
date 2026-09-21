@@ -4,6 +4,7 @@ export type ListQuery = {
   search?: string;
   orderBy?: string;
   status?: string;
+  unitId?: number;
 };
 
 export function toQueryString(params?: Record<string, unknown>): string {

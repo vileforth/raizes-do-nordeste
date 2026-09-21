@@ -11,6 +11,12 @@ export class StockProductResponseDto {
   productName!: string;
 
   @ApiProperty()
+  unitId!: number;
+
+  @ApiProperty()
+  unitName!: string;
+
+  @ApiProperty()
   quantity!: number;
 
   @ApiProperty()

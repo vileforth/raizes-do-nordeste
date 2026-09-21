@@ -6,9 +6,15 @@ export type StockProduct = {
   id: number;
   productId: number;
   productName: string;
+  unitId: number;
+  unitName: string;
   quantity: number;
   minimumStock: number;
 };
+
+export async function getStock(params?: ListQuery) {
+  return apiGet<Paginated<StockProduct>>(`/stock${toQueryString(params)}`);
+}
 
 export async function getLowStock(params?: ListQuery) {
   return apiGet<Paginated<StockProduct>>(`/stock/low${toQueryString(params)}`);

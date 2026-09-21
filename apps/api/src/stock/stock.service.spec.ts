@@ -13,6 +13,7 @@ describe('StockService', () => {
     stockProduct: {
       findUnique: jest.Mock;
       findMany: jest.Mock;
+      count: jest.Mock;
       update: jest.Mock;
     };
     employee: { findUnique: jest.Mock };
@@ -43,6 +44,7 @@ describe('StockService', () => {
       stockProduct: {
         findUnique: jest.fn(),
         findMany: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
         update: jest.fn(),
       },
       employee: { findUnique: jest.fn() },
@@ -113,6 +115,26 @@ describe('StockService', () => {
 
     expect(result.quantity).toBe(20);
     expect(logger.info).toHaveBeenCalled();
+  });
+
+  it('lists all stock products for admin', async () => {
+    prisma.stockProduct.findMany.mockResolvedValue([
+      {
+        id: 10,
+        productId: 5,
+        quantity: 40,
+        minimumStock: 10,
+        product: { name: 'Tapioca' },
+        stock: { unitId: 1, unit: { name: 'Recife' } },
+      },
+    ]);
+    prisma.stockProduct.count.mockResolvedValue(1);
+
+    const result = await service.findAll(admin);
+
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].unitName).toBe('Recife');
+    expect(result.pagination.total).toBe(1);
   });
 
   it('returns low stock items', async () => {

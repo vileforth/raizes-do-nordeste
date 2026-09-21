@@ -10,6 +10,7 @@ const namespaces = [
   'employees',
   'users',
   'products',
+  'stock',
   'promotions',
   'loyalty',
   'support',

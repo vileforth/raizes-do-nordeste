@@ -14,6 +14,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
 import { PaginationQueryDto } from '../common/pagination/pagination.query';
+import { ListStockQueryDto } from './dto/list-stock.query';
 import { UpdateStockProductDto } from './dto/update-stock-product.dto';
 import {
   StockProductResponseDto,
@@ -58,6 +59,17 @@ export class StockController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.stockService.removeStockProduct(user, id);
+  }
+
+  @Get('stock')
+  @Roles(UserRole.GERENTE, UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'List stock products' })
+  @ApiResponse({ status: 200 })
+  findAll(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListStockQueryDto,
+  ) {
+    return this.stockService.findAll(user, query);
   }
 
   @Get('stock/low')
