@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input } from '@heroui/react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
@@ -36,18 +35,18 @@ export default function NewClientPage() {
     <FormPageScaffold title={t('new')}>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField label={t('userId')}>
-          <Input type="number" {...form.register('userId')} />
+          <input className="input-soft w-full" type="number" {...form.register('userId')} />
         </FormField>
         <FormField label={t('cpf')}>
-          <Input placeholder="00000000000" {...form.register('cpf')} />
+          <input className="input-soft w-full" placeholder="00000000000" {...form.register('cpf')} />
         </FormField>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" {...form.register('active')} />
           {t('active')}
         </label>
-        <Button type="submit" isDisabled={create.isPending}>
+        <button type="submit" className="btn-primary" disabled={create.isPending}>
           {tCommon('create')}
-        </Button>
+        </button>
       </form>
     </FormPageScaffold>
   );

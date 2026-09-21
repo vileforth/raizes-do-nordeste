@@ -1,7 +1,6 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@heroui/react';
 import { useParams } from 'next/navigation';
 import { useMessages, useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -73,9 +72,9 @@ export default function OrderDetailPage() {
         actions={
           <div className="flex items-center gap-2">
             {nextStatus ? (
-              <Button size="sm" onPress={advanceStatus}>
+              <button type="button" className="btn-primary" onClick={advanceStatus}>
                 {statusLabel(nextStatus)}
-              </Button>
+              </button>
             ) : null}
             <ResourceDeleteButton id={id} href="/orders" useRemove={ordersResource.useRemove} />
           </div>
@@ -126,13 +125,15 @@ export default function OrderDetailPage() {
                 </option>
               ))}
             </select>
-            <Button onPress={pay}>{t('pay')}</Button>
+            <button type="button" className="btn-primary" onClick={pay}>
+              {t('pay')}
+            </button>
           </div>
         )}
         {data.payment?.status === 'PENDENTE' ? (
-          <Button className="mt-3" onPress={pay}>
+          <button type="button" className="btn-primary mt-3" onClick={pay}>
             {t('confirmPayment')}
-          </Button>
+          </button>
         ) : null}
       </SectionCard>
       <SectionCard title={t('history')}>

@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input } from '@heroui/react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -48,7 +47,7 @@ export default function NewOrderPage() {
     <FormPageScaffold title={t('new')}>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField label={t('client')}>
-          <Input type="number" {...form.register('clientId')} />
+          <input className="input-soft w-full" type="number" {...form.register('clientId')} />
         </FormField>
         <FormField label={t('unit')}>
           <select className="input-soft w-full" {...form.register('unitId', { valueAsNumber: true })}>
@@ -76,21 +75,30 @@ export default function NewOrderPage() {
                   </option>
                 ))}
               </select>
-              <Input type="number" min={1} {...form.register(`items.${index}.quantity`)} />
+              <input
+                className="input-soft w-full"
+                type="number"
+                min={1}
+                {...form.register(`items.${index}.quantity`)}
+              />
               {items.fields.length > 1 ? (
-                <Button type="button" onPress={() => items.remove(index)}>
+                <button type="button" className="btn-primary" onClick={() => items.remove(index)}>
                   {tCommon('delete')}
-                </Button>
+                </button>
               ) : null}
             </div>
           ))}
-          <Button type="button" onPress={() => items.append({ productId: productRows[0]?.id ?? 1, quantity: 1 })}>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => items.append({ productId: productRows[0]?.id ?? 1, quantity: 1 })}
+          >
             {t('addItem')}
-          </Button>
+          </button>
         </div>
-        <Button type="submit" isDisabled={create.isPending}>
+        <button type="submit" className="btn-primary" disabled={create.isPending}>
           {tCommon('create')}
-        </Button>
+        </button>
       </form>
     </FormPageScaffold>
   );

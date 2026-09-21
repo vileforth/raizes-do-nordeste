@@ -1,7 +1,6 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Button, Input } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
@@ -56,7 +55,8 @@ export default function LoyaltyPage() {
         </div>
         <div className="mt-4 max-w-xs">
           <FormField label={t('clientId')}>
-            <Input
+            <input
+              className="input-soft w-full"
               type="number"
               value={String(clientId)}
               onChange={(event) => setClientId(Number(event.target.value))}
@@ -86,9 +86,9 @@ export default function LoyaltyPage() {
               key: 'redeem',
               header: tCommon('actions'),
               cell: (r) => (
-                <Button size="sm" onPress={() => redeem(r.id)}>
+                <button type="button" className="btn-primary" onClick={() => redeem(r.id)}>
                   {t('redeem')}
-                </Button>
+                </button>
               ),
             },
           ]}

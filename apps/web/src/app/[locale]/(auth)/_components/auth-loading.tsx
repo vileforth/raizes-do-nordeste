@@ -1,4 +1,4 @@
-import { Skeleton } from '@heroui/react';
+import { Skeleton } from '@/components/skeletons/skeleton';
 
 export function AuthLoading() {
   return (

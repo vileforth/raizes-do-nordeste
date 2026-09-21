@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@heroui/react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
@@ -49,9 +48,9 @@ export default function NewSupportPage() {
         <FormField label={t('description')}>
           <textarea className="input-soft min-h-28 w-full" {...form.register('description')} />
         </FormField>
-        <Button type="submit" isDisabled={create.isPending}>
+        <button type="submit" className="btn-primary" disabled={create.isPending}>
           {tCommon('create')}
-        </Button>
+        </button>
       </form>
     </FormPageScaffold>
   );

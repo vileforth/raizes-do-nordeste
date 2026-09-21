@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Input } from '@heroui/react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -52,8 +51,15 @@ export default function UnitDetailPage() {
         <div><dt className="t-eyebrow">Coords</dt><dd>{data.latitude}, {data.longitude}</dd></div>
       </dl>
       <div className="flex gap-2">
-        <Input label={t('address')} value={address} onChange={(e) => setAddress(e.target.value)} placeholder={data.address} />
-        <Button color="primary" onPress={saveAddress} isLoading={update.isPending}>{t('geocode')}</Button>
+        <input
+          className="input-soft w-full"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder={data.address}
+        />
+        <button type="button" className="btn-primary" onClick={saveAddress} disabled={update.isPending}>
+          {t('geocode')}
+        </button>
       </div>
     </SectionCard>
   );

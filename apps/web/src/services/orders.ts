@@ -31,7 +31,14 @@ export type Order = {
   payment?: OrderPayment | null;
 };
 
-export const ordersResource = createResource<Order>('orders', {
+export type CreateOrderInput = {
+  clientId?: number;
+  unitId: number;
+  consumptionType: string;
+  items: Array<{ productId: number; quantity: number }>;
+};
+
+export const ordersResource = createResource<Order, ListQuery, CreateOrderInput>('orders', {
   list: (params?: ListQuery) => apiGet<Paginated<Order>>(`/orders${toQueryString(params)}`),
   detail: (id) => apiGet<Order>(`/orders/${id}`),
   create: (input) => apiPost<Order>('/orders', input),

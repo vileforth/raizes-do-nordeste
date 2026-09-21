@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@heroui/react';
+import { Skeleton } from '@/components/skeletons/skeleton';
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
 import type { Column, DataTableProps } from './data-table.types';
 
