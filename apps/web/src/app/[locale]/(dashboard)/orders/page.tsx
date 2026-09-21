@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { EntityListPage } from '@/components/entity-list-page';
 import { StatusBadge } from '@/components/status-badge';
+import { formatMoney } from '@/lib/helpers/money';
 import { orderStatusTone } from '@/lib/helpers/order-status';
 import { ordersResource } from '@/services/orders';
 
@@ -27,7 +28,7 @@ export default function OrdersPage() {
         { key: 'status', header: t('status'), cell: (r) => (
           <StatusBadge label={r.status} tone={orderStatusTone(r.status)} />
         )},
-        { key: 'total', header: t('total'), cell: (r) => r.totalValue.toFixed(2) },
+        { key: 'total', header: t('total'), cell: (r) => formatMoney(r.totalValue) },
       ]}
     />
   );

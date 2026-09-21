@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { StatusBadge } from '@/components/status-badge';
+import { formatMoney } from '@/lib/helpers/money';
 import { getNextOrderStatus, orderStatusTone } from '@/lib/helpers/order-status';
 import { useToast } from '@/providers/toast-provider';
 import { getOrderStatusHistory, ordersResource, updateOrderStatus } from '@/services/orders';
@@ -87,7 +88,7 @@ export default function OrderDetailPage() {
           </div>
           <div>
             <dt className="t-eyebrow">{t('total')}</dt>
-            <dd>{Number(data.totalValue).toFixed(2)}</dd>
+            <dd>{formatMoney(data.totalValue)}</dd>
           </div>
         </dl>
       </SectionCard>
@@ -98,7 +99,7 @@ export default function OrderDetailPage() {
               <span>
                 #{item.productId} x {item.quantity}
               </span>
-              <span>{Number(item.subtotal).toFixed(2)}</span>
+              <span>{formatMoney(item.subtotal)}</span>
             </li>
           ))}
         </ul>

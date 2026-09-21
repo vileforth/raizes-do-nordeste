@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { EntityListPage } from '@/components/entity-list-page';
+import { formatMoney } from '@/lib/helpers/money';
 import { productsResource } from '@/services/products';
 
 export default function ProductsPage() {
@@ -21,7 +22,7 @@ export default function ProductsPage() {
       columns={[
         { key: 'name', header: t('name'), cell: (r) => r.name, sortable: true },
         { key: 'category', header: t('category'), cell: (r) => r.category },
-        { key: 'price', header: t('price'), cell: (r) => r.price.toFixed(2) },
+        { key: 'price', header: t('price'), cell: (r) => formatMoney(r.price) },
       ]}
     />
   );

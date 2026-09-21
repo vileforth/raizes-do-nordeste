@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { GlassPanel } from '@/components/glass-panel';
 import { StatusBadge } from '@/components/status-badge';
+import { formatMoney } from '@/lib/helpers/money';
 import { ORDER_STATUSES, orderStatusTone } from '@/lib/helpers/order-status';
 import { ordersResource } from '@/services/orders';
 
@@ -31,7 +32,7 @@ export default function OrdersBoardPage() {
               {col.items.map((order) => (
                 <Link key={order.id} href={`/orders/${order.id}`} className="block rounded-lg border border-[var(--raizes-border)] p-3 text-sm row-hover">
                   <p className="font-medium">{order.orderCode}</p>
-                  <p className="text-xs text-[var(--raizes-text-secondary)]">{order.totalValue.toFixed(2)}</p>
+                  <p className="text-xs text-[var(--raizes-text-secondary)]">{formatMoney(order.totalValue)}</p>
                 </Link>
               ))}
             </div>
