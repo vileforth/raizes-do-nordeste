@@ -1,0 +1,18 @@
+{
+  "appName": "Raizes do Nordeste",
+  "loading": "Loading...",
+  "save": "Save",
+  "cancel": "Cancel",
+  "create": "Create",
+  "edit": "Edit",
+  "delete": "Delete",
+  "search": "Search",
+  "actions": "Actions",
+  "back": "Back",
+  "noResults": "No records found",
+  "success": "Operation completed successfully",
+  "error": "An error occurred",
+  "exportCsv": "Export CSV",
+  "greeting": "Hello, {name}",
+  "live": "Live"
+}

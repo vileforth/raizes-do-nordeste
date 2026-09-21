@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3001:3001"
+    env_file:
+      - apps/api/.env.example
+    environment:
+      PORT: 3001
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "4000:4000"
+    env_file:
+      - apps/web/.env.example
+    environment:
+      API_URL: http://api:3001
+      NEXT_PUBLIC_APP_URL: http://localhost:4000
+    depends_on:
+      - api

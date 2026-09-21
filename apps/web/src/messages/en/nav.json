@@ -1,0 +1,20 @@
+{
+  "dashboard": "Dashboard",
+  "orders": "Orders",
+  "ordersBoard": "Orders board",
+  "clients": "Clients",
+  "users": "Users",
+  "products": "Products",
+  "stock": "Stock",
+  "promotions": "Promotions",
+  "coupons": "Coupons",
+  "loyalty": "Loyalty",
+  "support": "Support",
+  "units": "Units",
+  "employees": "Employees",
+  "network": "Network",
+  "reports": "Reports",
+  "logout": "Sign out",
+  "profile": "Profile",
+  "language": "Language"
+}

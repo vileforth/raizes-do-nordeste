@@ -1,0 +1,488 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ATIVO
+  INATIVO
+  BLOQUEADO
+}
+
+enum UnitStatus {
+  ATIVA
+  INATIVA
+  MANUTENCAO
+}
+
+enum OrderStatus {
+  RECEBIDO
+  EM_PREPARACAO
+  PRONTO
+  RETIRADO
+}
+
+enum ConsumptionType {
+  CONSUMO_NO_LOCAL
+  RETIRADA_NO_BALCAO
+}
+
+enum PaymentMethod {
+  CARTAO_DEBITO
+  CARTAO_CREDITO
+  PIX
+}
+
+enum PaymentStatus {
+  PENDENTE
+  CONFIRMADO
+  RECUSADO
+  CANCELADO
+}
+
+enum PromotionStatus {
+  ATIVA
+  INATIVA
+  ENCERRADA
+  AGENDADA
+}
+
+enum LoyaltyLevel {
+  BRONZE
+  PRATA
+  OURO
+}
+
+enum PointMovementType {
+  CREDITO
+  DEBITO
+}
+
+enum SupportType {
+  PEDIDO
+  SUPORTE
+  PAGAMENTO
+  FIDELIDADE
+}
+
+enum SupportStatus {
+  ABERTO
+  EM_ATENDIMENTO
+  RESOLVIDO
+  FECHADO
+  CANCELADO
+}
+
+enum AuditAction {
+  ALTERAR
+  ALTERAR_STATUS
+  APLICAR_CUPOM
+  CADASTRO
+  CONSULTAR
+  CRIAR
+  LOGIN
+  PAGAMENTO
+}
+
+model User {
+  id             Int      @id @default(autoincrement()) @map("id_usuario")
+  name           String   @map("nome")
+  email          String   @unique @map("email")
+  passwordHash   String   @map("senha_hash")
+  phone          String   @map("telefone")
+  status         UserStatus @map("status")
+  registeredAt   DateTime @default(now()) @map("data_cadastro")
+
+  client                  Client?
+  employee                Employee?
+  userProfiles            UserProfile[]
+  orderStatusHistories    OrderStatusHistory[]
+  responsibleSupportTickets SupportTicket[] @relation("SupportTicketResponsibleUser")
+  supportHistories        SupportHistory[]
+  auditLogs               AuditLog[]
+
+  @@index([status])
+  @@map("usuario")
+}
+
+model Profile {
+  id          Int     @id @default(autoincrement()) @map("id_perfil")
+  name        String  @unique @map("nome")
+  description String  @map("descricao")
+  active      Boolean @map("ativo")
+
+  userProfiles UserProfile[]
+
+  @@map("perfil")
+}
+
+model UserProfile {
+  userId    Int @map("id_usuario")
+  profileId Int @map("id_perfil")
+
+  user    User    @relation(fields: [userId], references: [id])
+  profile Profile @relation(fields: [profileId], references: [id])
+
+  @@id([userId, profileId])
+  @@index([profileId])
+  @@map("usuario_perfil")
+}
+
+model Client {
+  id           Int      @id @default(autoincrement()) @map("id_cliente")
+  userId       Int      @unique @map("id_usuario")
+  cpf          String   @unique @map("cpf")
+  registeredAt DateTime @default(now()) @map("data_cadastro")
+  active       Boolean  @map("ativo")
+
+  user            User             @relation(fields: [userId], references: [id])
+  orders          Order[]
+  clientLoyalties ClientLoyalty[]
+  supportTickets  SupportTicket[]
+
+  @@index([active])
+  @@map("cliente")
+}
+
+model Unit {
+  id           Int        @id @default(autoincrement()) @map("id_unidade")
+  name         String     @map("nome")
+  address      String     @map("endereco")
+  phone        String     @map("telefone")
+  status       UnitStatus @map("status")
+  registeredAt DateTime   @default(now()) @map("data_cadastro")
+  latitude     Float?     @map("latitude")
+  longitude    Float?     @map("longitude")
+
+  employees      Employee[]
+  stock          Stock?
+  orders         Order[]
+  promotionUnits PromotionUnit[]
+
+  @@index([status])
+  @@map("unidade")
+}
+
+model Employee {
+  id                 Int     @id @default(autoincrement()) @map("id_funcionario")
+  userId             Int     @unique @map("id_usuario")
+  unitId             Int     @map("id_unidade")
+  registrationNumber String  @unique @map("matricula")
+  role               String  @map("cargo")
+  active             Boolean @map("ativo")
+
+  user User @relation(fields: [userId], references: [id])
+  unit Unit @relation(fields: [unitId], references: [id])
+
+  @@index([unitId])
+  @@index([active])
+  @@map("funcionario")
+}
+
+model Product {
+  id          Int     @id @default(autoincrement()) @map("id_produto")
+  name        String  @map("nome")
+  description String  @map("descricao")
+  price       Decimal @map("preco") @db.Decimal(10, 2)
+  category    String  @map("categoria")
+  active      Boolean @map("ativo")
+
+  stockProducts    StockProduct[]
+  orderItems       OrderItem[]
+  promotionProducts PromotionProduct[]
+
+  @@index([category])
+  @@index([active])
+  @@map("produto")
+}
+
+model Stock {
+  id     Int    @id @default(autoincrement()) @map("id_estoque")
+  unitId Int    @unique @map("id_unidade")
+  status String @map("status")
+
+  unit           Unit           @relation(fields: [unitId], references: [id])
+  stockProducts  StockProduct[]
+
+  @@index([status])
+  @@map("estoque")
+}
+
+model StockProduct {
+  id           Int @id @default(autoincrement()) @map("id_estoque_produto")
+  stockId      Int @map("id_estoque")
+  productId    Int @map("id_produto")
+  quantity     Int @map("quantidade")
+  minimumStock Int @map("estoque_minimo")
+
+  stock   Stock   @relation(fields: [stockId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([stockId, productId])
+  @@index([productId])
+  @@map("estoque_produto")
+}
+
+model Order {
+  id              Int             @id @default(autoincrement()) @map("id_pedido")
+  clientId        Int             @map("id_cliente")
+  unitId          Int             @map("id_unidade")
+  status          OrderStatus     @map("status")
+  consumptionType ConsumptionType @map("tipo_consumo")
+  totalValue      Decimal         @map("valor_total") @db.Decimal(10, 2)
+  orderCode       String          @unique @map("codigo_pedido")
+  createdAt       DateTime        @default(now()) @map("data_criacao")
+  updatedAt       DateTime        @updatedAt @map("data_atualizacao")
+
+  client          Client               @relation(fields: [clientId], references: [id])
+  unit            Unit                 @relation(fields: [unitId], references: [id])
+  items           OrderItem[]
+  payment         Payment?
+  statusHistories OrderStatusHistory[]
+
+  @@index([clientId])
+  @@index([unitId])
+  @@index([status])
+  @@map("pedido")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement()) @map("id_item_pedido")
+  orderId   Int     @map("id_pedido")
+  productId Int     @map("id_produto")
+  quantity  Int     @map("quantidade")
+  unitPrice Decimal @map("preco_unitario") @db.Decimal(10, 2)
+  subtotal  Decimal @map("subtotal") @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("item_pedido")
+}
+
+model Payment {
+  id              Int           @id @default(autoincrement()) @map("id_pagamento")
+  orderId         Int           @unique @map("id_pedido")
+  method          PaymentMethod @map("metodo")
+  value           Decimal       @map("valor") @db.Decimal(10, 2)
+  status          PaymentStatus @map("status")
+  paidAt          DateTime?     @map("data_pagamento")
+  transactionCode String        @unique @map("codigo_transacao")
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([status])
+  @@map("pagamento")
+}
+
+model OrderStatusHistory {
+  id         Int         @id @default(autoincrement()) @map("id_historico_status")
+  orderId    Int         @map("id_pedido")
+  status     OrderStatus @map("status")
+  occurredAt DateTime    @default(now()) @map("data_hora")
+  userId     Int         @map("id_usuario")
+  notes      String?     @map("observacao")
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([status])
+  @@map("hist_status_pedido")
+}
+
+model Promotion {
+  id          Int             @id @default(autoincrement()) @map("id_promocao")
+  name        String          @map("nome")
+  description String          @map("descricao")
+  rule        String          @map("regra")
+  startDate   DateTime        @map("data_inicio")
+  endDate     DateTime        @map("data_fim")
+  status      PromotionStatus @map("status")
+
+  coupons           Coupon[]
+  promotionUnits    PromotionUnit[]
+  promotionProducts PromotionProduct[]
+
+  @@index([status])
+  @@map("promocao")
+}
+
+model Coupon {
+  id          Int      @id @default(autoincrement()) @map("id_cupom")
+  promotionId Int      @map("id_promocao")
+  code        String   @unique @map("codigo")
+  expiry      DateTime @map("validade")
+  usageLimit  Int      @map("limite_uso")
+  active      Boolean  @map("ativo")
+
+  promotion Promotion @relation(fields: [promotionId], references: [id])
+
+  @@index([promotionId])
+  @@map("cupom")
+}
+
+model PromotionUnit {
+  promotionId Int @map("id_promocao")
+  unitId      Int @map("id_unidade")
+
+  promotion Promotion @relation(fields: [promotionId], references: [id])
+  unit      Unit      @relation(fields: [unitId], references: [id])
+
+  @@id([promotionId, unitId])
+  @@index([unitId])
+  @@map("promocao_unidade")
+}
+
+model PromotionProduct {
+  promotionId Int @map("id_promocao")
+  productId   Int @map("id_produto")
+
+  promotion Promotion @relation(fields: [promotionId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@id([promotionId, productId])
+  @@index([productId])
+  @@map("promocao_produto")
+}
+
+model LoyaltyProgram {
+  id          Int    @id @default(autoincrement()) @map("id_programa")
+  name        String @map("nome")
+  description String @map("descricao")
+  status      String @map("status")
+
+  clientLoyalties ClientLoyalty[]
+
+  @@index([status])
+  @@map("programa_fidelidade")
+}
+
+model ClientLoyalty {
+  id            Int          @id @default(autoincrement()) @map("id_cliente_fidelidade")
+  clientId      Int          @map("id_cliente")
+  programId     Int          @map("id_programa")
+  pointsBalance Int          @map("saldo_pontos")
+  level         LoyaltyLevel @map("nivel")
+  joinedAt      DateTime     @default(now()) @map("data_adesao")
+  status        String       @map("status")
+
+  client              Client              @relation(fields: [clientId], references: [id])
+  program             LoyaltyProgram      @relation(fields: [programId], references: [id])
+  pointMovements      PointMovement[]
+  benefitRedemptions  BenefitRedemption[]
+
+  @@unique([clientId, programId])
+  @@index([programId])
+  @@index([status])
+  @@map("cliente_fidelidade")
+}
+
+model PointMovement {
+  id              Int               @id @default(autoincrement()) @map("id_movimentacao")
+  clientLoyaltyId Int               @map("id_cliente_fidelidade")
+  type            PointMovementType @map("tipo")
+  points          Int               @map("pontos")
+  origin          String            @map("origem")
+  occurredAt      DateTime          @default(now()) @map("data_hora")
+  notes           String?           @map("observacao")
+
+  clientLoyalty ClientLoyalty @relation(fields: [clientLoyaltyId], references: [id])
+
+  @@index([clientLoyaltyId])
+  @@index([type])
+  @@map("movimentacao_pontos")
+}
+
+model Benefit {
+  id             Int      @id @default(autoincrement()) @map("id_beneficio")
+  name           String   @map("nome")
+  description    String   @map("descricao")
+  requiredPoints Int      @map("pontos_necessarios")
+  expiry         DateTime @map("validade")
+  active         Boolean  @map("ativo")
+
+  benefitRedemptions BenefitRedemption[]
+
+  @@index([active])
+  @@map("beneficio")
+}
+
+model BenefitRedemption {
+  id              Int      @id @default(autoincrement()) @map("id_resgate")
+  clientLoyaltyId Int      @map("id_cliente_fidelidade")
+  benefitId       Int      @map("id_beneficio")
+  redeemedAt      DateTime @default(now()) @map("data_resgate")
+  status          String   @map("status")
+  redemptionCode  String   @unique @map("codigo_resgate")
+
+  clientLoyalty ClientLoyalty @relation(fields: [clientLoyaltyId], references: [id])
+  benefit       Benefit       @relation(fields: [benefitId], references: [id])
+
+  @@index([clientLoyaltyId])
+  @@index([benefitId])
+  @@index([status])
+  @@map("resgate_beneficio")
+}
+
+model SupportTicket {
+  id                Int           @id @default(autoincrement()) @map("id_atendimento")
+  clientId          Int           @map("id_cliente")
+  responsibleUserId Int?          @map("id_usuario_responsavel")
+  protocol          String        @unique @map("protocolo")
+  type              SupportType   @map("tipo")
+  description       String        @map("descricao")
+  status            SupportStatus @map("status")
+  openedAt          DateTime      @default(now()) @map("data_abertura")
+  updatedAt         DateTime      @updatedAt @map("data_atualizacao")
+
+  client          Client           @relation(fields: [clientId], references: [id])
+  responsibleUser User?            @relation("SupportTicketResponsibleUser", fields: [responsibleUserId], references: [id])
+  histories       SupportHistory[]
+
+  @@index([clientId])
+  @@index([responsibleUserId])
+  @@index([status])
+  @@map("atendimento")
+}
+
+model SupportHistory {
+  id              Int           @id @default(autoincrement()) @map("id_historico")
+  supportTicketId Int           @map("id_atendimento")
+  userId          Int           @map("id_usuario")
+  status          SupportStatus @map("status")
+  notes           String?       @map("observacao")
+  occurredAt      DateTime      @default(now()) @map("data_hora")
+
+  supportTicket SupportTicket @relation(fields: [supportTicketId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
+
+  @@index([supportTicketId])
+  @@index([userId])
+  @@index([status])
+  @@map("hist_atendimento")
+}
+
+model AuditLog {
+  id         Int         @id @default(autoincrement()) @map("id_log")
+  userId     Int?        @map("id_usuario")
+  action     AuditAction @map("acao")
+  entity     String      @map("entidade")
+  entityId   Int         @map("id_entidade")
+  occurredAt DateTime    @default(now()) @map("data_hora")
+  details    String?     @map("detalhes")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+  @@map("log_auditoria")
+}

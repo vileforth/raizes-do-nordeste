@@ -1,0 +1,14 @@
+{
+  "title": "Support",
+  "detail": "Support detail",
+  "protocol": "Protocol",
+  "type": "Type",
+  "description": "Description",
+  "open": "Open ticket",
+  "types": {
+    "PEDIDO": "Order",
+    "SUPORTE": "Support",
+    "PAGAMENTO": "Payment",
+    "FIDELIDADE": "Loyalty"
+  }
+}

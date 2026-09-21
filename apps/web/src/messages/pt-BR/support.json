@@ -1,0 +1,14 @@
+{
+  "title": "Atendimento",
+  "detail": "Detalhe do atendimento",
+  "protocol": "Protocolo",
+  "type": "Tipo",
+  "description": "Descrição",
+  "open": "Abrir chamado",
+  "types": {
+    "PEDIDO": "Pedido",
+    "SUPORTE": "Suporte",
+    "PAGAMENTO": "Pagamento",
+    "FIDELIDADE": "Fidelidade"
+  }
+}

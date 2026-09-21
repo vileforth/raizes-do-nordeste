@@ -1,0 +1,9 @@
+{
+  "title": "Clientes",
+  "new": "Novo cliente",
+  "detail": "Detalhe do cliente",
+  "cpf": "CPF",
+  "userId": "Usuário",
+  "active": "Ativo",
+  "registeredAt": "Cadastrado em"
+}

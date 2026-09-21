@@ -1,0 +1,20 @@
+{
+  "dashboard": "Painel",
+  "orders": "Pedidos",
+  "ordersBoard": "Quadro de pedidos",
+  "clients": "Clientes",
+  "users": "Usuários",
+  "products": "Produtos",
+  "stock": "Estoque",
+  "promotions": "Promoções",
+  "coupons": "Cupons",
+  "loyalty": "Fidelidade",
+  "support": "Atendimento",
+  "units": "Unidades",
+  "employees": "Funcionários",
+  "network": "Rede",
+  "reports": "Relatórios",
+  "logout": "Sair",
+  "profile": "Perfil",
+  "language": "Idioma"
+}

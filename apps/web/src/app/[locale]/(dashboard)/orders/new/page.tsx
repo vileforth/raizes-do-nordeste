@@ -1,0 +1,95 @@
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Input } from '@heroui/react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { FormField } from '@/components/form-field';
+import { FormPageScaffold } from '@/components/form-page-scaffold';
+import { useToast } from '@/providers/toast-provider';
+import { orderSchema, type OrderFormValues } from '@/schemas/order.schema';
+import { ordersResource } from '@/services/orders';
+import { productsResource } from '@/services/products';
+import { unitsResource } from '@/services/units';
+
+export default function NewOrderPage() {
+  const t = useTranslations('orders');
+  const tCommon = useTranslations('common');
+  const toast = useToast();
+  const router = useRouter();
+  const create = ordersResource.useCreate();
+  const products = productsResource.useList();
+  const units = unitsResource.useList();
+  const form = useForm<OrderFormValues>({
+    resolver: zodResolver(orderSchema),
+    defaultValues: {
+      clientId: 1,
+      unitId: 1,
+      consumptionType: 'RETIRADA_NO_BALCAO',
+      items: [{ productId: 1, quantity: 1 }],
+    },
+  });
+  const items = useFieldArray({ control: form.control, name: 'items' });
+
+  async function onSubmit(values: OrderFormValues) {
+    try {
+      const order = await create.mutateAsync(values);
+      toast.success(tCommon('success'));
+      router.push(`/orders/${order.id}`);
+    } catch {
+      toast.error(tCommon('error'));
+    }
+  }
+
+  return (
+    <FormPageScaffold title={t('new')}>
+      <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField label={t('client')}>
+          <Input type="number" {...form.register('clientId')} />
+        </FormField>
+        <FormField label={t('unit')}>
+          <select className="input-soft w-full" {...form.register('unitId', { valueAsNumber: true })}>
+            {(units.data ?? []).map((unit) => (
+              <option key={unit.id} value={unit.id}>
+                {unit.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label={t('type')}>
+          <select className="input-soft w-full" {...form.register('consumptionType')}>
+            <option value="RETIRADA_NO_BALCAO">{t('pickup')}</option>
+            <option value="CONSUMO_NO_LOCAL">{t('dineIn')}</option>
+          </select>
+        </FormField>
+        <div className="space-y-3">
+          <p className="text-sm font-medium">{t('items')}</p>
+          {items.fields.map((field, index) => (
+            <div key={field.id} className="grid gap-3 sm:grid-cols-[1fr_120px_auto]">
+              <select className="input-soft w-full" {...form.register(`items.${index}.productId`, { valueAsNumber: true })}>
+                {(products.data ?? []).map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name}
+                  </option>
+                ))}
+              </select>
+              <Input type="number" min={1} {...form.register(`items.${index}.quantity`)} />
+              {items.fields.length > 1 ? (
+                <Button type="button" onPress={() => items.remove(index)}>
+                  {tCommon('delete')}
+                </Button>
+              ) : null}
+            </div>
+          ))}
+          <Button type="button" onPress={() => items.append({ productId: products.data?.[0]?.id ?? 1, quantity: 1 })}>
+            {t('addItem')}
+          </Button>
+        </div>
+        <Button type="submit" isDisabled={create.isPending}>
+          {tCommon('create')}
+        </Button>
+      </form>
+    </FormPageScaffold>
+  );
+}

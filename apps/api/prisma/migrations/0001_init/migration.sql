@@ -1,0 +1,589 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
+-- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('ATIVO', 'INATIVO', 'BLOQUEADO');
+
+-- CreateEnum
+CREATE TYPE "UnitStatus" AS ENUM ('ATIVA', 'INATIVA', 'MANUTENCAO');
+
+-- CreateEnum
+CREATE TYPE "OrderStatus" AS ENUM ('RECEBIDO', 'EM_PREPARACAO', 'PRONTO', 'RETIRADO');
+
+-- CreateEnum
+CREATE TYPE "ConsumptionType" AS ENUM ('CONSUMO_NO_LOCAL', 'RETIRADA_NO_BALCAO');
+
+-- CreateEnum
+CREATE TYPE "PaymentMethod" AS ENUM ('CARTAO_DEBITO', 'CARTAO_CREDITO', 'PIX');
+
+-- CreateEnum
+CREATE TYPE "PaymentStatus" AS ENUM ('PENDENTE', 'CONFIRMADO', 'RECUSADO', 'CANCELADO');
+
+-- CreateEnum
+CREATE TYPE "PromotionStatus" AS ENUM ('ATIVA', 'INATIVA', 'ENCERRADA', 'AGENDADA');
+
+-- CreateEnum
+CREATE TYPE "LoyaltyLevel" AS ENUM ('BRONZE', 'PRATA', 'OURO');
+
+-- CreateEnum
+CREATE TYPE "PointMovementType" AS ENUM ('CREDITO', 'DEBITO');
+
+-- CreateEnum
+CREATE TYPE "SupportType" AS ENUM ('PEDIDO', 'SUPORTE', 'PAGAMENTO', 'FIDELIDADE');
+
+-- CreateEnum
+CREATE TYPE "SupportStatus" AS ENUM ('ABERTO', 'EM_ATENDIMENTO', 'RESOLVIDO', 'FECHADO', 'CANCELADO');
+
+-- CreateEnum
+CREATE TYPE "AuditAction" AS ENUM ('ALTERAR', 'ALTERAR_STATUS', 'APLICAR_CUPOM', 'CADASTRO', 'CONSULTAR', 'CRIAR', 'LOGIN', 'PAGAMENTO');
+
+-- CreateTable
+CREATE TABLE "usuario" (
+    "id_usuario" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "senha_hash" TEXT NOT NULL,
+    "telefone" TEXT NOT NULL,
+    "status" "UserStatus" NOT NULL,
+    "data_cadastro" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "usuario_pkey" PRIMARY KEY ("id_usuario")
+);
+
+-- CreateTable
+CREATE TABLE "perfil" (
+    "id_perfil" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "descricao" TEXT NOT NULL,
+    "ativo" BOOLEAN NOT NULL,
+
+    CONSTRAINT "perfil_pkey" PRIMARY KEY ("id_perfil")
+);
+
+-- CreateTable
+CREATE TABLE "usuario_perfil" (
+    "id_usuario" INTEGER NOT NULL,
+    "id_perfil" INTEGER NOT NULL,
+
+    CONSTRAINT "usuario_perfil_pkey" PRIMARY KEY ("id_usuario","id_perfil")
+);
+
+-- CreateTable
+CREATE TABLE "cliente" (
+    "id_cliente" SERIAL NOT NULL,
+    "id_usuario" INTEGER NOT NULL,
+    "cpf" TEXT NOT NULL,
+    "data_cadastro" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "ativo" BOOLEAN NOT NULL,
+
+    CONSTRAINT "cliente_pkey" PRIMARY KEY ("id_cliente")
+);
+
+-- CreateTable
+CREATE TABLE "unidade" (
+    "id_unidade" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "endereco" TEXT NOT NULL,
+    "telefone" TEXT NOT NULL,
+    "status" "UnitStatus" NOT NULL,
+    "data_cadastro" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "latitude" DOUBLE PRECISION,
+    "longitude" DOUBLE PRECISION,
+
+    CONSTRAINT "unidade_pkey" PRIMARY KEY ("id_unidade")
+);
+
+-- CreateTable
+CREATE TABLE "funcionario" (
+    "id_funcionario" SERIAL NOT NULL,
+    "id_usuario" INTEGER NOT NULL,
+    "id_unidade" INTEGER NOT NULL,
+    "matricula" TEXT NOT NULL,
+    "cargo" TEXT NOT NULL,
+    "ativo" BOOLEAN NOT NULL,
+
+    CONSTRAINT "funcionario_pkey" PRIMARY KEY ("id_funcionario")
+);
+
+-- CreateTable
+CREATE TABLE "produto" (
+    "id_produto" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "descricao" TEXT NOT NULL,
+    "preco" DECIMAL(10,2) NOT NULL,
+    "categoria" TEXT NOT NULL,
+    "ativo" BOOLEAN NOT NULL,
+
+    CONSTRAINT "produto_pkey" PRIMARY KEY ("id_produto")
+);
+
+-- CreateTable
+CREATE TABLE "estoque" (
+    "id_estoque" SERIAL NOT NULL,
+    "id_unidade" INTEGER NOT NULL,
+    "status" TEXT NOT NULL,
+
+    CONSTRAINT "estoque_pkey" PRIMARY KEY ("id_estoque")
+);
+
+-- CreateTable
+CREATE TABLE "estoque_produto" (
+    "id_estoque_produto" SERIAL NOT NULL,
+    "id_estoque" INTEGER NOT NULL,
+    "id_produto" INTEGER NOT NULL,
+    "quantidade" INTEGER NOT NULL,
+    "estoque_minimo" INTEGER NOT NULL,
+
+    CONSTRAINT "estoque_produto_pkey" PRIMARY KEY ("id_estoque_produto")
+);
+
+-- CreateTable
+CREATE TABLE "pedido" (
+    "id_pedido" SERIAL NOT NULL,
+    "id_cliente" INTEGER NOT NULL,
+    "id_unidade" INTEGER NOT NULL,
+    "status" "OrderStatus" NOT NULL,
+    "tipo_consumo" "ConsumptionType" NOT NULL,
+    "valor_total" DECIMAL(10,2) NOT NULL,
+    "codigo_pedido" TEXT NOT NULL,
+    "data_criacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_atualizacao" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "pedido_pkey" PRIMARY KEY ("id_pedido")
+);
+
+-- CreateTable
+CREATE TABLE "item_pedido" (
+    "id_item_pedido" SERIAL NOT NULL,
+    "id_pedido" INTEGER NOT NULL,
+    "id_produto" INTEGER NOT NULL,
+    "quantidade" INTEGER NOT NULL,
+    "preco_unitario" DECIMAL(10,2) NOT NULL,
+    "subtotal" DECIMAL(10,2) NOT NULL,
+
+    CONSTRAINT "item_pedido_pkey" PRIMARY KEY ("id_item_pedido")
+);
+
+-- CreateTable
+CREATE TABLE "pagamento" (
+    "id_pagamento" SERIAL NOT NULL,
+    "id_pedido" INTEGER NOT NULL,
+    "metodo" "PaymentMethod" NOT NULL,
+    "valor" DECIMAL(10,2) NOT NULL,
+    "status" "PaymentStatus" NOT NULL,
+    "data_pagamento" TIMESTAMP(3),
+    "codigo_transacao" TEXT NOT NULL,
+
+    CONSTRAINT "pagamento_pkey" PRIMARY KEY ("id_pagamento")
+);
+
+-- CreateTable
+CREATE TABLE "hist_status_pedido" (
+    "id_historico_status" SERIAL NOT NULL,
+    "id_pedido" INTEGER NOT NULL,
+    "status" "OrderStatus" NOT NULL,
+    "data_hora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "id_usuario" INTEGER NOT NULL,
+    "observacao" TEXT,
+
+    CONSTRAINT "hist_status_pedido_pkey" PRIMARY KEY ("id_historico_status")
+);
+
+-- CreateTable
+CREATE TABLE "promocao" (
+    "id_promocao" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "descricao" TEXT NOT NULL,
+    "regra" TEXT NOT NULL,
+    "data_inicio" TIMESTAMP(3) NOT NULL,
+    "data_fim" TIMESTAMP(3) NOT NULL,
+    "status" "PromotionStatus" NOT NULL,
+
+    CONSTRAINT "promocao_pkey" PRIMARY KEY ("id_promocao")
+);
+
+-- CreateTable
+CREATE TABLE "cupom" (
+    "id_cupom" SERIAL NOT NULL,
+    "id_promocao" INTEGER NOT NULL,
+    "codigo" TEXT NOT NULL,
+    "validade" TIMESTAMP(3) NOT NULL,
+    "limite_uso" INTEGER NOT NULL,
+    "ativo" BOOLEAN NOT NULL,
+
+    CONSTRAINT "cupom_pkey" PRIMARY KEY ("id_cupom")
+);
+
+-- CreateTable
+CREATE TABLE "promocao_unidade" (
+    "id_promocao" INTEGER NOT NULL,
+    "id_unidade" INTEGER NOT NULL,
+
+    CONSTRAINT "promocao_unidade_pkey" PRIMARY KEY ("id_promocao","id_unidade")
+);
+
+-- CreateTable
+CREATE TABLE "promocao_produto" (
+    "id_promocao" INTEGER NOT NULL,
+    "id_produto" INTEGER NOT NULL,
+
+    CONSTRAINT "promocao_produto_pkey" PRIMARY KEY ("id_promocao","id_produto")
+);
+
+-- CreateTable
+CREATE TABLE "programa_fidelidade" (
+    "id_programa" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "descricao" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+
+    CONSTRAINT "programa_fidelidade_pkey" PRIMARY KEY ("id_programa")
+);
+
+-- CreateTable
+CREATE TABLE "cliente_fidelidade" (
+    "id_cliente_fidelidade" SERIAL NOT NULL,
+    "id_cliente" INTEGER NOT NULL,
+    "id_programa" INTEGER NOT NULL,
+    "saldo_pontos" INTEGER NOT NULL,
+    "nivel" "LoyaltyLevel" NOT NULL,
+    "data_adesao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "status" TEXT NOT NULL,
+
+    CONSTRAINT "cliente_fidelidade_pkey" PRIMARY KEY ("id_cliente_fidelidade")
+);
+
+-- CreateTable
+CREATE TABLE "movimentacao_pontos" (
+    "id_movimentacao" SERIAL NOT NULL,
+    "id_cliente_fidelidade" INTEGER NOT NULL,
+    "tipo" "PointMovementType" NOT NULL,
+    "pontos" INTEGER NOT NULL,
+    "origem" TEXT NOT NULL,
+    "data_hora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "observacao" TEXT,
+
+    CONSTRAINT "movimentacao_pontos_pkey" PRIMARY KEY ("id_movimentacao")
+);
+
+-- CreateTable
+CREATE TABLE "beneficio" (
+    "id_beneficio" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "descricao" TEXT NOT NULL,
+    "pontos_necessarios" INTEGER NOT NULL,
+    "validade" TIMESTAMP(3) NOT NULL,
+    "ativo" BOOLEAN NOT NULL,
+
+    CONSTRAINT "beneficio_pkey" PRIMARY KEY ("id_beneficio")
+);
+
+-- CreateTable
+CREATE TABLE "resgate_beneficio" (
+    "id_resgate" SERIAL NOT NULL,
+    "id_cliente_fidelidade" INTEGER NOT NULL,
+    "id_beneficio" INTEGER NOT NULL,
+    "data_resgate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "status" TEXT NOT NULL,
+    "codigo_resgate" TEXT NOT NULL,
+
+    CONSTRAINT "resgate_beneficio_pkey" PRIMARY KEY ("id_resgate")
+);
+
+-- CreateTable
+CREATE TABLE "atendimento" (
+    "id_atendimento" SERIAL NOT NULL,
+    "id_cliente" INTEGER NOT NULL,
+    "id_usuario_responsavel" INTEGER,
+    "protocolo" TEXT NOT NULL,
+    "tipo" "SupportType" NOT NULL,
+    "descricao" TEXT NOT NULL,
+    "status" "SupportStatus" NOT NULL,
+    "data_abertura" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_atualizacao" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "atendimento_pkey" PRIMARY KEY ("id_atendimento")
+);
+
+-- CreateTable
+CREATE TABLE "hist_atendimento" (
+    "id_historico" SERIAL NOT NULL,
+    "id_atendimento" INTEGER NOT NULL,
+    "id_usuario" INTEGER NOT NULL,
+    "status" "SupportStatus" NOT NULL,
+    "observacao" TEXT,
+    "data_hora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "hist_atendimento_pkey" PRIMARY KEY ("id_historico")
+);
+
+-- CreateTable
+CREATE TABLE "log_auditoria" (
+    "id_log" SERIAL NOT NULL,
+    "id_usuario" INTEGER,
+    "acao" "AuditAction" NOT NULL,
+    "entidade" TEXT NOT NULL,
+    "id_entidade" INTEGER NOT NULL,
+    "data_hora" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "detalhes" TEXT,
+
+    CONSTRAINT "log_auditoria_pkey" PRIMARY KEY ("id_log")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "usuario_email_key" ON "usuario"("email");
+
+-- CreateIndex
+CREATE INDEX "usuario_status_idx" ON "usuario"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "perfil_nome_key" ON "perfil"("nome");
+
+-- CreateIndex
+CREATE INDEX "usuario_perfil_id_perfil_idx" ON "usuario_perfil"("id_perfil");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "cliente_id_usuario_key" ON "cliente"("id_usuario");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "cliente_cpf_key" ON "cliente"("cpf");
+
+-- CreateIndex
+CREATE INDEX "cliente_ativo_idx" ON "cliente"("ativo");
+
+-- CreateIndex
+CREATE INDEX "unidade_status_idx" ON "unidade"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "funcionario_id_usuario_key" ON "funcionario"("id_usuario");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "funcionario_matricula_key" ON "funcionario"("matricula");
+
+-- CreateIndex
+CREATE INDEX "funcionario_id_unidade_idx" ON "funcionario"("id_unidade");
+
+-- CreateIndex
+CREATE INDEX "funcionario_ativo_idx" ON "funcionario"("ativo");
+
+-- CreateIndex
+CREATE INDEX "produto_categoria_idx" ON "produto"("categoria");
+
+-- CreateIndex
+CREATE INDEX "produto_ativo_idx" ON "produto"("ativo");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "estoque_id_unidade_key" ON "estoque"("id_unidade");
+
+-- CreateIndex
+CREATE INDEX "estoque_status_idx" ON "estoque"("status");
+
+-- CreateIndex
+CREATE INDEX "estoque_produto_id_produto_idx" ON "estoque_produto"("id_produto");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "estoque_produto_id_estoque_id_produto_key" ON "estoque_produto"("id_estoque", "id_produto");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "pedido_codigo_pedido_key" ON "pedido"("codigo_pedido");
+
+-- CreateIndex
+CREATE INDEX "pedido_id_cliente_idx" ON "pedido"("id_cliente");
+
+-- CreateIndex
+CREATE INDEX "pedido_id_unidade_idx" ON "pedido"("id_unidade");
+
+-- CreateIndex
+CREATE INDEX "pedido_status_idx" ON "pedido"("status");
+
+-- CreateIndex
+CREATE INDEX "item_pedido_id_pedido_idx" ON "item_pedido"("id_pedido");
+
+-- CreateIndex
+CREATE INDEX "item_pedido_id_produto_idx" ON "item_pedido"("id_produto");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "pagamento_id_pedido_key" ON "pagamento"("id_pedido");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "pagamento_codigo_transacao_key" ON "pagamento"("codigo_transacao");
+
+-- CreateIndex
+CREATE INDEX "pagamento_status_idx" ON "pagamento"("status");
+
+-- CreateIndex
+CREATE INDEX "hist_status_pedido_id_pedido_idx" ON "hist_status_pedido"("id_pedido");
+
+-- CreateIndex
+CREATE INDEX "hist_status_pedido_id_usuario_idx" ON "hist_status_pedido"("id_usuario");
+
+-- CreateIndex
+CREATE INDEX "hist_status_pedido_status_idx" ON "hist_status_pedido"("status");
+
+-- CreateIndex
+CREATE INDEX "promocao_status_idx" ON "promocao"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "cupom_codigo_key" ON "cupom"("codigo");
+
+-- CreateIndex
+CREATE INDEX "cupom_id_promocao_idx" ON "cupom"("id_promocao");
+
+-- CreateIndex
+CREATE INDEX "promocao_unidade_id_unidade_idx" ON "promocao_unidade"("id_unidade");
+
+-- CreateIndex
+CREATE INDEX "promocao_produto_id_produto_idx" ON "promocao_produto"("id_produto");
+
+-- CreateIndex
+CREATE INDEX "programa_fidelidade_status_idx" ON "programa_fidelidade"("status");
+
+-- CreateIndex
+CREATE INDEX "cliente_fidelidade_id_programa_idx" ON "cliente_fidelidade"("id_programa");
+
+-- CreateIndex
+CREATE INDEX "cliente_fidelidade_status_idx" ON "cliente_fidelidade"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "cliente_fidelidade_id_cliente_id_programa_key" ON "cliente_fidelidade"("id_cliente", "id_programa");
+
+-- CreateIndex
+CREATE INDEX "movimentacao_pontos_id_cliente_fidelidade_idx" ON "movimentacao_pontos"("id_cliente_fidelidade");
+
+-- CreateIndex
+CREATE INDEX "movimentacao_pontos_tipo_idx" ON "movimentacao_pontos"("tipo");
+
+-- CreateIndex
+CREATE INDEX "beneficio_ativo_idx" ON "beneficio"("ativo");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "resgate_beneficio_codigo_resgate_key" ON "resgate_beneficio"("codigo_resgate");
+
+-- CreateIndex
+CREATE INDEX "resgate_beneficio_id_cliente_fidelidade_idx" ON "resgate_beneficio"("id_cliente_fidelidade");
+
+-- CreateIndex
+CREATE INDEX "resgate_beneficio_id_beneficio_idx" ON "resgate_beneficio"("id_beneficio");
+
+-- CreateIndex
+CREATE INDEX "resgate_beneficio_status_idx" ON "resgate_beneficio"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "atendimento_protocolo_key" ON "atendimento"("protocolo");
+
+-- CreateIndex
+CREATE INDEX "atendimento_id_cliente_idx" ON "atendimento"("id_cliente");
+
+-- CreateIndex
+CREATE INDEX "atendimento_id_usuario_responsavel_idx" ON "atendimento"("id_usuario_responsavel");
+
+-- CreateIndex
+CREATE INDEX "atendimento_status_idx" ON "atendimento"("status");
+
+-- CreateIndex
+CREATE INDEX "hist_atendimento_id_atendimento_idx" ON "hist_atendimento"("id_atendimento");
+
+-- CreateIndex
+CREATE INDEX "hist_atendimento_id_usuario_idx" ON "hist_atendimento"("id_usuario");
+
+-- CreateIndex
+CREATE INDEX "hist_atendimento_status_idx" ON "hist_atendimento"("status");
+
+-- CreateIndex
+CREATE INDEX "log_auditoria_id_usuario_idx" ON "log_auditoria"("id_usuario");
+
+-- CreateIndex
+CREATE INDEX "log_auditoria_acao_idx" ON "log_auditoria"("acao");
+
+-- CreateIndex
+CREATE INDEX "log_auditoria_entidade_idx" ON "log_auditoria"("entidade");
+
+-- AddForeignKey
+ALTER TABLE "usuario_perfil" ADD CONSTRAINT "usuario_perfil_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "usuario_perfil" ADD CONSTRAINT "usuario_perfil_id_perfil_fkey" FOREIGN KEY ("id_perfil") REFERENCES "perfil"("id_perfil") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "cliente" ADD CONSTRAINT "cliente_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "funcionario" ADD CONSTRAINT "funcionario_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "funcionario" ADD CONSTRAINT "funcionario_id_unidade_fkey" FOREIGN KEY ("id_unidade") REFERENCES "unidade"("id_unidade") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "estoque" ADD CONSTRAINT "estoque_id_unidade_fkey" FOREIGN KEY ("id_unidade") REFERENCES "unidade"("id_unidade") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "estoque_produto" ADD CONSTRAINT "estoque_produto_id_estoque_fkey" FOREIGN KEY ("id_estoque") REFERENCES "estoque"("id_estoque") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "estoque_produto" ADD CONSTRAINT "estoque_produto_id_produto_fkey" FOREIGN KEY ("id_produto") REFERENCES "produto"("id_produto") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "pedido" ADD CONSTRAINT "pedido_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "cliente"("id_cliente") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "pedido" ADD CONSTRAINT "pedido_id_unidade_fkey" FOREIGN KEY ("id_unidade") REFERENCES "unidade"("id_unidade") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "item_pedido" ADD CONSTRAINT "item_pedido_id_pedido_fkey" FOREIGN KEY ("id_pedido") REFERENCES "pedido"("id_pedido") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "item_pedido" ADD CONSTRAINT "item_pedido_id_produto_fkey" FOREIGN KEY ("id_produto") REFERENCES "produto"("id_produto") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "pagamento" ADD CONSTRAINT "pagamento_id_pedido_fkey" FOREIGN KEY ("id_pedido") REFERENCES "pedido"("id_pedido") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "hist_status_pedido" ADD CONSTRAINT "hist_status_pedido_id_pedido_fkey" FOREIGN KEY ("id_pedido") REFERENCES "pedido"("id_pedido") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "hist_status_pedido" ADD CONSTRAINT "hist_status_pedido_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "cupom" ADD CONSTRAINT "cupom_id_promocao_fkey" FOREIGN KEY ("id_promocao") REFERENCES "promocao"("id_promocao") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "promocao_unidade" ADD CONSTRAINT "promocao_unidade_id_promocao_fkey" FOREIGN KEY ("id_promocao") REFERENCES "promocao"("id_promocao") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "promocao_unidade" ADD CONSTRAINT "promocao_unidade_id_unidade_fkey" FOREIGN KEY ("id_unidade") REFERENCES "unidade"("id_unidade") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "promocao_produto" ADD CONSTRAINT "promocao_produto_id_promocao_fkey" FOREIGN KEY ("id_promocao") REFERENCES "promocao"("id_promocao") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "promocao_produto" ADD CONSTRAINT "promocao_produto_id_produto_fkey" FOREIGN KEY ("id_produto") REFERENCES "produto"("id_produto") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "cliente_fidelidade" ADD CONSTRAINT "cliente_fidelidade_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "cliente"("id_cliente") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "cliente_fidelidade" ADD CONSTRAINT "cliente_fidelidade_id_programa_fkey" FOREIGN KEY ("id_programa") REFERENCES "programa_fidelidade"("id_programa") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "movimentacao_pontos" ADD CONSTRAINT "movimentacao_pontos_id_cliente_fidelidade_fkey" FOREIGN KEY ("id_cliente_fidelidade") REFERENCES "cliente_fidelidade"("id_cliente_fidelidade") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "resgate_beneficio" ADD CONSTRAINT "resgate_beneficio_id_cliente_fidelidade_fkey" FOREIGN KEY ("id_cliente_fidelidade") REFERENCES "cliente_fidelidade"("id_cliente_fidelidade") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "resgate_beneficio" ADD CONSTRAINT "resgate_beneficio_id_beneficio_fkey" FOREIGN KEY ("id_beneficio") REFERENCES "beneficio"("id_beneficio") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "atendimento" ADD CONSTRAINT "atendimento_id_cliente_fkey" FOREIGN KEY ("id_cliente") REFERENCES "cliente"("id_cliente") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "atendimento" ADD CONSTRAINT "atendimento_id_usuario_responsavel_fkey" FOREIGN KEY ("id_usuario_responsavel") REFERENCES "usuario"("id_usuario") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "hist_atendimento" ADD CONSTRAINT "hist_atendimento_id_atendimento_fkey" FOREIGN KEY ("id_atendimento") REFERENCES "atendimento"("id_atendimento") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "hist_atendimento" ADD CONSTRAINT "hist_atendimento_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "log_auditoria" ADD CONSTRAINT "log_auditoria_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "usuario"("id_usuario") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -1,0 +1,26 @@
+{
+  "title": "Pedidos",
+  "new": "Novo pedido",
+  "board": "Quadro",
+  "detail": "Detalhe do pedido",
+  "status": "Status",
+  "total": "Total",
+  "client": "Cliente",
+  "unit": "Unidade",
+  "type": "Tipo de consumo",
+  "code": "Código",
+  "items": "Itens",
+  "addItem": "Adicionar item",
+  "pickup": "Retirada no balcão",
+  "dineIn": "Consumo no local",
+  "payment": "Pagamento",
+  "pay": "Pagar",
+  "confirmPayment": "Confirmar pagamento",
+  "history": "Histórico",
+  "statuses": {
+    "RECEBIDO": "Recebido",
+    "EM_PREPARACAO": "Em preparação",
+    "PRONTO": "Pronto",
+    "RETIRADO": "Retirado"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "title": "Orders",
+  "new": "New order",
+  "board": "Board",
+  "detail": "Order detail",
+  "status": "Status",
+  "total": "Total",
+  "client": "Client",
+  "unit": "Unit",
+  "type": "Consumption type",
+  "code": "Code",
+  "items": "Items",
+  "addItem": "Add item",
+  "pickup": "Pickup",
+  "dineIn": "Dine in",
+  "payment": "Payment",
+  "pay": "Pay",
+  "confirmPayment": "Confirm payment",
+  "history": "History",
+  "statuses": {
+    "RECEBIDO": "Received",
+    "EM_PREPARACAO": "In preparation",
+    "PRONTO": "Ready",
+    "RETIRADO": "Picked up"
+  }
+}
