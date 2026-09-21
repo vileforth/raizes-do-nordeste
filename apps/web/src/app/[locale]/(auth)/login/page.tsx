@@ -7,7 +7,6 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { apiPost } from '@/lib/api';
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { loginSchema, type LoginFormValues } from '@/schemas/login.schema';
 import { AuthAlert } from '../_components/auth-alert';
 import { AuthField } from '../_components/auth-field';
@@ -28,16 +27,12 @@ export default function LoginPage() {
   async function onSubmit(values: LoginFormValues) {
     setErrorMessage(null);
     try {
-      const tokens = await apiPost<{
+      await apiPost<{
         accessToken: string;
         refreshToken: string;
       }>('/auth/login', values);
-      const supabase = createSupabaseBrowserClient();
-      await supabase.auth.setSession({
-        access_token: tokens.accessToken,
-        refresh_token: tokens.refreshToken,
-      });
       router.push(search.get('redirect') || '/');
+      router.refresh();
     } catch {
       setErrorMessage(t('errorInvalid'));
     }

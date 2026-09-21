@@ -2,10 +2,8 @@
 
 import { UserRole } from '@raizes/shared';
 import { useQuery } from '@tanstack/react-query';
-import { createContext, useContext, useEffect, useMemo } from 'react';
-import { setTokenGetter } from '@/lib/api';
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
-import { apiGet } from '@/lib/api';
+import { createContext, useContext, useMemo } from 'react';
+import { apiGet, apiPost } from '@/lib/api';
 
 export type CurrentUser = {
   id: number;
@@ -23,15 +21,6 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-
-  useEffect(() => {
-    setTokenGetter(async () => {
-      const { data } = await supabase.auth.getSession();
-      return data.session?.access_token ?? null;
-    });
-  }, [supabase]);
-
   const meQuery = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: () => apiGet<CurrentUser>('/auth/me'),
@@ -39,8 +28,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/login';
+    try {
+      await apiPost('/auth/logout');
+    } finally {
+      window.location.href = '/login';
+    }
   };
 
   const value = useMemo(
@@ -49,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading: meQuery.isLoading,
       signOut,
     }),
-    [meQuery.data, meQuery.isLoading, signOut],
+    [meQuery.data, meQuery.isLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

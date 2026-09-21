@@ -1,15 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  ACCESS_TOKEN_COOKIE,
+  applyAuthCookies,
+  clearAuthCookies,
+  expireCookieNames,
+  getSupabaseAuthCookieNames,
+  isLogoutPath,
+  parseAuthTokens,
+  resolveAuthorizationHeader,
+  shouldPersistAuthTokens,
+} from '@/lib/auth/session-cookies';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3001';
 
+function expireLegacySessionCookies(
+  request: NextRequest,
+  response: NextResponse,
+): void {
+  expireCookieNames(
+    response,
+    getSupabaseAuthCookieNames(request.cookies.getAll().map((cookie) => cookie.name)),
+  );
+}
+
 async function proxy(request: NextRequest, params: { path: string[] }) {
   const path = params.path.join('/');
+
+  if (isLogoutPath(path, request.method)) {
+    const response = new NextResponse(null, { status: 204 });
+    clearAuthCookies(response);
+    expireLegacySessionCookies(request, response);
+    return response;
+  }
+
   const url = new URL(`${API_URL}/${path}`);
   request.nextUrl.searchParams.forEach((value, key) => {
     url.searchParams.set(key, value);
   });
   const headers = new Headers();
-  const auth = request.headers.get('authorization');
+  const auth = resolveAuthorizationHeader(
+    request.headers.get('authorization'),
+    request.cookies.get(ACCESS_TOKEN_COOKIE)?.value,
+  );
   if (auth) headers.set('Authorization', auth);
   const contentType = request.headers.get('content-type');
   if (contentType) headers.set('Content-Type', contentType);
@@ -23,12 +55,28 @@ async function proxy(request: NextRequest, params: { path: string[] }) {
     body,
   });
   const text = await response.text();
-  return new NextResponse(text, {
+  const nextResponse = new NextResponse(text, {
     status: response.status,
     headers: {
       'Content-Type': response.headers.get('Content-Type') ?? 'application/json',
     },
   });
+
+  if (response.ok && shouldPersistAuthTokens(path, request.method)) {
+    let parsed: unknown = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = null;
+    }
+    const tokens = parseAuthTokens(parsed);
+    if (tokens) {
+      applyAuthCookies(nextResponse, tokens);
+    }
+    expireLegacySessionCookies(request, nextResponse);
+  }
+
+  return nextResponse;
 }
 
 export async function GET(

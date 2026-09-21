@@ -1,6 +1,10 @@
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import {
+  ACCESS_TOKEN_COOKIE,
+  expireCookieNames,
+  getSupabaseAuthCookieNames,
+} from './lib/auth/session-cookies';
 import { defaultLocale, locales } from './i18n/config';
 
 const intlMiddleware = createIntlMiddleware({
@@ -25,30 +29,17 @@ export async function middleware(request: NextRequest) {
 
   const intlResponse = intlMiddleware(request);
   const stripped = pathname.replace(/^\/(pt-BR|en)/, '') || '/';
+  expireCookieNames(
+    intlResponse,
+    getSupabaseAuthCookieNames(request.cookies.getAll().map((cookie) => cookie.name)),
+  );
 
   if (isPublicPath(stripped)) {
     return intlResponse;
   }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            intlResponse.cookies.set(name, value, options);
-          });
-        },
-      },
-    },
-  );
-
-  const { data } = await supabase.auth.getSession();
-  if (!data.session) {
+  const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
+  if (!accessToken) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
