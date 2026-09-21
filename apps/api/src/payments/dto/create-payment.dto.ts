@@ -5,9 +5,10 @@ import { IsEnum, IsInt } from 'class-validator';
 export class CreatePaymentDto {
   @ApiProperty()
   @IsInt()
-  orderId: number;
+  orderId!: number;
 
   @ApiProperty({ enum: PaymentMethod })
   @IsEnum(PaymentMethod)
-  method: PaymentMethod;
+  method!: PaymentMethod;
 }
+

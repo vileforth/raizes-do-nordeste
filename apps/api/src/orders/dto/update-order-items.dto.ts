@@ -13,5 +13,5 @@ export class UpdateOrderItemsDto {
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
-  items: CreateOrderItemDto[];
+  items!: CreateOrderItemDto[];
 }

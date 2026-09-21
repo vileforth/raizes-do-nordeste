@@ -14,12 +14,12 @@ import {
 export class CreateOrderItemDto {
   @ApiProperty()
   @IsInt()
-  productId: number;
+  productId!: number;
 
   @ApiProperty({ minimum: 1 })
   @IsInt()
   @Min(1)
-  quantity: number;
+  quantity!: number;
 }
 
 export class CreateOrderDto {
@@ -30,16 +30,16 @@ export class CreateOrderDto {
 
   @ApiProperty()
   @IsInt()
-  unitId: number;
+  unitId!: number;
 
   @ApiProperty({ enum: ConsumptionType })
   @IsEnum(ConsumptionType)
-  consumptionType: ConsumptionType;
+  consumptionType!: ConsumptionType;
 
   @ApiProperty({ type: [CreateOrderItemDto] })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
-  items: CreateOrderItemDto[];
+  items!: CreateOrderItemDto[];
 }
