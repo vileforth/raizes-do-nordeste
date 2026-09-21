@@ -14,8 +14,8 @@ import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
-import { PaginationQueryDto } from '../common/pagination/pagination.query';
 import { CreateSupportDto } from './dto/create-support.dto';
+import { ListSupportQueryDto } from './dto/list-support.query';
 import { UpdateSupportDto } from './dto/update-support.dto';
 import { SupportService } from './support.service';
 
@@ -44,7 +44,7 @@ export class SupportController {
   @ApiOperation({ summary: 'List support tickets' })
   findAll(
     @CurrentUser() user: AuthenticatedUser,
-    @Query() query: PaginationQueryDto,
+    @Query() query: ListSupportQueryDto,
   ) {
     return this.supportService.findAll(user, query);
   }

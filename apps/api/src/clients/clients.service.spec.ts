@@ -85,11 +85,23 @@ describe('ClientsService', () => {
       cpf: '12345678901',
       registeredAt: new Date(),
       active: true,
+      user: {
+        id: 5,
+        name: 'Cliente',
+        email: 'cliente@example.com',
+        phone: '81988880000',
+        status: UserStatus.ATIVO,
+      },
+      clientLoyalties: [],
+      orders: [],
+      _count: { orders: 0, supportTickets: 0 },
     });
 
     const result = await service.findOne(cliente, 1);
 
     expect(result.userId).toBe(5);
+    expect(result.name).toBe('Cliente');
+    expect(result.email).toBe('cliente@example.com');
   });
 
   it('blocks cliente from accessing another client', async () => {

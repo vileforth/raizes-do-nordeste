@@ -12,8 +12,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   buildPaginated,
   normalizePagination,
-  resolveOrderBy,
-  searchContains,
   type Paginated,
   type PaginationInput,
 } from '../common/pagination/pagination';
@@ -21,6 +19,12 @@ import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { deleteClientGraph } from '../common/cascade-delete';
 import { ClientResponseDto } from './dto/client-response.dto';
+import {
+  buildClientSearch,
+  clientInclude,
+  resolveClientOrderBy,
+  toClientResponse,
+} from './clients.mapper';
 
 @Injectable()
 export class ClientsService {
@@ -44,15 +48,21 @@ export class ClientsService {
     ]);
 
     const { page, pageSize, skip, take, search } = normalizePagination(query);
-    const where = searchContains(['cpf'], search) ?? {};
-    const orderBy = resolveOrderBy(query.orderBy, ['id', 'cpf'], { id: 'asc' });
+    const where = buildClientSearch(search) ?? {};
+    const orderBy = resolveClientOrderBy(query.orderBy);
     const [clients, total] = await Promise.all([
-      this.prisma.client.findMany({ where, orderBy, skip, take }),
+      this.prisma.client.findMany({
+        where,
+        include: clientInclude,
+        orderBy,
+        skip,
+        take,
+      }),
       this.prisma.client.count({ where }),
     ]);
 
     return buildPaginated(
-      clients.map((client) => this.toResponse(client)),
+      clients.map((client) => toClientResponse(client)),
       page,
       pageSize,
       total,
@@ -62,7 +72,7 @@ export class ClientsService {
   async findOne(actor: AuthenticatedUser, id: number): Promise<ClientResponseDto> {
     const client = await this.getClientOrThrow(id);
     this.assertCanAccessClient(actor, client);
-    return this.toResponse(client);
+    return toClientResponse(client);
   }
 
   async create(actor: AuthenticatedUser, dto: CreateClientDto): Promise<ClientResponseDto> {
@@ -87,9 +97,12 @@ export class ClientsService {
       throw new ConflictException('User already has a client record');
     }
 
-    const client = await this.prisma.client.create({ data: dto });
+    const client = await this.prisma.client.create({
+      data: dto,
+      include: clientInclude,
+    });
     this.logger.info('Client created', { clientId: client.id, actorId: actor.id });
-    return this.toResponse(client);
+    return toClientResponse(client);
   }
 
   async update(
@@ -112,10 +125,11 @@ export class ClientsService {
     const updated = await this.prisma.client.update({
       where: { id },
       data: dto,
+      include: clientInclude,
     });
 
     this.logger.info('Client updated', { clientId: id, actorId: actor.id });
-    return this.toResponse(updated);
+    return toClientResponse(updated);
   }
 
   async remove(actor: AuthenticatedUser, id: number): Promise<void> {
@@ -126,7 +140,10 @@ export class ClientsService {
   }
 
   private async getClientOrThrow(id: number) {
-    const client = await this.prisma.client.findUnique({ where: { id } });
+    const client = await this.prisma.client.findUnique({
+      where: { id },
+      include: clientInclude,
+    });
     if (!client) {
       throw new NotFoundException('Client not found');
     }
@@ -168,21 +185,5 @@ export class ClientsService {
     }
 
     throw new ForbiddenException('Insufficient role permissions');
-  }
-
-  private toResponse(client: {
-    id: number;
-    userId: number;
-    cpf: string;
-    registeredAt: Date;
-    active: boolean;
-  }): ClientResponseDto {
-    return {
-      id: client.id,
-      userId: client.userId,
-      cpf: client.cpf,
-      registeredAt: client.registeredAt,
-      active: client.active,
-    };
   }
 }

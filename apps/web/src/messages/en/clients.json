@@ -2,8 +2,20 @@
   "title": "Clients",
   "new": "New client",
   "detail": "Client detail",
+  "identity": "Personal details",
+  "activity": "Activity",
   "cpf": "CPF",
   "userId": "User",
+  "name": "Name",
+  "email": "Email",
+  "phone": "Phone",
   "active": "Active",
-  "registeredAt": "Registered at"
+  "userStatus": "Account status",
+  "registeredAt": "Registered at",
+  "ordersCount": "Orders",
+  "ticketsCount": "Tickets",
+  "loyalty": "Loyalty",
+  "points": "Points",
+  "lastOrder": "Last order",
+  "noLastOrder": "No orders yet"
 }

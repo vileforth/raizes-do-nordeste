@@ -80,6 +80,24 @@ describe('SupportService', () => {
     expect(prisma.supportHistory.create).toHaveBeenCalled();
   });
 
+  it('filters tickets by status', async () => {
+    prisma.supportTicket.findMany.mockResolvedValue([]);
+    prisma.supportTicket.count.mockResolvedValue(0);
+
+    await service.findAll(
+      { ...user, roles: [UserRole.ATENDENTE] },
+      { status: SupportStatus.ABERTO, page: 1, pageSize: 8 },
+    );
+
+    expect(prisma.supportTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: SupportStatus.ABERTO }),
+        skip: 0,
+        take: 8,
+      }),
+    );
+  });
+
   it('writes history when status changes', async () => {
     prisma.supportTicket.findUnique.mockResolvedValue({
       id: 1,

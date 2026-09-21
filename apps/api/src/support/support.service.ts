@@ -15,9 +15,9 @@ import {
   resolveOrderBy,
   searchContains,
   type Paginated,
-  type PaginationInput,
 } from '../common/pagination/pagination';
 import { CreateSupportDto } from './dto/create-support.dto';
+import { ListSupportQueryDto } from './dto/list-support.query';
 import { UpdateSupportDto } from './dto/update-support.dto';
 import { deleteSupportTicketsByIds } from '../common/cascade-delete';
 import { buildSupportProtocol } from './support-protocol';
@@ -75,12 +75,13 @@ export class SupportService {
 
   async findAll(
     user: AuthenticatedUser,
-    query: PaginationInput = {},
+    query: ListSupportQueryDto = {},
   ): Promise<Paginated<SupportTicket>> {
     const { page, pageSize, skip, take, search } = normalizePagination(query);
     const scope = await this.buildListScope(user);
     const searchWhere = searchContains(['protocol', 'description'], search);
-    const where = { ...scope, ...(searchWhere ?? {}) };
+    const statusWhere = query.status ? { status: query.status } : {};
+    const where = { ...scope, ...statusWhere, ...(searchWhere ?? {}) };
     const orderBy = resolveOrderBy(query.orderBy, ['id', 'openedAt', 'protocol'], {
       openedAt: 'desc',
     });

@@ -8,7 +8,7 @@ export type SupportTicket = {
   type: string;
   status: string;
   description: string;
-  createdAt: string;
+  openedAt: string;
 };
 
 export const supportResource = createResource<SupportTicket>('support', {
