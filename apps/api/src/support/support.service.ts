@@ -19,6 +19,7 @@ import {
 } from '../common/pagination/pagination';
 import { CreateSupportDto } from './dto/create-support.dto';
 import { UpdateSupportDto } from './dto/update-support.dto';
+import { deleteSupportTicketsByIds } from '../common/cascade-delete';
 import { buildSupportProtocol } from './support-protocol';
 
 @Injectable()
@@ -148,6 +149,12 @@ export class SupportService {
 
     this.logger.info('Support ticket updated', { ticketId: id });
     return ticket;
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.findOne(id);
+    await this.prisma.$transaction((tx) => deleteSupportTicketsByIds(tx, [id]));
+    this.logger.info('Support ticket removed', { ticketId: id });
   }
 
   private async generateUniqueProtocol(): Promise<string> {

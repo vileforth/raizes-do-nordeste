@@ -13,6 +13,7 @@ export default function UnitsPage() {
     <EntityListPage
       title={t('title')}
       useList={unitsResource.useList}
+      useRemove={unitsResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/units/${r.id}`}

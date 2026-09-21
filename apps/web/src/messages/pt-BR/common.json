@@ -23,5 +23,7 @@
   "paginationRange": "{start}–{end} de {total}",
   "previousPage": "Página anterior",
   "nextPage": "Próxima página",
-  "status": "Status"
+  "status": "Status",
+  "confirmDeleteTitle": "Excluir registro",
+  "confirmDeleteDescription": "Esta ação não pode ser desfeita. Deseja excluir este item?"
 }

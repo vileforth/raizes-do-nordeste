@@ -19,6 +19,7 @@ import {
 } from '../common/pagination/pagination';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { deleteClientGraph } from '../common/cascade-delete';
 import { ClientResponseDto } from './dto/client-response.dto';
 
 @Injectable()
@@ -115,6 +116,13 @@ export class ClientsService {
 
     this.logger.info('Client updated', { clientId: id, actorId: actor.id });
     return this.toResponse(updated);
+  }
+
+  async remove(actor: AuthenticatedUser, id: number): Promise<void> {
+    assertAnyRole(actor, [UserRole.ADMINISTRADOR, UserRole.GERENTE]);
+    await this.getClientOrThrow(id);
+    await this.prisma.$transaction((tx) => deleteClientGraph(tx, id));
+    this.logger.info('Client removed', { clientId: id, actorId: actor.id });
   }
 
   private async getClientOrThrow(id: number) {

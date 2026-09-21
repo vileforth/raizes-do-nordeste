@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -47,6 +48,16 @@ export class StockController {
     @Body() dto: UpdateStockProductDto,
   ): Promise<StockProductResponseDto> {
     return this.stockService.updateStockProduct(user, id, dto);
+  }
+
+  @Delete('stock/products/:id')
+  @Roles(UserRole.GERENTE, UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Delete stock product' })
+  removeStockProduct(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.stockService.removeStockProduct(user, id);
   }
 
   @Get('stock/low')

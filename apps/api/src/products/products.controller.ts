@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -51,6 +51,16 @@ export class ProductsController {
     @Body() dto: CreateProductDto,
   ): Promise<ProductResponseDto> {
     return this.productsService.create(user, dto);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.GERENTE, UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Delete product' })
+  remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.productsService.remove(user, id);
   }
 
   @Put(':id')

@@ -12,6 +12,7 @@ export default function CouponsPage() {
     <EntityListPage
       title={t('coupons')}
       useList={couponsResource.useList}
+      useRemove={couponsResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       columns={[

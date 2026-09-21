@@ -27,6 +27,7 @@ import {
   calculateOrderTotal,
   resolveOrderItems,
 } from './order-items.resolver';
+import { deleteOrdersByIds } from '../common/cascade-delete';
 import {
   canUpdateOrderItems,
   isValidOrderStatusTransition,
@@ -199,6 +200,13 @@ export class OrdersService {
     });
 
     return updated;
+  }
+
+  async remove(id: number, user: AuthenticatedUser) {
+    const order = await this.getOrderOrThrow(id);
+    await assertStaffUnitAccess(this.prisma, order, user);
+    await this.prisma.$transaction((tx) => deleteOrdersByIds(tx, [id]));
+    this.logger.info('Order removed', { orderId: id, userId: user.id });
   }
 
   private async generateOrderCode(): Promise<string> {

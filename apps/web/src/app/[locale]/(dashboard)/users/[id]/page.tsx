@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { ResourceDeleteButton } from '@/components/resource-delete-button';
 import { SectionCard } from '@/components/section-card';
 import { StatusBadge } from '@/components/status-badge';
 import { usersResource } from '@/services/users';
@@ -13,7 +14,10 @@ export default function UserDetailPage() {
   if (isLoading) return <div className="h-40 animate-pulse rounded-2xl bg-black/5" />;
   if (!data) return null;
   return (
-    <SectionCard title={t('users')}>
+    <SectionCard
+      title={t('users')}
+      actions={<ResourceDeleteButton id={id} href="/users" useRemove={usersResource.useRemove} />}
+    >
       <dl className="grid gap-3 text-sm">
         <div><dt className="t-eyebrow">Name</dt><dd>{data.name}</dd></div>
         <div><dt className="t-eyebrow">Email</dt><dd>{data.email}</dd></div>

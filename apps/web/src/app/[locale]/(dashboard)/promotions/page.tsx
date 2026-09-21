@@ -13,6 +13,7 @@ export default function PromotionsPage() {
     <EntityListPage
       title={t('title')}
       useList={promotionsResource.useList}
+      useRemove={promotionsResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/promotions/${r.id}`}

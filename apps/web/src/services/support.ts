@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from '@/lib/api';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { toQueryString, type ListQuery } from '@/lib/list-query';
 import { createResource, type Paginated } from './_factory/create-resource';
 
@@ -17,4 +17,5 @@ export const supportResource = createResource<SupportTicket>('support', {
   detail: (id) => apiGet<SupportTicket>(`/support/${id}`),
   create: (input) => apiPost<SupportTicket>('/support', input),
   update: (id, input) => apiPut<SupportTicket>(`/support/${id}`, input),
+  remove: (id) => apiDelete(`/support/${id}`),
 });

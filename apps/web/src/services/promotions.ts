@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from '@/lib/api';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { toQueryString, type ListQuery } from '@/lib/list-query';
 import { createResource, type Paginated } from './_factory/create-resource';
 
@@ -18,4 +18,5 @@ export const promotionsResource = createResource<Promotion>('promotions', {
   detail: (id) => apiGet<Promotion>(`/promotions/${id}`),
   create: (input) => apiPost<Promotion>('/promotions', input),
   update: (id, input) => apiPut<Promotion>(`/promotions/${id}`, input),
+  remove: (id) => apiDelete(`/promotions/${id}`),
 });

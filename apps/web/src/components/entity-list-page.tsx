@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { DataTable } from '@/components/data-table';
+import { DeleteAction } from '@/components/delete-action';
 import { ListPageScaffold } from '@/components/list-page-scaffold';
 import { Pagination } from '@/components/pagination';
 import type { Column } from '@/components/data-table/data-table.types';
@@ -15,6 +16,10 @@ type ListResult<T> = {
   isLoading: boolean;
 };
 
+type RemoveResult = {
+  mutateAsync: (id: string) => Promise<unknown>;
+};
+
 type Props<T> = {
   title: string;
   columns: Column<T>[];
@@ -23,6 +28,8 @@ type Props<T> = {
   detailPath?: (row: T) => string;
   actions?: React.ReactNode;
   useList: (params?: ListQuery) => ListResult<T>;
+  useRemove: () => RemoveResult;
+  getRowId?: (row: T) => string;
 };
 
 export function EntityListPage<T>({
@@ -33,13 +40,27 @@ export function EntityListPage<T>({
   detailPath,
   actions,
   useList,
+  useRemove,
+  getRowId = (row) => String(rowKey(row)),
 }: Props<T>) {
   const router = useRouter();
   const t = useTranslations('common');
   const { search, setSearch, orderBy, setOrderBy, setPage, params } = useTableState();
   const { data, isLoading } = useList(params);
+  const remove = useRemove();
   const rows = data?.data ?? [];
   const pagination = data?.pagination;
+  const tableColumns: Column<T>[] = [
+    ...columns,
+    {
+      key: 'actions',
+      header: t('actions'),
+      align: 'right',
+      cell: (row) => (
+        <DeleteAction onRemove={() => remove.mutateAsync(getRowId(row))} compact />
+      ),
+    },
+  ];
 
   return (
     <ListPageScaffold
@@ -58,7 +79,7 @@ export function EntityListPage<T>({
     >
       <DataTable
         rows={rows}
-        columns={columns}
+        columns={tableColumns}
         rowKey={rowKey}
         isLoading={isLoading}
         emptyMessage={emptyMessage}

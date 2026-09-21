@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from '@/lib/api';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { toQueryString, type ListQuery } from '@/lib/list-query';
 import { createResource, type Paginated } from './_factory/create-resource';
 
@@ -15,4 +15,5 @@ export const clientsResource = createResource<Client>('clients', {
   detail: (id) => apiGet<Client>(`/clients/${id}`),
   create: (input) => apiPost<Client>('/clients', input),
   update: (id, input) => apiPut<Client>(`/clients/${id}`, input),
+  remove: (id) => apiDelete(`/clients/${id}`),
 });

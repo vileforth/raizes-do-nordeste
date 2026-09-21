@@ -15,7 +15,7 @@ export function isValidOrderStatusTransition(
   current: OrderStatus,
   target: OrderStatus,
 ): boolean {
-  return getNextOrderStatus(current) === target;
+  return current !== target;
 }
 
 export function canUpdateOrderItems(status: OrderStatus): boolean {

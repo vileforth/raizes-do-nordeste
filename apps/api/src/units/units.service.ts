@@ -23,6 +23,7 @@ import {
 } from '../common/pagination/pagination';
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { UpdateUnitDto } from './dto/update-unit.dto';
+import { deleteUnitGraph } from '../common/cascade-delete';
 import { UnitResponseDto } from './dto/unit-response.dto';
 
 @Injectable()
@@ -117,6 +118,13 @@ export class UnitsService {
 
     this.logger.info('Unit updated', { unitId: id, actorId: actor.id });
     return this.toResponse(unit);
+  }
+
+  async remove(actor: AuthenticatedUser, id: number): Promise<void> {
+    assertAnyRole(actor, [UserRole.ADMINISTRADOR]);
+    await this.getUnitOrThrow(id);
+    await this.prisma.$transaction((tx) => deleteUnitGraph(tx, id));
+    this.logger.info('Unit removed', { unitId: id, actorId: actor.id });
   }
 
   private async getUnitOrThrow(id: number) {

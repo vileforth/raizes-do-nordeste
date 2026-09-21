@@ -1,4 +1,4 @@
-import { apiGet, apiPatch } from '@/lib/api';
+import { apiDelete, apiGet, apiPatch } from '@/lib/api';
 import { toQueryString, type ListQuery } from '@/lib/list-query';
 import type { Paginated } from './_factory/create-resource';
 
@@ -16,4 +16,8 @@ export async function getLowStock(params?: ListQuery) {
 
 export async function updateStockProduct(id: number, quantity: number) {
   return apiPatch(`/stock/products/${id}`, { quantity });
+}
+
+export function removeStockProduct(id: string) {
+  return apiDelete(`/stock/products/${id}`);
 }

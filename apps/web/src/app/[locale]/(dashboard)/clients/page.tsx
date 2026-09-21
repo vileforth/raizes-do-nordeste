@@ -13,6 +13,7 @@ export default function ClientsPage() {
     <EntityListPage
       title={t('title')}
       useList={clientsResource.useList}
+      useRemove={clientsResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/clients/${r.id}`}

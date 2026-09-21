@@ -4,6 +4,7 @@ import { Button, Input } from '@heroui/react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { ResourceDeleteButton } from '@/components/resource-delete-button';
 import { SectionCard } from '@/components/section-card';
 import { StatusBadge } from '@/components/status-badge';
 import { useToast } from '@/providers/toast-provider';
@@ -40,7 +41,10 @@ export default function UnitDetailPage() {
   }
 
   return (
-    <SectionCard title={t('detail')}>
+    <SectionCard
+      title={t('detail')}
+      actions={<ResourceDeleteButton id={id} href="/units" useRemove={unitsResource.useRemove} />}
+    >
       <dl className="mb-4 grid gap-3 text-sm">
         <div><dt className="t-eyebrow">Name</dt><dd>{data.name}</dd></div>
         <div><dt className="t-eyebrow">Status</dt><dd><StatusBadge status={data.status} /></dd></div>

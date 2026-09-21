@@ -89,6 +89,26 @@ export class StockService {
     return this.toStockProductResponse(updated);
   }
 
+  async removeStockProduct(
+    actor: AuthenticatedUser,
+    stockProductId: number,
+  ): Promise<void> {
+    assertAnyRole(actor, [UserRole.GERENTE, UserRole.ADMINISTRADOR]);
+    const stockProduct = await this.prisma.stockProduct.findUnique({
+      where: { id: stockProductId },
+      include: { stock: true },
+    });
+    if (!stockProduct) {
+      throw new NotFoundException('Stock product not found');
+    }
+    await this.assertCanAccessUnit(actor, stockProduct.stock.unitId);
+    await this.prisma.stockProduct.delete({ where: { id: stockProductId } });
+    this.logger.info('Stock product removed', {
+      stockProductId,
+      actorId: actor.id,
+    });
+  }
+
   async findLowStock(
     actor: AuthenticatedUser,
     query: PaginationInput = {},

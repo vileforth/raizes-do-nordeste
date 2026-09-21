@@ -14,6 +14,7 @@ export default function ProductsPage() {
     <EntityListPage
       title={t('title')}
       useList={productsResource.useList}
+      useRemove={productsResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/products/${r.id}`}

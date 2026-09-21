@@ -13,6 +13,7 @@ export default function SupportPage() {
     <EntityListPage
       title={t('title')}
       useList={supportResource.useList}
+      useRemove={supportResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/support/${r.id}`}

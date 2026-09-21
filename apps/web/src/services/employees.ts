@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from '@/lib/api';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { toQueryString, type ListQuery } from '@/lib/list-query';
 import { createResource, type Paginated } from './_factory/create-resource';
 
@@ -16,4 +16,5 @@ export const employeesResource = createResource<Employee>('employees', {
   detail: (id) => apiGet<Employee>(`/employees/${id}`),
   create: (input) => apiPost<Employee>('/employees', input),
   update: (id, input) => apiPut<Employee>(`/employees/${id}`, input),
+  remove: (id) => apiDelete(`/employees/${id}`),
 });

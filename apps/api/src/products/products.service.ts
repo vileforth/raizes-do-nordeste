@@ -15,6 +15,7 @@ import {
 } from '../common/pagination/pagination';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { deleteProductGraph } from '../common/cascade-delete';
 import { ProductResponseDto } from './dto/product-response.dto';
 
 @Injectable()
@@ -80,6 +81,13 @@ export class ProductsService {
 
     this.logger.info('Product updated', { productId: id, actorId: actor.id });
     return this.toResponse(product);
+  }
+
+  async remove(actor: AuthenticatedUser, id: number): Promise<void> {
+    this.assertCanWrite(actor);
+    await this.getProductOrThrow(id);
+    await this.prisma.$transaction((tx) => deleteProductGraph(tx, id));
+    this.logger.info('Product removed', { productId: id, actorId: actor.id });
   }
 
   private assertCanWrite(actor: AuthenticatedUser): void {

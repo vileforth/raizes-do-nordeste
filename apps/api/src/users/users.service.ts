@@ -26,6 +26,7 @@ import {
   type Paginated,
   type PaginationInput,
 } from '../common/pagination/pagination';
+import { deleteUserGraph } from '../common/cascade-delete';
 import { UserResponseDto } from './dto/user-response.dto';
 
 const userInclude = {
@@ -179,6 +180,16 @@ export class UsersService {
     const user = await this.getUserOrThrow(id);
     this.logger.info('User profiles updated', { userId: id, actorId: actor.id });
     return this.toResponse(user);
+  }
+
+  async remove(actor: AuthenticatedUser, id: number): Promise<void> {
+    assertAnyRole(actor, [UserRole.ADMINISTRADOR]);
+    if (actor.id === id) {
+      throw new ConflictException('Cannot delete the authenticated user');
+    }
+    await this.getUserOrThrow(id);
+    await this.prisma.$transaction((tx) => deleteUserGraph(tx, id));
+    this.logger.info('User removed', { userId: id, actorId: actor.id });
   }
 
   private async getUserOrThrow(id: number): Promise<UserWithProfiles> {

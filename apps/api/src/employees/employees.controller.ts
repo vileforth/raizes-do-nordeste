@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -47,6 +47,16 @@ export class EmployeesController {
     @Body() dto: CreateEmployeeDto,
   ): Promise<EmployeeResponseDto> {
     return this.employeesService.create(user, dto);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.GERENTE, UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Delete employee' })
+  remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.employeesService.remove(user, id);
   }
 
   @Put(':id')

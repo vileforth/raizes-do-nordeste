@@ -13,6 +13,7 @@ import {
   type Paginated,
   type PaginationInput,
 } from '../common/pagination/pagination';
+import { deletePromotionGraph } from '../common/cascade-delete';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
 
@@ -137,6 +138,12 @@ export class PromotionsService {
       promotionId,
       productIds,
     });
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.ensureExists(id);
+    await this.prisma.$transaction((tx) => deletePromotionGraph(tx, id));
+    this.logger.info('Promotion removed', { promotionId: id });
   }
 
   private activePromotionFilter(): Prisma.PromotionWhereInput {

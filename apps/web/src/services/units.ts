@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from '@/lib/api';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { toQueryString, type ListQuery } from '@/lib/list-query';
 import { createResource, type Paginated } from './_factory/create-resource';
 
@@ -18,6 +18,7 @@ export const unitsResource = createResource<Unit>('units', {
   detail: (id) => apiGet<Unit>(`/units/${id}`),
   create: (input) => apiPost<Unit>('/units', input),
   update: (id, input) => apiPut<Unit>(`/units/${id}`, input),
+  remove: (id) => apiDelete(`/units/${id}`),
 });
 
 export async function geocodeAddress(address: string) {

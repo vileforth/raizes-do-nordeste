@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from '@/lib/api';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { toQueryString, type ListQuery } from '@/lib/list-query';
 import { createResource, type Paginated } from './_factory/create-resource';
 
@@ -16,4 +16,5 @@ export const usersResource = createResource<User>('users', {
   detail: (id) => apiGet<User>(`/users/${id}`),
   create: (input) => apiPost<User>('/users', input),
   update: (id, input) => apiPut<User>(`/users/${id}`, input),
+  remove: (id) => apiDelete(`/users/${id}`),
 });

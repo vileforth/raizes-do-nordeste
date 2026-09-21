@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from '@/lib/api';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { toQueryString, type ListQuery } from '@/lib/list-query';
 import { createResource, type Paginated } from './_factory/create-resource';
 
@@ -36,10 +36,11 @@ export const ordersResource = createResource<Order>('orders', {
   detail: (id) => apiGet<Order>(`/orders/${id}`),
   create: (input) => apiPost<Order>('/orders', input),
   update: (id, input) => apiPut<Order>(`/orders/${id}`, input),
+  remove: (id) => apiDelete(`/orders/${id}`),
 });
 
-export function updateOrderStatus(id: string, status: string, observation?: string) {
-  return apiPut(`/orders/${id}/status`, { status, observation });
+export function updateOrderStatus(id: string, status: string) {
+  return apiPut(`/orders/${id}/status`, { status });
 }
 
 export function getOrderStatusHistory(id: string) {

@@ -5,6 +5,7 @@ import { Button } from '@heroui/react';
 import { useParams } from 'next/navigation';
 import { useMessages, useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { ResourceDeleteButton } from '@/components/resource-delete-button';
 import { SectionCard } from '@/components/section-card';
 import { StatusBadge } from '@/components/status-badge';
 import { formatMoney } from '@/lib/helpers/money';
@@ -70,11 +71,14 @@ export default function OrderDetailPage() {
       <SectionCard
         title={`${t('detail')} ${data.orderCode}`}
         actions={
-          nextStatus ? (
-            <Button size="sm" onPress={advanceStatus}>
-              {statusLabel(nextStatus)}
-            </Button>
-          ) : null
+          <div className="flex items-center gap-2">
+            {nextStatus ? (
+              <Button size="sm" onPress={advanceStatus}>
+                {statusLabel(nextStatus)}
+              </Button>
+            ) : null}
+            <ResourceDeleteButton id={id} href="/orders" useRemove={ordersResource.useRemove} />
+          </div>
         }
       >
         <dl className="grid gap-3 text-sm sm:grid-cols-3">

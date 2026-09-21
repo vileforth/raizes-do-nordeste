@@ -15,6 +15,7 @@ describe('EmployeesService', () => {
       findFirst: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      delete: jest.Mock;
       count: jest.Mock;
     };
     user: { findUnique: jest.Mock };
@@ -39,6 +40,7 @@ describe('EmployeesService', () => {
         findFirst: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        delete: jest.fn(),
         count: jest.fn().mockResolvedValue(0),
       },
       user: { findUnique: jest.fn() },
@@ -78,5 +80,23 @@ describe('EmployeesService', () => {
       .mockResolvedValueOnce({ unitId: 3, active: true });
 
     await expect(service.findOne(manager, 1)).rejects.toThrow(ForbiddenException);
+  });
+
+  it('removes employee from the manager unit', async () => {
+    prisma.employee.findUnique
+      .mockResolvedValueOnce({
+        id: 1,
+        userId: 10,
+        unitId: 3,
+        registrationNumber: 'A',
+        role: 'X',
+        active: true,
+      })
+      .mockResolvedValueOnce({ unitId: 3, active: true });
+    prisma.employee.delete.mockResolvedValue({ id: 1 });
+
+    await service.remove(manager, 1);
+
+    expect(prisma.employee.delete).toHaveBeenCalledWith({ where: { id: 1 } });
   });
 });

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -78,6 +79,13 @@ export class PromotionsController {
   @ApiOperation({ summary: 'Activate promotion' })
   activate(@Param('id', ParseIntPipe) id: number) {
     return this.promotionsService.activate(id);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Delete promotion' })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.promotionsService.remove(id);
   }
 
   @Post(':id/units')

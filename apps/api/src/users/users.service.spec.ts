@@ -1,4 +1,4 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { UserRole } from '@raizes/shared';
 import { UserStatus } from '@prisma/client';
 import { LoggerService } from '../logger/logger.service';
@@ -152,5 +152,9 @@ describe('UsersService', () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     await expect(service.findOne(admin, 99)).rejects.toThrow(NotFoundException);
+  });
+
+  it('rejects deleting the authenticated user', async () => {
+    await expect(service.remove(admin, 1)).rejects.toThrow(ConflictException);
   });
 });

@@ -12,6 +12,7 @@ export default function EmployeesPage() {
     <EntityListPage
       title={t('employees')}
       useList={employeesResource.useList}
+      useRemove={employeesResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       columns={[

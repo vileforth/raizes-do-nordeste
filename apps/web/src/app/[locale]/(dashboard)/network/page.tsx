@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { DeleteAction } from '@/components/delete-action';
 import { GlassPanel } from '@/components/glass-panel';
 import { Pagination } from '@/components/pagination';
 import { StatusBadge } from '@/components/status-badge';
@@ -12,6 +13,7 @@ export default function NetworkPage() {
   const tCommon = useTranslations('common');
   const { search, setSearch, setPage, params } = useTableState();
   const { data, isLoading } = unitsResource.useList(params);
+  const remove = unitsResource.useRemove();
   if (isLoading) return <div className="h-64 animate-pulse rounded-2xl bg-black/5" />;
   const units = data?.data ?? [];
   return (
@@ -36,6 +38,9 @@ export default function NetworkPage() {
                 {unit.latitude.toFixed(4)}, {unit.longitude.toFixed(4)}
               </p>
             )}
+            <div className="mt-3">
+              <DeleteAction onRemove={() => remove.mutateAsync(String(unit.id))} compact />
+            </div>
           </GlassPanel>
         ))}
       </div>

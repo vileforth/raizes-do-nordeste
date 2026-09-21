@@ -1,16 +1,18 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { DataTable } from '@/components/data-table';
+import { DeleteAction } from '@/components/delete-action';
 import { ListPageScaffold } from '@/components/list-page-scaffold';
 import { Pagination } from '@/components/pagination';
 import { useTableState } from '@/hooks/use-table-state';
-import { getLowStock } from '@/services/stock';
+import { getLowStock, removeStockProduct } from '@/services/stock';
 
 export default function StockPage() {
   const t = useTranslations('nav');
   const tCommon = useTranslations('common');
+  const queryClient = useQueryClient();
   const { search, setSearch, setPage, params } = useTableState();
   const { data, isLoading } = useQuery({
     queryKey: ['stock', 'low', params],
@@ -37,6 +39,20 @@ export default function StockPage() {
           { key: 'product', header: 'Product', cell: (r) => r.productName },
           { key: 'qty', header: 'Qty', cell: (r) => r.quantity },
           { key: 'min', header: 'Min', cell: (r) => r.minimumStock },
+          {
+            key: 'actions',
+            header: tCommon('actions'),
+            align: 'right',
+            cell: (row) => (
+              <DeleteAction
+                compact
+                onRemove={() => removeStockProduct(String(row.id))}
+                onDeleted={() => {
+                  queryClient.invalidateQueries({ queryKey: ['stock'] });
+                }}
+              />
+            ),
+          },
         ]}
       />
       {data?.pagination ? <Pagination {...data.pagination} onPageChange={setPage} /> : null}

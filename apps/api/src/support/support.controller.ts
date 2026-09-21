@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -58,6 +59,13 @@ export class SupportController {
   @ApiOperation({ summary: 'Get support ticket by id' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.supportService.findOne(id);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.GERENTE)
+  @ApiOperation({ summary: 'Delete support ticket' })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.supportService.remove(id);
   }
 
   @Put(':id')

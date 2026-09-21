@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -105,6 +106,16 @@ export class OrdersController {
     return this.ordersService.updateItems(id, dto, user);
   }
 
+  @Delete(':id')
+  @Roles(UserRole.GERENTE, UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Delete order' })
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ordersService.remove(id, user);
+  }
+
   @Put(':id/status')
   @Roles(
     UserRole.ATENDENTE,
@@ -112,7 +123,7 @@ export class OrdersController {
     UserRole.GERENTE,
     UserRole.ADMINISTRADOR,
   )
-  @ApiOperation({ summary: 'Advance order status to the next step' })
+  @ApiOperation({ summary: 'Update order status' })
   updateStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateOrderStatusDto,

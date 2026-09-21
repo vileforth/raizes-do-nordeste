@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@raizes/shared';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -60,6 +60,16 @@ export class UsersController {
     @Body() dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     return this.usersService.update(user, id, dto);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Delete user' })
+  remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.usersService.remove(user, id);
   }
 
   @Put(':id/profiles')

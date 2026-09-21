@@ -12,6 +12,7 @@ export default function UsersPage() {
     <EntityListPage
       title={t('users')}
       useList={usersResource.useList}
+      useRemove={usersResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/users/${r.id}`}

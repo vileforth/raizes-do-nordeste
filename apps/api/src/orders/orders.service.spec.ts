@@ -207,7 +207,7 @@ describe('OrdersService', () => {
     ).rejects.toThrow(ConflictException);
   });
 
-  it('rejects invalid status transitions', async () => {
+  it('rejects same-status transitions', async () => {
     prisma.order.findUnique.mockResolvedValue({
       id: 1,
       clientId: 5,
@@ -225,9 +225,10 @@ describe('OrdersService', () => {
     await expect(
       service.updateStatus(
         1,
-        { status: OrderStatus.PRONTO },
+        { status: OrderStatus.RECEBIDO },
         staffUser,
       ),
     ).rejects.toThrow(ConflictException);
   });
+
 });

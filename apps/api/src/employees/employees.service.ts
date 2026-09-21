@@ -140,6 +140,13 @@ export class EmployeesService {
     return this.toResponse(updated);
   }
 
+  async remove(actor: AuthenticatedUser, id: number): Promise<void> {
+    const employee = await this.getEmployeeOrThrow(id);
+    await this.assertCanAccessEmployee(actor, employee.unitId);
+    await this.prisma.employee.delete({ where: { id } });
+    this.logger.info('Employee removed', { employeeId: id, actorId: actor.id });
+  }
+
   private async getEmployeeOrThrow(id: number) {
     const employee = await this.prisma.employee.findUnique({ where: { id } });
     if (!employee) {

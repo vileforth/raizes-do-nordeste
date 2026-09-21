@@ -14,6 +14,7 @@ export default function OrdersPage() {
     <EntityListPage
       title={t('title')}
       useList={ordersResource.useList}
+      useRemove={ordersResource.useRemove}
       emptyMessage={tCommon('noResults')}
       rowKey={(r) => r.id}
       detailPath={(r) => `/orders/${r.id}`}

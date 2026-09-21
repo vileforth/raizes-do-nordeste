@@ -17,7 +17,7 @@ describe('order-status.machine', () => {
     expect(getNextOrderStatus(OrderStatus.RETIRADO)).toBeNull();
   });
 
-  it('allows only sequential status transitions', () => {
+  it('allows moving to any different status', () => {
     expect(
       isValidOrderStatusTransition(
         OrderStatus.RECEBIDO,
@@ -26,15 +26,12 @@ describe('order-status.machine', () => {
     ).toBe(true);
     expect(
       isValidOrderStatusTransition(OrderStatus.RECEBIDO, OrderStatus.PRONTO),
-    ).toBe(false);
-    expect(
-      isValidOrderStatusTransition(
-        OrderStatus.EM_PREPARACAO,
-        OrderStatus.PRONTO,
-      ),
     ).toBe(true);
     expect(
       isValidOrderStatusTransition(OrderStatus.RETIRADO, OrderStatus.RECEBIDO),
+    ).toBe(true);
+    expect(
+      isValidOrderStatusTransition(OrderStatus.PRONTO, OrderStatus.PRONTO),
     ).toBe(false);
   });
 
