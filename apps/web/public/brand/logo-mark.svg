@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none" role="img" aria-label="Raízes do Nordeste">
+  <path d="M16 50 L48 18 L80 50" stroke="#C45C2A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 10 L49.6 14.6 L54.6 15.2 L50.8 18.4 L51.9 23.2 L48 20.6 L44.1 23.2 L45.2 18.4 L41.4 15.2 L46.4 14.6 Z" fill="#C45C2A"/>
+  <path d="M48 46 V82" stroke="#5F8A3A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M48 62 H32 V52" stroke="#5F8A3A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 68 H64 V58" stroke="#5F8A3A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

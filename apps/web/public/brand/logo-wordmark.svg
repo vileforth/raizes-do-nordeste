@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" fill="none" role="img" aria-label="Raízes do Nordeste">
+  <path d="M196 86 L320 28 L444 86" stroke="#C45C2A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M320 14 L323.2 22.8 L332.6 23.8 L325.4 29.8 L327.4 39 L320 34.2 L312.6 39 L314.6 29.8 L307.4 23.8 L316.8 22.8 Z" fill="#C45C2A"/>
+  <text x="320" y="196" text-anchor="middle" fill="#3B2A22" font-family="Nunito, Arial Rounded MT Bold, Arial, sans-serif" font-size="92" font-weight="800" letter-spacing="10">RAÍZES</text>
+  <text x="168" y="292" text-anchor="middle" fill="#C45C2A" font-family="Nunito, Arial Rounded MT Bold, Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="8">DO</text>
+  <text x="320" y="360" text-anchor="middle" fill="#C45C2A" font-family="Nunito, Arial Rounded MT Bold, Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="6">NOR DES E</text>
+  <g transform="translate(286 286)">
+    <path d="M18 0 V72" stroke="#5F8A3A" stroke-width="14" stroke-linecap="round"/>
+    <path d="M18 30 H2 V16" stroke="#5F8A3A" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M18 42 H34 V28" stroke="#5F8A3A" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

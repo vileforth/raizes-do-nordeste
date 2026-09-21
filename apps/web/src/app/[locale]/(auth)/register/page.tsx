@@ -1,24 +1,31 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input } from '@heroui/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { apiPost } from '@/lib/api';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { registerSchema, type RegisterFormValues } from '@/schemas/login.schema';
-import { useToast } from '@/providers/toast-provider';
+import { AuthAlert } from '../_components/auth-alert';
+import { AuthField } from '../_components/auth-field';
+import { AuthShell } from '../_components/auth-shell';
+import { AuthSubmit } from '../_components/auth-submit';
 
 export default function RegisterPage() {
   const t = useTranslations('auth');
-  const tCommon = useTranslations('common');
-  const toast = useToast();
   const router = useRouter();
-  const form = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { name: '', email: '', phone: '', password: '' },
+  });
 
   async function onSubmit(values: RegisterFormValues) {
+    setErrorMessage(null);
     try {
       const tokens = await apiPost<{
         accessToken: string;
@@ -29,38 +36,68 @@ export default function RegisterPage() {
         access_token: tokens.accessToken,
         refresh_token: tokens.refreshToken,
       });
-      toast.success(tCommon('success'));
       router.push('/');
     } catch {
-      toast.error(tCommon('error'));
+      setErrorMessage(t('errorGeneric'));
     }
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="t-page-title">{t('registerTitle')}</h1>
-      <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-        <label className="block text-sm font-medium">
-          {t('name')}
-          <Input className="mt-1" placeholder={t('name')} {...form.register('name')} />
-        </label>
-        <label className="block text-sm font-medium">
-          {t('email')}
-          <Input className="mt-1" type="email" placeholder={t('email')} {...form.register('email')} />
-        </label>
-        <label className="block text-sm font-medium">
-          {t('phone')}
-          <Input className="mt-1" placeholder={t('phone')} {...form.register('phone')} />
-        </label>
-        <label className="block text-sm font-medium">
-          {t('password')}
-          <Input className="mt-1" type="password" placeholder={t('password')} {...form.register('password')} />
-        </label>
-        <Button color="primary" type="submit" className="w-full">{t('register')}</Button>
+    <AuthShell
+      backHref="/login"
+      backLabel={t('backToLogin')}
+      title={t('registerTitle')}
+      subtitle={t('registerSubtitle')}
+      footer={
+        <p className="text-xs leading-relaxed text-[var(--raizes-text-secondary)]">
+          {t('hasAccount')}{' '}
+          <Link href="/login" className="font-semibold text-[var(--raizes-petrol)] underline">
+            {t('login')}
+          </Link>
+        </p>
+      }
+    >
+      {errorMessage ? <AuthAlert tone="error" message={errorMessage} /> : null}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <AuthField
+          label={t('name')}
+          placeholder={t('namePlaceholder')}
+          autoComplete="name"
+          error={form.formState.errors.name?.message}
+          {...form.register('name')}
+        />
+        <AuthField
+          label={t('email')}
+          type="email"
+          placeholder={t('emailPlaceholder')}
+          autoComplete="email"
+          error={form.formState.errors.email?.message}
+          {...form.register('email')}
+        />
+        <AuthField
+          label={t('phone')}
+          placeholder={t('phonePlaceholder')}
+          autoComplete="tel"
+          error={form.formState.errors.phone?.message}
+          {...form.register('phone')}
+        />
+        <AuthField
+          label={t('password')}
+          type={showPassword ? 'text' : 'password'}
+          placeholder={t('passwordPlaceholder')}
+          autoComplete="new-password"
+          error={form.formState.errors.password?.message}
+          hasToggle
+          showPassword={showPassword}
+          onTogglePassword={() => setShowPassword((value) => !value)}
+          revealLabel={t('showPassword')}
+          hideLabel={t('hidePassword')}
+          {...form.register('password')}
+        />
+        <AuthSubmit loading={form.formState.isSubmitting} loadingLabel={t('submitting')}>
+          {t('register')}
+        </AuthSubmit>
       </form>
-      <p className="text-sm text-center">
-        {t('hasAccount')} <Link href="/login" className="text-[var(--raizes-brand)]">{t('login')}</Link>
-      </p>
-    </div>
+    </AuthShell>
   );
 }

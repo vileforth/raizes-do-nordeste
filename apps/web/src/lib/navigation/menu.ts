@@ -2,7 +2,7 @@ import { UserRole } from '@raizes/shared';
 import type { Icon } from '@phosphor-icons/react';
 import {
   ChartBar,
-  Coupon,
+  Ticket,
   Gift,
   Headset,
   House,
@@ -30,7 +30,7 @@ const ALL_ITEMS: Record<string, NavItem> = {
   products: { key: 'products', href: '/products', icon: Package, labelKey: 'products' },
   stock: { key: 'stock', href: '/stock', icon: Warehouse, labelKey: 'stock' },
   promotions: { key: 'promotions', href: '/promotions', icon: Gift, labelKey: 'promotions' },
-  coupons: { key: 'coupons', href: '/coupons', icon: Coupon, labelKey: 'coupons' },
+  coupons: { key: 'coupons', href: '/coupons', icon: Ticket, labelKey: 'coupons' },
   loyalty: { key: 'loyalty', href: '/loyalty', icon: Gift, labelKey: 'loyalty' },
   support: { key: 'support', href: '/support', icon: Headset, labelKey: 'support' },
   units: { key: 'units', href: '/units', icon: Storefront, labelKey: 'units' },
