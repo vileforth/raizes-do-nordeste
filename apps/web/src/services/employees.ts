@@ -9,10 +9,17 @@ export type Employee = {
   registrationNumber: string;
   role: string;
   active: boolean;
+  name: string;
+  email: string;
+  phone: string;
+  userStatus: string;
+  registeredAt: string;
+  unitName: string;
 };
 
 export const employeesResource = createResource<Employee>('employees', {
-  list: (params?: ListQuery) => apiGet<Paginated<Employee>>(`/employees${toQueryString(params)}`),
+  list: (params?: ListQuery) =>
+    apiGet<Paginated<Employee>>(`/employees${toQueryString(params)}`),
   detail: (id) => apiGet<Employee>(`/employees/${id}`),
   create: (input) => apiPost<Employee>('/employees', input),
   update: (id, input) => apiPut<Employee>(`/employees/${id}`, input),

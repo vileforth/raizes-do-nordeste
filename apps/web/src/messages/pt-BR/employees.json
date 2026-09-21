@@ -1,0 +1,14 @@
+{
+  "title": "Funcionários",
+  "detail": "Detalhe do funcionário",
+  "assignment": "Lotação",
+  "name": "Nome",
+  "email": "E-mail",
+  "phone": "Telefone",
+  "registration": "Matrícula",
+  "role": "Cargo",
+  "unit": "Unidade",
+  "active": "Ativo",
+  "userStatus": "Status da conta",
+  "registeredAt": "Cadastrado em"
+}

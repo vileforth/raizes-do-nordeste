@@ -1,4 +1,4 @@
-# Raizes do Nordeste Implementation Plan
+dw# Raizes do Nordeste Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development.
 

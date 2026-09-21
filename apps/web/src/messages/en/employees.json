@@ -1,0 +1,14 @@
+{
+  "title": "Employees",
+  "detail": "Employee detail",
+  "assignment": "Assignment",
+  "name": "Name",
+  "email": "Email",
+  "phone": "Phone",
+  "registration": "Registration",
+  "role": "Role",
+  "unit": "Unit",
+  "active": "Active",
+  "userStatus": "Account status",
+  "registeredAt": "Registered at"
+}

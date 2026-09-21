@@ -5,6 +5,7 @@ import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmployeesService } from './employees.service';
 import { AuthenticatedUser } from '../auth/types/auth-user.types';
+import { employeeInclude } from './employees.mapper';
 
 describe('EmployeesService', () => {
   let service: EmployeesService;
@@ -68,15 +69,59 @@ describe('EmployeesService', () => {
 
     expect(prisma.employee.findMany).toHaveBeenCalledWith({
       where: { unitId: 3 },
+      include: employeeInclude,
       orderBy: { id: 'asc' },
       skip: 0,
       take: 20,
     });
   });
 
+  it('returns employee identity for the manager unit', async () => {
+    prisma.employee.findUnique
+      .mockResolvedValueOnce({
+        id: 1,
+        userId: 10,
+        unitId: 3,
+        registrationNumber: 'RN0001',
+        role: 'ATENDENTE',
+        active: true,
+        user: {
+          id: 10,
+          name: 'Joana Lima',
+          email: 'joana@raizes.com',
+          phone: '81991112222',
+          status: UserStatus.ATIVO,
+          registeredAt: new Date('2025-06-01T10:00:00.000Z'),
+        },
+        unit: { id: 3, name: 'Olinda' },
+      })
+      .mockResolvedValueOnce({ unitId: 3, active: true });
+
+    const result = await service.findOne(manager, 1);
+
+    expect(result.name).toBe('Joana Lima');
+    expect(result.unitName).toBe('Olinda');
+  });
+
   it('blocks manager from another unit employee', async () => {
     prisma.employee.findUnique
-      .mockResolvedValueOnce({ id: 1, userId: 10, unitId: 9, registrationNumber: 'A', role: 'X', active: true })
+      .mockResolvedValueOnce({
+        id: 1,
+        userId: 10,
+        unitId: 9,
+        registrationNumber: 'A',
+        role: 'X',
+        active: true,
+        user: {
+          id: 10,
+          name: 'Outro',
+          email: 'outro@raizes.com',
+          phone: '81000000000',
+          status: UserStatus.ATIVO,
+          registeredAt: new Date(),
+        },
+        unit: { id: 9, name: 'Outra' },
+      })
       .mockResolvedValueOnce({ unitId: 3, active: true });
 
     await expect(service.findOne(manager, 1)).rejects.toThrow(ForbiddenException);

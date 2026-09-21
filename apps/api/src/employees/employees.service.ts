@@ -16,14 +16,18 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   buildPaginated,
   normalizePagination,
-  resolveOrderBy,
-  searchContains,
   type Paginated,
   type PaginationInput,
 } from '../common/pagination/pagination';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeResponseDto } from './dto/employee-response.dto';
+import {
+  buildEmployeeSearch,
+  employeeInclude,
+  resolveEmployeeOrderBy,
+  toEmployeeResponse,
+} from './employees.mapper';
 
 @Injectable()
 export class EmployeesService {
@@ -42,19 +46,23 @@ export class EmployeesService {
     const scope = hasRole(actor, UserRole.ADMINISTRADOR)
       ? {}
       : { unitId: await resolveManagerUnitId(this.prisma, actor.id) };
-    const searchWhere = searchContains(['registrationNumber', 'role'], search);
+    const searchWhere = buildEmployeeSearch(search);
     const where = { ...scope, ...(searchWhere ?? {}) };
-    const orderBy = resolveOrderBy(query.orderBy, ['id', 'registrationNumber'], {
-      id: 'asc',
-    });
+    const orderBy = resolveEmployeeOrderBy(query.orderBy);
 
     const [employees, total] = await Promise.all([
-      this.prisma.employee.findMany({ where, orderBy, skip, take }),
+      this.prisma.employee.findMany({
+        where,
+        include: employeeInclude,
+        orderBy,
+        skip,
+        take,
+      }),
       this.prisma.employee.count({ where }),
     ]);
 
     return buildPaginated(
-      employees.map((employee) => this.toResponse(employee)),
+      employees.map((employee) => toEmployeeResponse(employee)),
       page,
       pageSize,
       total,
@@ -64,7 +72,7 @@ export class EmployeesService {
   async findOne(actor: AuthenticatedUser, id: number): Promise<EmployeeResponseDto> {
     const employee = await this.getEmployeeOrThrow(id);
     await this.assertCanAccessEmployee(actor, employee.unitId);
-    return this.toResponse(employee);
+    return toEmployeeResponse(employee);
   }
 
   async create(
@@ -98,12 +106,15 @@ export class EmployeesService {
       throw new ConflictException('User already has an employee record');
     }
 
-    const employee = await this.prisma.employee.create({ data: dto });
+    const employee = await this.prisma.employee.create({
+      data: dto,
+      include: employeeInclude,
+    });
     this.logger.info('Employee created', {
       employeeId: employee.id,
       actorId: actor.id,
     });
-    return this.toResponse(employee);
+    return toEmployeeResponse(employee);
   }
 
   async update(
@@ -134,10 +145,11 @@ export class EmployeesService {
     const updated = await this.prisma.employee.update({
       where: { id },
       data: dto,
+      include: employeeInclude,
     });
 
     this.logger.info('Employee updated', { employeeId: id, actorId: actor.id });
-    return this.toResponse(updated);
+    return toEmployeeResponse(updated);
   }
 
   async remove(actor: AuthenticatedUser, id: number): Promise<void> {
@@ -148,7 +160,10 @@ export class EmployeesService {
   }
 
   private async getEmployeeOrThrow(id: number) {
-    const employee = await this.prisma.employee.findUnique({ where: { id } });
+    const employee = await this.prisma.employee.findUnique({
+      where: { id },
+      include: employeeInclude,
+    });
     if (!employee) {
       throw new NotFoundException('Employee not found');
     }
@@ -171,23 +186,5 @@ export class EmployeesService {
     }
 
     throw new ForbiddenException('Insufficient role permissions');
-  }
-
-  private toResponse(employee: {
-    id: number;
-    userId: number;
-    unitId: number;
-    registrationNumber: string;
-    role: string;
-    active: boolean;
-  }): EmployeeResponseDto {
-    return {
-      id: employee.id,
-      userId: employee.userId,
-      unitId: employee.unitId,
-      registrationNumber: employee.registrationNumber,
-      role: employee.role,
-      active: employee.active,
-    };
   }
 }
