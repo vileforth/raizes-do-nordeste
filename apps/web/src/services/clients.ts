@@ -14,6 +14,15 @@ export type Client = {
   id: number;
   userId: number;
   cpf: string;
+  birthDate: string | null;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  preferredUnitId: number | null;
+  preferredUnitName: string | null;
+  latitude: number | null;
+  longitude: number | null;
   registeredAt: string;
   active: boolean;
   name: string;

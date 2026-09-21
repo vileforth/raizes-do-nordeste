@@ -17,6 +17,6 @@ import { SupabaseAuthClient } from './supabase/supabase-auth.client';
     JwtAuthGuard,
     RolesGuard,
   ],
-  exports: [JwtAuthGuard, RolesGuard],
+  exports: [JwtAuthGuard, RolesGuard, SupabaseAuthClient],
 })
 export class AuthModule {}

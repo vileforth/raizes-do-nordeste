@@ -3,12 +3,19 @@
   "new": "Novo cliente",
   "detail": "Detalhe do cliente",
   "identity": "Dados pessoais",
+  "address": "Endereço",
   "activity": "Atividade",
   "cpf": "CPF",
   "userId": "Usuário",
   "name": "Nome",
   "email": "E-mail",
   "phone": "Telefone",
+  "birthDate": "Nascimento",
+  "street": "Logradouro",
+  "city": "Cidade",
+  "state": "UF",
+  "zipCode": "CEP",
+  "preferredUnit": "Unidade preferida",
   "active": "Ativo",
   "userStatus": "Status da conta",
   "registeredAt": "Cadastrado em",
@@ -17,5 +24,6 @@
   "loyalty": "Fidelidade",
   "points": "Pontos",
   "lastOrder": "Último pedido",
-  "noLastOrder": "Nenhum pedido ainda"
+  "noLastOrder": "Nenhum pedido ainda",
+  "noPreferredUnit": "Nenhuma unidade preferida"
 }

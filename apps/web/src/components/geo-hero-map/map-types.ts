@@ -1,3 +1,5 @@
+export type MapPointKind = 'unit' | 'client';
+
 export type MapUnitPoint = {
   key: string;
   name: string;
@@ -5,4 +7,5 @@ export type MapUnitPoint = {
   lat: number;
   lng: number;
   active: boolean;
+  kind?: MapPointKind;
 };

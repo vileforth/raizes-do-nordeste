@@ -17,8 +17,9 @@ describe('ClientsService', () => {
       update: jest.Mock;
       count: jest.Mock;
     };
-    user: { findUnique: jest.Mock };
-  };
+      user: { findUnique: jest.Mock };
+      unit: { findUnique: jest.Mock };
+    };
   let logger: jest.Mocked<LoggerService>;
 
   const cliente: AuthenticatedUser = {
@@ -50,6 +51,7 @@ describe('ClientsService', () => {
         count: jest.fn().mockResolvedValue(0),
       },
       user: { findUnique: jest.fn() },
+      unit: { findUnique: jest.fn() },
     };
 
     logger = {
@@ -83,6 +85,12 @@ describe('ClientsService', () => {
       id: 1,
       userId: 5,
       cpf: '12345678901',
+      birthDate: new Date('1992-04-12'),
+      address: 'Rua Setúbal, 120 - Boa Viagem',
+      city: 'Recife',
+      state: 'PE',
+      zipCode: '51020000',
+      preferredUnitId: 1,
       registeredAt: new Date(),
       active: true,
       user: {
@@ -92,6 +100,7 @@ describe('ClientsService', () => {
         phone: '81988880000',
         status: UserStatus.ATIVO,
       },
+      preferredUnit: { id: 1, name: 'Raízes Recife — Boa Viagem' },
       clientLoyalties: [],
       orders: [],
       _count: { orders: 0, supportTickets: 0 },

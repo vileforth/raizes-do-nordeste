@@ -97,6 +97,8 @@ export class ClientsService {
       throw new ConflictException('User already has a client record');
     }
 
+    await this.assertPreferredUnit(dto.preferredUnitId);
+
     const client = await this.prisma.client.create({
       data: dto,
       include: clientInclude,
@@ -121,6 +123,8 @@ export class ClientsService {
         throw new ConflictException('CPF already registered');
       }
     }
+
+    await this.assertPreferredUnit(dto.preferredUnitId);
 
     const updated = await this.prisma.client.update({
       where: { id },
@@ -170,6 +174,16 @@ export class ClientsService {
     }
 
     throw new ForbiddenException('Insufficient role permissions');
+  }
+
+  private async assertPreferredUnit(unitId?: number): Promise<void> {
+    if (!unitId) {
+      return;
+    }
+    const unit = await this.prisma.unit.findUnique({ where: { id: unitId } });
+    if (!unit) {
+      throw new NotFoundException('Preferred unit not found');
+    }
   }
 
   private assertCanUpdateClient(

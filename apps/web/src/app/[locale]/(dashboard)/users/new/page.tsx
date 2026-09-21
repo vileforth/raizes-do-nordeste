@@ -1,79 +1,47 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FormField } from '@/components/form-field';
-import { ResourceDeleteButton } from '@/components/resource-delete-button';
-import { SectionCard } from '@/components/section-card';
+import { FormPageScaffold } from '@/components/form-page-scaffold';
 import { UserRolePicker } from '@/components/user-role-picker';
 import { useToast } from '@/providers/toast-provider';
-import {
-  USER_STATUSES,
-  updateUserSchema,
-  type UpdateUserFormValues,
-} from '@/schemas/user.schema';
-import { useUpdateUserProfiles, usersResource } from '@/services/users';
+import { USER_STATUSES, userSchema, type UserFormValues } from '@/schemas/user.schema';
+import { usersResource } from '@/services/users';
 
-export default function UserDetailPage() {
-  const { id } = useParams<{ id: string }>();
+export default function NewUserPage() {
   const t = useTranslations('users');
   const tCommon = useTranslations('common');
   const tStatus = useTranslations('status');
   const toast = useToast();
-  const { data, isLoading } = usersResource.useDetail(id);
-  const update = usersResource.useUpdate();
-  const updateProfiles = useUpdateUserProfiles();
-  const form = useForm<UpdateUserFormValues>({
-    resolver: zodResolver(updateUserSchema),
+  const router = useRouter();
+  const create = usersResource.useCreate();
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userSchema),
     defaultValues: {
       name: '',
       email: '',
       phone: '',
+      password: '',
       status: 'ATIVO',
-      profileNames: [],
+      profileNames: ['ATENDENTE'],
     },
   });
 
-  useEffect(() => {
-    if (!data) return;
-    form.reset({
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      status: data.status as UpdateUserFormValues['status'],
-      profileNames: data.profiles as UpdateUserFormValues['profileNames'],
-    });
-  }, [data, form]);
-
-  async function onSubmit(values: UpdateUserFormValues) {
+  async function onSubmit(values: UserFormValues) {
     try {
-      await update.mutateAsync({
-        id,
-        input: {
-          name: values.name,
-          email: values.email,
-          phone: values.phone,
-          status: values.status,
-        },
-      });
-      await updateProfiles.mutateAsync({ id, profileNames: values.profileNames });
+      const user = await create.mutateAsync(values);
       toast.success(tCommon('success'));
+      router.push(`/users/${user.id}`);
     } catch {
       toast.error(tCommon('error'));
     }
   }
 
-  if (isLoading) return <div className="h-40 animate-pulse rounded-2xl bg-black/5" />;
-  if (!data) return null;
-
   return (
-    <SectionCard
-      title={t('detail')}
-      actions={<ResourceDeleteButton id={id} href="/users" useRemove={usersResource.useRemove} />}
-    >
+    <FormPageScaffold title={t('new')} subtitle={t('rolesHint')}>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField label={t('name')}>
           <input className="input-soft w-full" {...form.register('name')} />
@@ -83,6 +51,9 @@ export default function UserDetailPage() {
         </FormField>
         <FormField label={t('phone')}>
           <input className="input-soft w-full" {...form.register('phone')} />
+        </FormField>
+        <FormField label={t('password')}>
+          <input className="input-soft w-full" type="password" {...form.register('password')} />
         </FormField>
         <FormField label={t('status')}>
           <select className="input-soft w-full" {...form.register('status')}>
@@ -102,14 +73,10 @@ export default function UserDetailPage() {
             )}
           />
         </FormField>
-        <button
-          type="submit"
-          className="btn-primary"
-          disabled={update.isPending || updateProfiles.isPending}
-        >
-          {tCommon('save')}
+        <button type="submit" className="btn-primary" disabled={create.isPending}>
+          {tCommon('create')}
         </button>
       </form>
-    </SectionCard>
+    </FormPageScaffold>
   );
 }

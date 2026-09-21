@@ -45,6 +45,10 @@ export function mapClients(rows: Record<string, unknown>[]): Prisma.ClientCreate
     id: readNumber(row, 'id_cliente'),
     userId: resolveClientUserId(row),
     cpf: readString(row, 'cpf'),
+    address: readString(row, 'endereco') || '',
+    city: readString(row, 'cidade') || '',
+    state: readString(row, 'estado') || '',
+    zipCode: readString(row, 'cep') || '',
     registeredAt: excelSerialToDate(readNumber(row, 'data_cadastro')),
     active: readBoolean(row, 'ativo'),
   }));

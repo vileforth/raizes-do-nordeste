@@ -21,7 +21,7 @@ export default function ClientsPage() {
       actions={<Link href="/clients/new" className="btn-primary">{t('new')}</Link>}
       columns={[
         { key: 'name', header: t('name'), cell: (r) => r.name, sortable: true },
-        { key: 'email', header: t('email'), cell: (r) => r.email, sortable: true },
+        { key: 'city', header: t('city'), cell: (r) => r.city ? `${r.city}/${r.state}` : '—', sortable: true },
         { key: 'phone', header: t('phone'), cell: (r) => r.phone },
         { key: 'cpf', header: t('cpf'), cell: (r) => formatCpf(r.cpf), sortable: true },
         { key: 'ordersCount', header: t('ordersCount'), cell: (r) => r.ordersCount },

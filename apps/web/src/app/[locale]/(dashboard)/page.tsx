@@ -26,6 +26,7 @@ import {
 } from '@/lib/helpers/dashboard-series';
 import { mapIndicatorsToKpis } from '@/lib/helpers/kpi-mapper';
 import { getIndicators, getReport } from '@/services/reports';
+import { clientsResource } from '@/services/clients';
 import { unitsResource } from '@/services/units';
 import { useSidebarClearLeft } from '@/components/sidebar';
 
@@ -48,21 +49,37 @@ export default function DashboardPage() {
     queryFn: () => getReport('orders', range) as Promise<OrderReportRow[]>,
   });
   const units = unitsResource.useList({ page: 1, pageSize: 100 });
+  const clientsPageOne = clientsResource.useList({ page: 1, pageSize: 100 });
+  const clientsPageTwo = clientsResource.useList({ page: 2, pageSize: 100 });
   const unitRows = units.data?.data ?? [];
+  const clientRows = [...(clientsPageOne.data?.data ?? []), ...(clientsPageTwo.data?.data ?? [])];
 
   const points = useMemo<MapUnitPoint[]>(
-    () =>
-      unitRows
+    () => [
+      ...unitRows
         .filter((unit) => unit.latitude != null && unit.longitude != null)
         .map((unit) => ({
-          key: String(unit.id),
+          key: `unit-${unit.id}`,
           name: unit.name,
           address: unit.address,
           lat: Number(unit.latitude),
           lng: Number(unit.longitude),
           active: unit.status === 'ATIVA',
+          kind: 'unit' as const,
         })),
-    [unitRows],
+      ...clientRows
+        .filter((client) => client.latitude != null && client.longitude != null)
+        .map((client) => ({
+          key: `client-${client.id}`,
+          name: client.name,
+          address: client.city ? `${client.city}/${client.state}` : client.address,
+          lat: Number(client.latitude),
+          lng: Number(client.longitude),
+          active: client.active,
+          kind: 'client' as const,
+        })),
+    ],
+    [unitRows, clientRows],
   );
 
   const kpis = indicators.data
@@ -116,6 +133,7 @@ export default function DashboardPage() {
           periodLabels={{ '7d': t('period7'), '30d': t('period30'), '90d': t('period90') }}
           unitsLabel={t('legendUnits')}
           activeLabel={t('legendActive')}
+          clientsLabel={t('legendClients')}
         />
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -164,7 +182,13 @@ export default function DashboardPage() {
             points={points}
             onClose={() => setExpanded(false)}
             backLabel={t('back')}
-            controls={<HomeLegend unitsLabel={t('legendUnits')} activeLabel={t('legendActive')} />}
+            controls={
+              <HomeLegend
+                unitsLabel={t('legendUnits')}
+                activeLabel={t('legendActive')}
+                clientsLabel={t('legendClients')}
+              />
+            }
           />
         ) : null}
       </AnimatePresence>

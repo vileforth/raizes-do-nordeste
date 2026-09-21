@@ -3,12 +3,19 @@
   "new": "New client",
   "detail": "Client detail",
   "identity": "Personal details",
+  "address": "Address",
   "activity": "Activity",
   "cpf": "CPF",
   "userId": "User",
   "name": "Name",
   "email": "Email",
   "phone": "Phone",
+  "birthDate": "Birth date",
+  "street": "Street",
+  "city": "City",
+  "state": "State",
+  "zipCode": "ZIP",
+  "preferredUnit": "Preferred unit",
   "active": "Active",
   "userStatus": "Account status",
   "registeredAt": "Registered at",
@@ -17,5 +24,6 @@
   "loyalty": "Loyalty",
   "points": "Points",
   "lastOrder": "Last order",
-  "noLastOrder": "No orders yet"
+  "noLastOrder": "No orders yet",
+  "noPreferredUnit": "No preferred unit"
 }

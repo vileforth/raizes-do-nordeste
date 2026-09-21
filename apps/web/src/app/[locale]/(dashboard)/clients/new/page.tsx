@@ -9,6 +9,7 @@ import { FormPageScaffold } from '@/components/form-page-scaffold';
 import { useToast } from '@/providers/toast-provider';
 import { clientSchema, type ClientFormValues } from '@/schemas/client.schema';
 import { clientsResource } from '@/services/clients';
+import { unitsResource } from '@/services/units';
 
 export default function NewClientPage() {
   const t = useTranslations('clients');
@@ -16,14 +17,28 @@ export default function NewClientPage() {
   const toast = useToast();
   const router = useRouter();
   const create = clientsResource.useCreate();
+  const units = unitsResource.useList({ pageSize: 100 });
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
-    defaultValues: { userId: 1, cpf: '', active: true },
+    defaultValues: {
+      userId: 1,
+      cpf: '',
+      birthDate: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      active: true,
+    },
   });
 
   async function onSubmit(values: ClientFormValues) {
     try {
-      const client = await create.mutateAsync(values);
+      const client = await create.mutateAsync({
+        ...values,
+        birthDate: values.birthDate || undefined,
+        zipCode: values.zipCode.replace(/\D/g, ''),
+      });
       toast.success(tCommon('success'));
       router.push(`/clients/${client.id}`);
     } catch {
@@ -39,6 +54,33 @@ export default function NewClientPage() {
         </FormField>
         <FormField label={t('cpf')}>
           <input className="input-soft w-full" placeholder="00000000000" {...form.register('cpf')} />
+        </FormField>
+        <FormField label={t('birthDate')}>
+          <input className="input-soft w-full" type="date" {...form.register('birthDate')} />
+        </FormField>
+        <FormField label={t('street')}>
+          <input className="input-soft w-full" {...form.register('address')} />
+        </FormField>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <FormField label={t('city')}>
+            <input className="input-soft w-full" {...form.register('city')} />
+          </FormField>
+          <FormField label={t('state')}>
+            <input className="input-soft w-full" maxLength={2} {...form.register('state')} />
+          </FormField>
+          <FormField label={t('zipCode')}>
+            <input className="input-soft w-full" placeholder="00000-000" {...form.register('zipCode')} />
+          </FormField>
+        </div>
+        <FormField label={t('preferredUnit')}>
+          <select className="input-soft w-full" {...form.register('preferredUnitId')}>
+            <option value="">{t('noPreferredUnit')}</option>
+            {(units.data?.data ?? []).map((unit) => (
+              <option key={unit.id} value={unit.id}>
+                {unit.name}
+              </option>
+            ))}
+          </select>
         </FormField>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" {...form.register('active')} />

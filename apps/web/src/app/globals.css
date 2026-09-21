@@ -122,6 +122,10 @@ html, body {
   animation: geo-exec-core-anim 1.6s ease-in-out infinite;
   filter: drop-shadow(0 0 6px rgba(255, 75, 0, 0.55));
 }
+.geo-client-pin {
+  background: transparent;
+  border: none;
+}
 .geo-map-root .leaflet-container {
   height: 100%;
   width: 100%;

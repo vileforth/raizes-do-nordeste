@@ -1,0 +1,12 @@
+{
+  "title": "Users",
+  "new": "New user",
+  "detail": "Edit user",
+  "name": "Name",
+  "email": "Email",
+  "phone": "Phone",
+  "password": "Password",
+  "status": "Status",
+  "roles": "Roles",
+  "rolesHint": "Select at least one access role"
+}

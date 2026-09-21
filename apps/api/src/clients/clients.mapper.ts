@@ -11,6 +11,12 @@ export const clientInclude = {
       status: true,
     },
   },
+  preferredUnit: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
   clientLoyalties: {
     take: 1,
     orderBy: { joinedAt: 'desc' as const },
@@ -51,6 +57,9 @@ export function buildClientSearch(
   return {
     OR: [
       { cpf: { contains: search, mode: 'insensitive' } },
+      { city: { contains: search, mode: 'insensitive' } },
+      { address: { contains: search, mode: 'insensitive' } },
+      { state: { contains: search, mode: 'insensitive' } },
       { user: { name: { contains: search, mode: 'insensitive' } } },
       { user: { email: { contains: search, mode: 'insensitive' } } },
       { user: { phone: { contains: search, mode: 'insensitive' } } },
@@ -70,6 +79,9 @@ export function resolveClientOrderBy(
   if (field === 'email') {
     return { user: { email: direction } };
   }
+  if (field === 'city') {
+    return { city: direction };
+  }
   if (field === 'cpf') {
     return { cpf: direction };
   }
@@ -86,6 +98,15 @@ export function toClientResponse(client: ClientWithRelations): ClientResponseDto
     id: client.id,
     userId: client.userId,
     cpf: client.cpf,
+    birthDate: client.birthDate,
+    address: client.address,
+    city: client.city,
+    state: client.state,
+    zipCode: client.zipCode,
+    preferredUnitId: client.preferredUnitId,
+    preferredUnitName: client.preferredUnit?.name ?? null,
+    latitude: client.latitude,
+    longitude: client.longitude,
     registeredAt: client.registeredAt,
     active: client.active,
     name: client.user.name,

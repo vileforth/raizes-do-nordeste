@@ -20,6 +20,7 @@ export function HomeHero({
   periodLabels,
   unitsLabel,
   activeLabel,
+  clientsLabel,
 }: {
   points: MapUnitPoint[];
   clearLeft: number;
@@ -31,6 +32,7 @@ export function HomeHero({
   periodLabels: Record<DashboardPeriod, string>;
   unitsLabel: string;
   activeLabel: string;
+  clientsLabel: string;
 }) {
   return (
     <div className="relative isolate h-[60vh] w-full">
@@ -50,7 +52,7 @@ export function HomeHero({
         <LiveBadge label={liveLabel} />
         <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-2">
           <FilterBar value={period} onChange={onPeriod} labels={periodLabels} />
-          <HomeLegend unitsLabel={unitsLabel} activeLabel={activeLabel} />
+          <HomeLegend unitsLabel={unitsLabel} activeLabel={activeLabel} clientsLabel={clientsLabel} />
           <button
             type="button"
             onClick={onExpand}

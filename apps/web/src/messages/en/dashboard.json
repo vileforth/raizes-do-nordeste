@@ -8,6 +8,7 @@
   "period90": "90d",
   "legendUnits": "Units",
   "legendActive": "Active",
+  "legendClients": "Clients",
   "unitsKpi": "Units",
   "ordersChartTitle": "Orders",
   "ordersChartSubtitle": "Daily volume in the last {days} days",

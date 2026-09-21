@@ -1,6 +1,7 @@
 import { Prisma, UserStatus } from '@prisma/client';
 import { ADMIN_EMAIL, ADMIN_NAME, SEED_COUNTS } from '../counts';
 import { SEED_UNITS } from '../data/units';
+import { createClientProfile } from '../client-profile';
 import { createCpf, createPhone, createSeedFaker, slugifyName } from '../helpers';
 
 const PASSWORD_HASH = 'supabase_managed';
@@ -68,10 +69,19 @@ export function buildIdentity() {
       status: id % 37 === 0 ? UserStatus.INATIVO : UserStatus.ATIVO,
       registeredAt: faker.date.between({ from: '2025-03-01', to: '2026-08-30' }),
     });
+    const profile = createClientProfile(faker, areaCode);
     clients.push({
       id,
       userId: id,
       cpf,
+      birthDate: profile.birthDate,
+      address: profile.address,
+      city: profile.city,
+      state: profile.state,
+      zipCode: profile.zipCode,
+      preferredUnitId: profile.preferredUnitId,
+      latitude: profile.latitude,
+      longitude: profile.longitude,
       registeredAt: users[id - 1].registeredAt as Date,
       active: users[id - 1].status === UserStatus.ATIVO,
     });

@@ -8,6 +8,7 @@ const namespaces = [
   'orders',
   'clients',
   'employees',
+  'users',
   'products',
   'promotions',
   'loyalty',

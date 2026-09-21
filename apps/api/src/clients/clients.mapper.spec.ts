@@ -13,6 +13,14 @@ function buildClient(
     id: 1,
     userId: 10,
     cpf: '52998224725',
+    birthDate: new Date('1990-05-20'),
+    address: 'Rua Setúbal, 120 - Boa Viagem',
+    city: 'Recife',
+    state: 'PE',
+    zipCode: '51020000',
+    preferredUnitId: 1,
+    latitude: -8.05,
+    longitude: -34.88,
     registeredAt: new Date('2026-01-01T00:00:00.000Z'),
     active: true,
     user: {
@@ -22,6 +30,7 @@ function buildClient(
       phone: '81999990000',
       status: UserStatus.ATIVO,
     },
+    preferredUnit: { id: 1, name: 'Raízes Recife — Boa Viagem' },
     clientLoyalties: [
       { level: LoyaltyLevel.PRATA, pointsBalance: 240 },
     ],
@@ -45,6 +54,8 @@ describe('clients.mapper', () => {
 
     expect(response.name).toBe('Ana Costa');
     expect(response.email).toBe('ana@example.com');
+    expect(response.city).toBe('Recife');
+    expect(response.preferredUnitName).toBe('Raízes Recife — Boa Viagem');
     expect(response.loyaltyLevel).toBe(LoyaltyLevel.PRATA);
     expect(response.pointsBalance).toBe(240);
     expect(response.ordersCount).toBe(12);
@@ -61,11 +72,14 @@ describe('clients.mapper', () => {
     expect(response.lastOrder).toBeNull();
   });
 
-  it('searches by cpf, name, email and phone', () => {
+  it('searches by cpf, city, address and identity', () => {
     expect(buildClientSearch(undefined)).toBeUndefined();
     expect(buildClientSearch('ana')).toEqual({
       OR: [
         { cpf: { contains: 'ana', mode: 'insensitive' } },
+        { city: { contains: 'ana', mode: 'insensitive' } },
+        { address: { contains: 'ana', mode: 'insensitive' } },
+        { state: { contains: 'ana', mode: 'insensitive' } },
         { user: { name: { contains: 'ana', mode: 'insensitive' } } },
         { user: { email: { contains: 'ana', mode: 'insensitive' } } },
         { user: { phone: { contains: 'ana', mode: 'insensitive' } } },

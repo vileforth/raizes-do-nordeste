@@ -27,6 +27,33 @@ export class ClientResponseDto {
   @ApiProperty()
   cpf!: string;
 
+  @ApiPropertyOptional({ nullable: true })
+  birthDate!: Date | null;
+
+  @ApiProperty()
+  address!: string;
+
+  @ApiProperty()
+  city!: string;
+
+  @ApiProperty()
+  state!: string;
+
+  @ApiProperty()
+  zipCode!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  preferredUnitId!: number | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  preferredUnitName!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  latitude!: number | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  longitude!: number | null;
+
   @ApiProperty()
   registeredAt!: Date;
 

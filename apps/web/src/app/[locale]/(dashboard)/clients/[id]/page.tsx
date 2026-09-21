@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { ResourceDeleteButton } from '@/components/resource-delete-button';
 import { SectionCard } from '@/components/section-card';
 import { StatusBadge } from '@/components/status-badge';
+import { formatCep } from '@/lib/helpers/cep';
 import { formatCpf } from '@/lib/helpers/cpf';
 import { formatMoney } from '@/lib/helpers/money';
 import { clientsResource } from '@/services/clients';
@@ -28,6 +29,10 @@ export default function ClientDetailPage() {
           <div><dt className="t-eyebrow">{t('phone')}</dt><dd>{data.phone}</dd></div>
           <div><dt className="t-eyebrow">{t('cpf')}</dt><dd>{formatCpf(data.cpf)}</dd></div>
           <div>
+            <dt className="t-eyebrow">{t('birthDate')}</dt>
+            <dd>{data.birthDate ? new Date(data.birthDate).toLocaleDateString() : '—'}</dd>
+          </div>
+          <div>
             <dt className="t-eyebrow">{t('userStatus')}</dt>
             <dd><StatusBadge status={data.userStatus} /></dd>
           </div>
@@ -38,6 +43,25 @@ export default function ClientDetailPage() {
           <div>
             <dt className="t-eyebrow">{t('registeredAt')}</dt>
             <dd>{new Date(data.registeredAt).toLocaleString()}</dd>
+          </div>
+        </dl>
+      </SectionCard>
+      <SectionCard title={t('address')}>
+        <dl className="grid gap-3 text-sm sm:grid-cols-2">
+          <div className="sm:col-span-2"><dt className="t-eyebrow">{t('street')}</dt><dd>{data.address || '—'}</dd></div>
+          <div><dt className="t-eyebrow">{t('city')}</dt><dd>{data.city ? `${data.city}/${data.state}` : '—'}</dd></div>
+          <div><dt className="t-eyebrow">{t('zipCode')}</dt><dd>{data.zipCode ? formatCep(data.zipCode) : '—'}</dd></div>
+          <div className="sm:col-span-2">
+            <dt className="t-eyebrow">{t('preferredUnit')}</dt>
+            <dd>
+              {data.preferredUnitId && data.preferredUnitName ? (
+                <Link href={`/units/${data.preferredUnitId}`} className="underline">
+                  {data.preferredUnitName}
+                </Link>
+              ) : (
+                t('noPreferredUnit')
+              )}
+            </dd>
           </div>
         </dl>
       </SectionCard>

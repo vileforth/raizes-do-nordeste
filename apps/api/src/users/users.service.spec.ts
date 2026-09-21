@@ -23,6 +23,7 @@ describe('UsersService', () => {
     $transaction: jest.Mock;
   };
   let logger: jest.Mocked<LoggerService>;
+  let supabaseAuth: { signUp: jest.Mock };
 
   const admin: AuthenticatedUser = {
     id: 1,
@@ -65,9 +66,12 @@ describe('UsersService', () => {
       debug: jest.fn(),
     } as unknown as jest.Mocked<LoggerService>;
 
+    supabaseAuth = { signUp: jest.fn().mockResolvedValue({}) };
+
     service = new UsersService(
       prisma as unknown as PrismaService,
       logger,
+      supabaseAuth as never,
     );
   });
 
@@ -90,6 +94,43 @@ describe('UsersService', () => {
     expect(result.data).toHaveLength(1);
     expect(result.data[0].profiles).toEqual([UserRole.CLIENTE]);
     expect(result.pagination.total).toBe(1);
+    expect(prisma.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { client: null },
+      }),
+    );
+  });
+
+  it('creates a user with selected profiles', async () => {
+    prisma.profile.findMany.mockResolvedValue([{ id: 2, name: UserRole.ATENDENTE }]);
+    prisma.user.findUnique.mockResolvedValue(null);
+    prisma.user.create.mockResolvedValue({
+      id: 20,
+      name: 'Nova',
+      email: 'nova@raizes.com',
+      phone: '81999990000',
+      status: UserStatus.ATIVO,
+      registeredAt: new Date(),
+      userProfiles: [{ profile: { name: UserRole.ATENDENTE } }],
+      employee: null,
+    });
+
+    const result = await service.create(admin, {
+      name: 'Nova',
+      email: 'nova@raizes.com',
+      phone: '81999990000',
+      status: UserStatus.ATIVO,
+      password: 'secret12',
+      profileNames: [UserRole.ATENDENTE],
+    });
+
+    expect(result.profiles).toEqual([UserRole.ATENDENTE]);
+    expect(supabaseAuth.signUp).toHaveBeenCalledWith(
+      'nova@raizes.com',
+      'secret12',
+      { name: 'Nova', phone: '81999990000' },
+    );
+    expect(prisma.user.create).toHaveBeenCalled();
   });
 
   it('scopes user list to manager unit', async () => {

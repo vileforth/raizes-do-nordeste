@@ -15,6 +15,7 @@ import {
 } from '../common/utils/access-scope.util';
 import { LoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { SupabaseAuthClient } from '../auth/supabase/supabase-auth.client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserProfilesDto } from './dto/update-user-profiles.dto';
@@ -45,6 +46,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
+    private readonly supabaseAuth: SupabaseAuthClient,
   ) {}
 
   async findAll(
@@ -56,7 +58,7 @@ export class UsersService {
     const orderBy = resolveOrderBy(query.orderBy, ['id', 'name', 'email'], { id: 'asc' });
 
     if (hasRole(actor, UserRole.ADMINISTRADOR)) {
-      const where = searchWhere ?? {};
+      const where = { client: null, ...(searchWhere ?? {}) };
       const [users, total] = await Promise.all([
         this.prisma.user.findMany({
           where,
@@ -109,6 +111,18 @@ export class UsersService {
       throw new ConflictException('Email already registered');
     }
 
+    await this.supabaseAuth.signUp(dto.email, dto.password, {
+      name: dto.name,
+      phone: dto.phone,
+    });
+
+    const profiles = await this.prisma.profile.findMany({
+      where: { name: { in: dto.profileNames } },
+    });
+    if (profiles.length !== dto.profileNames.length) {
+      throw new NotFoundException('One or more profiles not found');
+    }
+
     const user = await this.prisma.user.create({
       data: {
         name: dto.name,
@@ -116,6 +130,9 @@ export class UsersService {
         phone: dto.phone,
         status: dto.status,
         passwordHash: SUPABASE_PASSWORD_PLACEHOLDER,
+        userProfiles: {
+          create: profiles.map((profile) => ({ profileId: profile.id })),
+        },
       },
       include: userInclude,
     });

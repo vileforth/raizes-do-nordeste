@@ -1,0 +1,12 @@
+{
+  "title": "Usuários",
+  "new": "Novo usuário",
+  "detail": "Editar usuário",
+  "name": "Nome",
+  "email": "E-mail",
+  "phone": "Telefone",
+  "password": "Senha",
+  "status": "Status",
+  "roles": "Perfis",
+  "rolesHint": "Selecione ao menos um perfil de acesso"
+}

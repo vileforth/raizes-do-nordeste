@@ -133,18 +133,29 @@ model UserProfile {
 }
 
 model Client {
-  id           Int      @id @default(autoincrement()) @map("id_cliente")
-  userId       Int      @unique @map("id_usuario")
-  cpf          String   @unique @map("cpf")
-  registeredAt DateTime @default(now()) @map("data_cadastro")
-  active       Boolean  @map("ativo")
+  id              Int       @id @default(autoincrement()) @map("id_cliente")
+  userId          Int       @unique @map("id_usuario")
+  cpf             String    @unique @map("cpf")
+  birthDate       DateTime? @map("data_nascimento")
+  address         String    @default("") @map("endereco")
+  city            String    @default("") @map("cidade")
+  state           String    @default("") @map("estado")
+  zipCode         String    @default("") @map("cep")
+  preferredUnitId Int?      @map("id_unidade_preferida")
+  latitude        Float?    @map("latitude")
+  longitude       Float?    @map("longitude")
+  registeredAt    DateTime  @default(now()) @map("data_cadastro")
+  active          Boolean   @map("ativo")
 
   user            User             @relation(fields: [userId], references: [id])
+  preferredUnit   Unit?            @relation("ClientPreferredUnit", fields: [preferredUnitId], references: [id])
   orders          Order[]
   clientLoyalties ClientLoyalty[]
   supportTickets  SupportTicket[]
 
   @@index([active])
+  @@index([city])
+  @@index([preferredUnitId])
   @@map("cliente")
 }
 
@@ -158,10 +169,11 @@ model Unit {
   latitude     Float?     @map("latitude")
   longitude    Float?     @map("longitude")
 
-  employees      Employee[]
-  stock          Stock?
-  orders         Order[]
-  promotionUnits PromotionUnit[]
+  employees          Employee[]
+  stock              Stock?
+  orders             Order[]
+  promotionUnits     PromotionUnit[]
+  preferredByClients Client[]        @relation("ClientPreferredUnit")
 
   @@index([status])
   @@map("unidade")
