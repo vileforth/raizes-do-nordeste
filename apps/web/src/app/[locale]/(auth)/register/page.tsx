@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -16,6 +17,7 @@ import { AuthSubmit } from '../_components/auth-submit';
 export default function RegisterPage() {
   const t = useTranslations('auth');
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const form = useForm<RegisterFormValues>({
@@ -30,6 +32,7 @@ export default function RegisterPage() {
         accessToken: string;
         refreshToken: string;
       }>('/auth/register', values);
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       router.push('/');
       router.refresh();
     } catch {

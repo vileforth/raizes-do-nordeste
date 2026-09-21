@@ -4,6 +4,7 @@ import { ALL_USER_ROLES, UserRole } from '@raizes/shared';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthenticatedUser } from '../types/auth-user.types';
+import { resolveSupabaseJwtKey } from './supabase-jwt-key';
 
 interface SupabaseJwtPayload {
   sub: string;
@@ -13,16 +14,21 @@ interface SupabaseJwtPayload {
 @Injectable()
 export class SupabaseJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private readonly prisma: PrismaService) {
-    const secret = process.env.SUPABASE_JWT_SECRET;
-    if (!secret) {
-      throw new Error('SUPABASE_JWT_SECRET is not configured');
+    if (!process.env.SUPABASE_URL && !process.env.SUPABASE_JWT_SECRET) {
+      throw new Error('Supabase JWT configuration is missing');
     }
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secret,
-      algorithms: ['HS256'],
+      algorithms: ['ES256', 'HS256'],
+      secretOrKeyProvider: (_request, rawJwtToken, done) => {
+        resolveSupabaseJwtKey(rawJwtToken)
+          .then((key) => done(null, key))
+          .catch((error: unknown) =>
+            done(error instanceof Error ? error : new Error('JWT key resolution failed')),
+          );
+      },
     });
   }
 
