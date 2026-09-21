@@ -1,43 +1,95 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
-import { Button } from '@heroui/react';
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { BrandLogo } from '@/components/brand/brand-logo';
+import { useSidebarClearLeft } from '@/components/sidebar';
 import { useAuth } from '@/providers/auth-provider';
-import { locales, type Locale } from '@/i18n/config';
+import { LanguageSwitch } from './language-switch';
+import { TopbarUserMenu } from './user-menu';
+
+const TIMEZONE = 'America/Fortaleza';
+
+function greetingKey(date: Date): 'greetingMorning' | 'greetingAfternoon' | 'greetingEvening' {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      hour12: false,
+      timeZone: TIMEZONE,
+    }).format(date),
+  );
+  if (hour < 12) {
+    return 'greetingMorning';
+  }
+  if (hour < 18) {
+    return 'greetingAfternoon';
+  }
+  return 'greetingEvening';
+}
 
 export function Topbar() {
   const t = useTranslations('common');
-  const tNav = useTranslations('nav');
-  const { user, signOut } = useAuth();
-  const locale = useLocale();
-  const router = useRouter();
-  const pathname = usePathname();
+  const clearLeft = useSidebarClearLeft();
+  const { user } = useAuth();
+  const [now, setNow] = useState<Date>(() => new Date());
 
-  function switchLocale(next: Locale) {
-    const stripped = pathname.replace(/^\/(pt-BR|en)/, '') || '/';
-    router.push(next === 'pt-BR' ? stripped : `/${next}${stripped}`);
-  }
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const firstName =
+    (user?.name || user?.email?.split('@')[0] || t('greetingFallback')).split(' ')[0];
+  const time = new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: TIMEZONE,
+  }).format(now);
 
   return (
-    <header className="flex h-14 items-center justify-between px-4 md:pl-60">
-      <p className="text-sm font-medium text-[var(--raizes-text-primary)]">
-        {user ? t('greeting', { name: user.name }) : ''}
-      </p>
-      <div className="flex items-center gap-2">
-        <select
-          className="input-soft !h-9 !w-auto"
-          value={locale}
-          onChange={(e) => switchLocale(e.target.value as Locale)}
-          aria-label={tNav('language')}
-        >
-          {locales.map((l) => (
-            <option key={l} value={l}>{l}</option>
-          ))}
-        </select>
-        <Button size="sm" variant="flat" onPress={signOut}>
-          {tNav('logout')}
-        </Button>
+    <header className="relative z-10 h-14 shrink-0">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 backdrop-blur-xl backdrop-saturate-150"
+        style={{ background: 'rgba(255,255,255,0.92)' }}
+      />
+      <div
+        className="relative flex h-full items-center justify-between gap-4 pr-6 max-md:!pl-4 lg:pr-8"
+        style={{ paddingLeft: clearLeft }}
+      >
+        <div className="flex min-w-0 items-center gap-2.5 truncate">
+          <BrandLogo size="header" />
+          <span className="truncate text-sm text-[var(--raizes-text-secondary)]">
+            {t(greetingKey(now))},{' '}
+            <span className="font-semibold text-[var(--raizes-text-primary)]">{firstName}</span>
+            .{' '}
+            <span aria-hidden>👋</span>
+          </span>
+          <span aria-hidden className="select-none text-[var(--raizes-text-secondary)]/40">
+            |
+          </span>
+          <span
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--raizes-text-secondary)] tabular-nums"
+            aria-label={t('clockLabel')}
+            title={t('clockLabel')}
+          >
+            <span aria-hidden className="text-sm leading-none">
+              🇧🇷
+            </span>
+            <span suppressHydrationWarning>{time}</span>
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <LanguageSwitch />
+          <span
+            aria-hidden
+            className="mx-1 h-5 w-px"
+            style={{ background: 'var(--raizes-border)' }}
+          />
+          <TopbarUserMenu />
+        </div>
       </div>
     </header>
   );

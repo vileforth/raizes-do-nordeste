@@ -35,9 +35,11 @@
   --raizes-surface-raised: #f7f6f4;
   --raizes-sidebar: #fbfaf8;
   --raizes-sidebar-border: rgba(0, 0, 0, 0.05);
+  --raizes-sidebar-hover: rgba(255, 75, 0, 0.06);
   --raizes-sidebar-active: rgba(255, 75, 0, 0.10);
   --raizes-sidebar-text: #6e6e73;
   --raizes-sidebar-text-active: #1d1d1f;
+  --raizes-sidebar-accent: #FF4B00;
 }
 
 @theme inline {
@@ -74,6 +76,9 @@ html, body {
 }
 .t-eyebrow {
   font-size: 0.6875rem;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   color: var(--raizes-text-secondary);
 }
 .t-stat-lg {
@@ -97,6 +102,60 @@ html, body {
   border: 1px solid var(--raizes-border-strong);
   font-size: 0.875rem;
 }
+@keyframes geo-exec-pulse-anim {
+  0% { transform: scale(0.35); opacity: 0.7; }
+  70% { opacity: 0.12; }
+  100% { transform: scale(2); opacity: 0; }
+}
+@keyframes geo-exec-core-anim {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.geo-exec-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: geo-exec-pulse-anim 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.geo-exec-core {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: geo-exec-core-anim 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 75, 0, 0.55));
+}
+.geo-map-root .leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #f4f5f7;
+  font-family: inherit;
+}
+.geo-map-root .leaflet-tile-pane {
+  filter: brightness(1.03) saturate(1.25) contrast(1.02);
+}
+.leaflet-tooltip.geo-tip {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px -18px rgba(7, 47, 51, 0.28);
+  padding: 7px 10px;
+  color: var(--raizes-text-primary);
+  display: grid;
+  gap: 1px;
+  white-space: nowrap;
+}
+.leaflet-tooltip.geo-tip::before {
+  display: none;
+}
+.geo-tip__city {
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.2;
+}
+.geo-tip__row {
+  font-size: 11px;
+  color: var(--raizes-text-secondary);
+}
+
 .btn-primary {
   display: inline-flex;
   align-items: center;

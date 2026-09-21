@@ -14,5 +14,10 @@
   "error": "An error occurred",
   "exportCsv": "Export CSV",
   "greeting": "Hello, {name}",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "greetingFallback": "there",
+  "clockLabel": "Fortaleza time",
   "live": "Live"
 }

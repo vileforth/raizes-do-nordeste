@@ -1,0 +1,20 @@
+{
+  "heading": "Painel",
+  "live": "Ao vivo",
+  "viewMap": "Ver mapa",
+  "back": "Voltar",
+  "period7": "7d",
+  "period30": "30d",
+  "period90": "90d",
+  "legendUnits": "Unidades",
+  "legendActive": "Ativas",
+  "unitsKpi": "Unidades",
+  "ordersChartTitle": "Pedidos",
+  "ordersChartSubtitle": "Volume diário nos últimos {days} dias",
+  "ordersChartTotal": "total no período",
+  "ordersChartEmpty": "Nenhum pedido no período.",
+  "revenueChartTitle": "Receita",
+  "revenueChartSubtitle": "Valor dos pedidos por dia",
+  "revenueChartTotal": "soma no período",
+  "revenueChartEmpty": "Nenhuma receita no período."
+}

@@ -56,6 +56,7 @@ const ROLE_MENUS: Record<UserRole, string[]> = {
   [UserRole.ADMINISTRADOR]: [
     'dashboard',
     'orders',
+    'ordersBoard',
     'clients',
     'users',
     'products',

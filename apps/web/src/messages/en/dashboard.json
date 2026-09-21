@@ -1,0 +1,20 @@
+{
+  "heading": "Dashboard",
+  "live": "Live",
+  "viewMap": "View map",
+  "back": "Back",
+  "period7": "7d",
+  "period30": "30d",
+  "period90": "90d",
+  "legendUnits": "Units",
+  "legendActive": "Active",
+  "unitsKpi": "Units",
+  "ordersChartTitle": "Orders",
+  "ordersChartSubtitle": "Daily volume in the last {days} days",
+  "ordersChartTotal": "total in period",
+  "ordersChartEmpty": "No orders in this period.",
+  "revenueChartTitle": "Revenue",
+  "revenueChartSubtitle": "Order value per day",
+  "revenueChartTotal": "sum in period",
+  "revenueChartEmpty": "No revenue in this period."
+}

@@ -1,68 +1,172 @@
 'use client';
 
+import { useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Storefront } from '@phosphor-icons/react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
-import dynamic from 'next/dynamic';
+import { AreaLineChart } from '@/components/charts/area-line-chart';
+import { DailyBarChart } from '@/components/charts/daily-bar-chart';
+import { FullscreenMap } from '@/components/fullscreen-map';
+import type { MapUnitPoint } from '@/components/geo-hero-map/map-types';
 import { KpiCard, KpiCardSkeleton } from '@/components/kpi-card';
-import { SectionCard } from '@/components/section-card';
+import { HomeLegend } from './_home-legend';
+import { HomeHero } from './_home-hero';
+import {
+  DEFAULT_PERIOD,
+  periodToDays,
+  periodToRange,
+  type DashboardPeriod,
+} from '@/lib/helpers/dashboard-period';
+import {
+  buildDailySeries,
+  orderCountValue,
+  orderRevenueValue,
+  type OrderReportRow,
+} from '@/lib/helpers/dashboard-series';
 import { mapIndicatorsToKpis } from '@/lib/helpers/kpi-mapper';
-import { getIndicators } from '@/services/reports';
-
-const ResponsiveLine = dynamic(() => import('@nivo/line').then((m) => m.ResponsiveLine), {
-  ssr: false,
-});
+import { getIndicators, getReport } from '@/services/reports';
+import { unitsResource } from '@/services/units';
+import { useSidebarClearLeft } from '@/components/sidebar';
 
 export default function DashboardPage() {
-  const t = useTranslations('reports');
-  const tNav = useTranslations('nav');
-  const query = useQuery({
-    queryKey: ['reports', 'indicators'],
-    queryFn: () => getIndicators({}),
+  const t = useTranslations('dashboard');
+  const clearLeft = useSidebarClearLeft();
+  const tReports = useTranslations('reports');
+  const locale = useLocale();
+  const [period, setPeriod] = useState<DashboardPeriod>(DEFAULT_PERIOD);
+  const [expanded, setExpanded] = useState(false);
+  const range = periodToRange(period);
+  const days = periodToDays(period);
+
+  const indicators = useQuery({
+    queryKey: ['reports', 'indicators', range],
+    queryFn: () => getIndicators(range),
   });
-  const kpis = query.data
-    ? mapIndicatorsToKpis(query.data, {
-        orders: t('orders'),
-        revenue: t('revenue'),
-        promotions: t('promotions'),
-        loyaltyMembers: t('loyaltyMembers'),
-      })
+  const orders = useQuery({
+    queryKey: ['reports', 'orders', range],
+    queryFn: () => getReport('orders', range) as Promise<OrderReportRow[]>,
+  });
+  const units = unitsResource.useList();
+
+  const points = useMemo<MapUnitPoint[]>(
+    () =>
+      (units.data ?? [])
+        .filter((unit) => unit.latitude != null && unit.longitude != null)
+        .map((unit) => ({
+          key: String(unit.id),
+          name: unit.name,
+          address: unit.address,
+          lat: Number(unit.latitude),
+          lng: Number(unit.longitude),
+          active: unit.status === 'ATIVA',
+        })),
+    [units.data],
+  );
+
+  const kpis = indicators.data
+    ? [
+        ...mapIndicatorsToKpis(indicators.data, {
+          orders: tReports('orders'),
+          revenue: tReports('revenue'),
+          promotions: tReports('promotions'),
+          loyaltyMembers: tReports('loyaltyMembers'),
+        }),
+        {
+          key: 'units',
+          Icon: Storefront,
+          accent: 'var(--raizes-brand)',
+          label: t('unitsKpi'),
+          raw: units.data?.length ?? 0,
+          format: (value: number) => value.toLocaleString(locale),
+        },
+      ]
     : [];
 
-  const chartData = [
-    {
-      id: 'orders',
-      data: [
-        { x: 'Mon', y: query.data?.orders ?? 0 },
-        { x: 'Tue', y: Math.round((query.data?.orders ?? 0) * 0.8) },
-        { x: 'Wed', y: Math.round((query.data?.orders ?? 0) * 1.1) },
-        { x: 'Thu', y: Math.round((query.data?.orders ?? 0) * 0.9) },
-      ],
-    },
-  ];
+  const orderBars = useMemo(() => {
+    const series = buildDailySeries(orders.data ?? [], days, orderCountValue);
+    return series.map((point) => ({
+      key: point.date,
+      date: new Date(`${point.date}T00:00:00`),
+      count: point.value,
+    }));
+  }, [orders.data, days]);
+  const revenuePoints = useMemo(
+    () => buildDailySeries(orders.data ?? [], days, orderRevenueValue),
+    [orders.data, days],
+  );
+  const ordersTotal = orderBars.reduce((sum, bar) => sum + bar.count, 0);
+  const revenueTotal = revenuePoints.reduce((sum, point) => sum + point.value, 0);
+  const money = (value: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency: 'BRL' }).format(value);
 
   return (
-    <div className="space-y-6">
-      <h1 className="t-page-title">{tNav('dashboard')}</h1>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {query.isLoading
-          ? Array.from({ length: 4 }).map((_, i) => <KpiCardSkeleton key={i} />)
-          : kpis.map((kpi, i) => <KpiCard key={kpi.key} kpi={kpi} index={i} />)}
-      </div>
-      <SectionCard title={t('orders')}>
-        <div className="h-64">
-          <ResponsiveLine
-            data={chartData}
-            margin={{ top: 20, right: 20, bottom: 40, left: 50 }}
-            xScale={{ type: 'point' }}
-            yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
-            axisBottom={{ tickSize: 0 }}
-            axisLeft={{ tickSize: 0 }}
-            colors={['#FF4B00']}
-            pointSize={8}
-            useMesh
+    <>
+      <h1 className="sr-only">{t('heading')}</h1>
+      <div className="relative min-h-screen bg-white">
+        <HomeHero
+          points={points}
+          clearLeft={clearLeft}
+          period={period}
+          onPeriod={setPeriod}
+          onExpand={() => setExpanded(true)}
+          liveLabel={t('live')}
+          viewMapLabel={t('viewMap')}
+          periodLabels={{ '7d': t('period7'), '30d': t('period30'), '90d': t('period90') }}
+          unitsLabel={t('legendUnits')}
+          activeLabel={t('legendActive')}
+        />
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative -mt-24 grid grid-cols-2 gap-2.5 pb-6 pr-4 sm:grid-cols-3 lg:grid-cols-5 sm:pr-6"
+          style={{ paddingLeft: clearLeft }}
+        >
+          {indicators.isLoading
+            ? Array.from({ length: 5 }).map((_, index) => (
+                <KpiCardSkeleton key={index} />
+              ))
+            : kpis.map((kpi, index) => (
+                <KpiCard key={kpi.key} kpi={kpi} index={index} />
+              ))}
+        </motion.div>
+        <div
+          className="grid grid-cols-1 gap-2.5 pb-6 pr-4 md:grid-cols-2 sm:pr-6"
+          style={{ paddingLeft: clearLeft }}
+        >
+          <DailyBarChart
+            title={t('ordersChartTitle')}
+            subtitle={t('ordersChartSubtitle', { days })}
+            total={ordersTotal}
+            totalLabel={t('ordersChartTotal')}
+            bars={orderBars}
+            loading={orders.isLoading}
+            empty={t('ordersChartEmpty')}
+            locale={locale}
+          />
+          <AreaLineChart
+            title={t('revenueChartTitle')}
+            subtitle={t('revenueChartSubtitle')}
+            total={revenueTotal}
+            totalLabel={t('revenueChartTotal')}
+            points={revenuePoints}
+            loading={orders.isLoading}
+            empty={t('revenueChartEmpty')}
+            locale={locale}
+            formatTotal={money}
           />
         </div>
-      </SectionCard>
-    </div>
+      </div>
+      <AnimatePresence>
+        {expanded ? (
+          <FullscreenMap
+            points={points}
+            onClose={() => setExpanded(false)}
+            backLabel={t('back')}
+            controls={<HomeLegend unitsLabel={t('legendUnits')} activeLabel={t('legendActive')} />}
+          />
+        ) : null}
+      </AnimatePresence>
+    </>
   );
 }

@@ -2,22 +2,23 @@
 
 import { Sidebar } from '@/components/sidebar';
 import { Topbar } from '@/components/topbar';
+import { DashboardMain } from './_layout-inner';
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="relative min-h-screen"
+      className="relative h-screen overflow-hidden"
       style={{ background: 'var(--raizes-canvas-gradient)' }}
     >
-      <div className="absolute left-0 top-0 bottom-0 z-40 hidden p-3 md:block">
-        <Sidebar />
-      </div>
-      <div className="absolute top-0 inset-x-0 z-30">
+      <DashboardMain>{children}</DashboardMain>
+      <div className="absolute inset-x-0 top-0 z-30">
         <Topbar />
       </div>
-      <main className="min-h-screen px-4 pb-8 pt-16 md:pl-60">
-        <div className="mx-auto max-w-7xl">{children}</div>
-      </main>
+      <div className="pointer-events-none absolute top-0 bottom-0 left-0 z-40 p-2.5">
+        <div className="pointer-events-auto h-full">
+          <Sidebar />
+        </div>
+      </div>
     </div>
   );
 }

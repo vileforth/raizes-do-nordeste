@@ -16,5 +16,13 @@
   "reports": "Reports",
   "logout": "Sign out",
   "profile": "Profile",
-  "language": "Language"
+  "language": "Language",
+  "collapseMenu": "Collapse menu",
+  "categoryHome": "Home",
+  "categoryOperations": "Operations",
+  "categoryCatalog": "Catalog",
+  "categoryPeople": "People",
+  "categoryMarketing": "Marketing",
+  "categoryNetwork": "Network",
+  "categoryReports": "Insights"
 }

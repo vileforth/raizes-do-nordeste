@@ -16,5 +16,13 @@
   "reports": "Relatórios",
   "logout": "Sair",
   "profile": "Perfil",
-  "language": "Idioma"
+  "language": "Idioma",
+  "collapseMenu": "Recolher menu",
+  "categoryHome": "Início",
+  "categoryOperations": "Operações",
+  "categoryCatalog": "Catálogo",
+  "categoryPeople": "Pessoas",
+  "categoryMarketing": "Marketing",
+  "categoryNetwork": "Rede",
+  "categoryReports": "Indicadores"
 }

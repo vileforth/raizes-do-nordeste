@@ -18,7 +18,12 @@ export function KpiCard({ kpi, index }: { kpi: KpiSpec; index: number }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      className="rounded-2xl border border-[var(--raizes-border)] bg-[var(--raizes-glass-bg)] p-4 backdrop-blur-xl"
+      className="rounded-2xl border p-4 backdrop-blur-xl"
+      style={{
+        background: 'rgba(255,255,255,0.72)',
+        borderColor: 'rgba(255,255,255,0.75)',
+        boxShadow: '0 1px 2px rgba(7,47,51,0.04), 0 14px 36px -18px rgba(7,47,51,0.3)',
+      }}
     >
       <p className="t-eyebrow">{kpi.label}</p>
       <p className="t-stat-lg mt-2" style={{ color: kpi.accent }}>
