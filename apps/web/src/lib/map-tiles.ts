@@ -4,7 +4,7 @@ export const positronTileUrl = STADIA_KEY
   ? `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${STADIA_KEY}`
   : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
-export const positronTileSubdomains = STADIA_KEY ? undefined : 'abcd';
+export const positronTileSubdomains = STADIA_KEY ? 'abc' : 'abcd';
 
 export const positronTileAttribution = STADIA_KEY
   ? '&copy; OpenStreetMap &copy; Stadia Maps'
