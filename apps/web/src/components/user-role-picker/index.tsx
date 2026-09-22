@@ -1,17 +1,18 @@
 'use client';
 
+import { UserRole } from '@raizes/shared';
 import { useTranslations } from 'next-intl';
 import { USER_ROLES } from '@/schemas/user.schema';
 
 type Props = {
-  value: string[];
-  onChange: (roles: string[]) => void;
+  value: UserRole[];
+  onChange: (roles: UserRole[]) => void;
 };
 
 export function UserRolePicker({ value, onChange }: Props) {
   const t = useTranslations('status');
 
-  function toggle(role: string) {
+  function toggle(role: UserRole) {
     if (value.includes(role)) {
       onChange(value.filter((item) => item !== role));
       return;

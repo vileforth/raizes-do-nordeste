@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { UserRole } from '@raizes/shared';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
@@ -26,7 +27,7 @@ export default function NewUserPage() {
       phone: '',
       password: '',
       status: 'ATIVO',
-      profileNames: ['ATENDENTE'],
+      profileNames: [UserRole.ATENDENTE],
     },
   });
 
