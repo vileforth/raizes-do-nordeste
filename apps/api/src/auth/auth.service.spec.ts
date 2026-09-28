@@ -25,6 +25,7 @@ describe('AuthService', () => {
       signInWithPassword: jest.fn(),
       signUp: jest.fn(),
       recoverPassword: jest.fn(),
+      refreshSession: jest.fn(),
     } as unknown as jest.Mocked<SupabaseAuthClient>;
 
     prisma = {
@@ -96,6 +97,20 @@ describe('AuthService', () => {
       email: 'maria@example.com',
       userId: 42,
     });
+  });
+
+  it('refreshes a session', async () => {
+    supabaseAuth.refreshSession.mockResolvedValue({
+      accessToken: 'next-access',
+      refreshToken: 'next-refresh',
+      expiresIn: 3600,
+      tokenType: 'bearer',
+    });
+
+    const result = await service.refresh('current-refresh');
+
+    expect(supabaseAuth.refreshSession).toHaveBeenCalledWith('current-refresh');
+    expect(result.accessToken).toBe('next-access');
   });
 
   it('rejects duplicate email on register', async () => {

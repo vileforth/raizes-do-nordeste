@@ -11,6 +11,7 @@ import {
 } from './dto/auth-response.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthenticatedUser } from './types/auth-user.types';
 
@@ -33,6 +34,14 @@ export class AuthController {
   @ApiResponse({ status: 201, type: RegisterResponseDto })
   register(@Body() dto: RegisterDto): Promise<RegisterResponseDto> {
     return this.authService.register(dto);
+  }
+
+  @Post('refresh')
+  @Public()
+  @ApiOperation({ summary: 'Refresh Supabase session' })
+  @ApiResponse({ status: 200, type: AuthTokenResponseDto })
+  refresh(@Body() dto: RefreshTokenDto): Promise<AuthTokenResponseDto> {
+    return this.authService.refresh(dto.refreshToken);
   }
 
   @Post('forgot-password')

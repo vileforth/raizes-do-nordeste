@@ -47,6 +47,12 @@ export class AuthService {
     return tokens;
   }
 
+  async refresh(refreshToken: string): Promise<SupabaseTokenResponse> {
+    const tokens = await this.supabaseAuth.refreshSession(refreshToken);
+    this.logger.info('Session refreshed');
+    return tokens;
+  }
+
   async register(dto: RegisterDto): Promise<RegisterResult> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },

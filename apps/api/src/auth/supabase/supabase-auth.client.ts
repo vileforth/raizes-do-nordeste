@@ -52,6 +52,14 @@ export class SupabaseAuthClient {
     await this.request('/auth/v1/recover', { email });
   }
 
+  async refreshSession(refreshToken: string): Promise<SupabaseTokenResponse> {
+    const response = await this.request<SupabaseTokenBody>(
+      '/auth/v1/token?grant_type=refresh_token',
+      { refresh_token: refreshToken },
+    );
+    return this.mapTokenResponse(response);
+  }
+
   private mapTokenResponse(body: SupabaseTokenBody): SupabaseTokenResponse {
     return {
       accessToken: body.access_token,

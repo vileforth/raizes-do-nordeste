@@ -38,7 +38,10 @@ export function parseAuthTokens(body: unknown): AuthTokens | null {
 }
 
 export function shouldPersistAuthTokens(path: string, method: string): boolean {
-  return method === 'POST' && (path === 'auth/login' || path === 'auth/register');
+  return (
+    method === 'POST' &&
+    (path === 'auth/login' || path === 'auth/register' || path === 'auth/refresh')
+  );
 }
 
 export function isLogoutPath(path: string, method: string): boolean {

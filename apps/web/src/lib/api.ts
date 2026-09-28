@@ -1,3 +1,5 @@
+import { endSessionAndRedirect, shouldEndSession } from '@/lib/auth/session-redirect';
+
 type ApiErrorBody = {
   message: string;
   statusCode?: number;
@@ -44,6 +46,9 @@ export async function apiFetch<T>(
     headers.set('Authorization', `Bearer ${token}`);
   }
   const response = await fetch(url, { ...options, headers });
+  if (response.status === 401 && shouldEndSession(path)) {
+    await endSessionAndRedirect();
+  }
   if (!response.ok) {
     let body: ApiErrorBody | undefined;
     try {

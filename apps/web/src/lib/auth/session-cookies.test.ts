@@ -36,6 +36,7 @@ describe('auth session paths', () => {
   it('persists tokens only after login or register', () => {
     expect(shouldPersistAuthTokens('auth/login', 'POST')).toBe(true);
     expect(shouldPersistAuthTokens('auth/register', 'POST')).toBe(true);
+    expect(shouldPersistAuthTokens('auth/refresh', 'POST')).toBe(true);
     expect(shouldPersistAuthTokens('auth/me', 'GET')).toBe(false);
     expect(shouldPersistAuthTokens('auth/login', 'GET')).toBe(false);
   });
