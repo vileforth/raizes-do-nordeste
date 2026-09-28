@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,9 +13,9 @@ import {
   resolveOrderBy,
   searchContains,
   type Paginated,
-  type PaginationInput,
 } from '../common/pagination/pagination';
 import { CreateCouponDto } from './dto/create-coupon.dto';
+import { ListCouponsQueryDto } from './dto/list-coupons.query';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { ValidateCouponDto } from './dto/validate-coupon.dto';
 
@@ -25,9 +26,13 @@ export class CouponsService {
     private readonly logger: LoggerService,
   ) {}
 
-  async findAll(query: PaginationInput = {}): Promise<Paginated<Coupon>> {
+  async findAll(query: ListCouponsQueryDto = {}): Promise<Paginated<Coupon>> {
     const { page, pageSize, skip, take, search } = normalizePagination(query);
-    const where = searchContains(['code'], search) ?? {};
+    const searchWhere = searchContains(['code'], search);
+    const where = {
+      ...(query.promotionId ? { promotionId: query.promotionId } : {}),
+      ...(searchWhere ?? {}),
+    };
     const orderBy = resolveOrderBy(query.orderBy, ['id', 'code'], { id: 'desc' });
     const [coupons, total] = await Promise.all([
       this.prisma.coupon.findMany({ where, orderBy, skip, take }),
@@ -46,9 +51,16 @@ export class CouponsService {
 
   async create(dto: CreateCouponDto): Promise<Coupon> {
     await this.ensurePromotionExists(dto.promotionId);
-    const coupon = await this.prisma.coupon.create({ data: dto });
-    this.logger.info('Coupon created', { couponId: coupon.id });
-    return coupon;
+    try {
+      const coupon = await this.prisma.coupon.create({ data: dto });
+      this.logger.info('Coupon created', { couponId: coupon.id });
+      return coupon;
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new ConflictException('Coupon code already exists');
+      }
+      throw error;
+    }
   }
 
   async update(id: number, dto: UpdateCouponDto): Promise<Coupon> {
@@ -122,4 +134,13 @@ export class CouponsService {
       throw new NotFoundException('Promotion not found');
     }
   }
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code?: string }).code === 'P2002'
+  );
 }

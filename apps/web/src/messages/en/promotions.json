@@ -4,5 +4,11 @@
   "detail": "Promotion detail",
   "rule": "Rule",
   "startDate": "Start",
-  "endDate": "End"
+  "endDate": "End",
+  "coupons": "Coupons",
+  "couponCode": "Code",
+  "couponExpiry": "Expiry",
+  "couponUsageLimit": "Usage limit",
+  "couponActive": "Active",
+  "newCoupon": "Create coupon"
 }

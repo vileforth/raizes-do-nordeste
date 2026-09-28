@@ -6,6 +6,7 @@ import { ResourceDeleteButton } from '@/components/resource-delete-button';
 import { SectionCard } from '@/components/section-card';
 import { StatusBadge } from '@/components/status-badge';
 import { promotionsResource } from '@/services/promotions';
+import { PromotionCoupons } from './_promotion-coupons';
 
 export default function PromotionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,15 +15,18 @@ export default function PromotionDetailPage() {
   if (isLoading) return <div className="h-40 animate-pulse rounded-2xl bg-black/5" />;
   if (!data) return null;
   return (
-    <SectionCard
-      title={t('detail')}
-      actions={<ResourceDeleteButton id={id} href="/promotions" useRemove={promotionsResource.useRemove} />}
-    >
-      <dl className="grid gap-3 text-sm">
-        <div><dt className="t-eyebrow">Name</dt><dd>{data.name}</dd></div>
-        <div><dt className="t-eyebrow">{t('rule')}</dt><dd>{data.rule}</dd></div>
-        <div><dt className="t-eyebrow">Status</dt><dd><StatusBadge status={data.status} /></dd></div>
-      </dl>
-    </SectionCard>
+    <div className="space-y-6">
+      <SectionCard
+        title={t('detail')}
+        actions={<ResourceDeleteButton id={id} href="/promotions" useRemove={promotionsResource.useRemove} />}
+      >
+        <dl className="grid gap-3 text-sm">
+          <div><dt className="t-eyebrow">Name</dt><dd>{data.name}</dd></div>
+          <div><dt className="t-eyebrow">{t('rule')}</dt><dd>{data.rule}</dd></div>
+          <div><dt className="t-eyebrow">Status</dt><dd><StatusBadge status={data.status} /></dd></div>
+        </dl>
+      </SectionCard>
+      <PromotionCoupons promotionId={Number(id)} defaultExpiry={data.endDate} />
+    </div>
   );
 }

@@ -6,14 +6,30 @@ export type Coupon = {
   id: number;
   promotionId: number;
   code: string;
-  validUntil: string;
+  expiry: string;
   usageLimit: number;
   active: boolean;
 };
 
-export const couponsResource = createResource<Coupon>('coupons', {
-  list: (params?: ListQuery) => apiGet<Paginated<Coupon>>(`/coupons${toQueryString(params)}`),
-  create: (input) => apiPost<Coupon>('/coupons', input),
-  update: (id, input) => apiPut<Coupon>(`/coupons/${id}`, input),
-  remove: (id) => apiDelete(`/coupons/${id}`),
-});
+export type CreateCouponInput = {
+  promotionId: number;
+  code: string;
+  expiry: string;
+  usageLimit: number;
+  active: boolean;
+};
+
+export type CouponListQuery = ListQuery & {
+  promotionId?: number;
+};
+
+export const couponsResource = createResource<Coupon, CouponListQuery, CreateCouponInput>(
+  'coupons',
+  {
+    list: (params?: CouponListQuery) =>
+      apiGet<Paginated<Coupon>>(`/coupons${toQueryString(params)}`),
+    create: (input) => apiPost<Coupon>('/coupons', input),
+    update: (id, input) => apiPut<Coupon>(`/coupons/${id}`, input),
+    remove: (id) => apiDelete(`/coupons/${id}`),
+  },
+);
