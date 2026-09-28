@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MER — Raízes do Nordeste</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --ink: #072f33;
+      --muted: #5c6b6d;
+      --line: #8aa0a2;
+      --card: #fffdf8;
+      --acesso: #072f33;
+      --rede: #ff4b00;
+      --catalogo: #0f766e;
+      --pedidos: #9a3412;
+      --promocoes: #7c3aed;
+      --fidelidade: #b45309;
+      --atendimento: #1d4ed8;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; font-family: "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+    body { display: grid; grid-template-columns: 300px 1fr 320px; grid-template-rows: 72px 1fr; height: 100vh; overflow: hidden; }
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 18px;
+      background: var(--ink);
+      color: #fff;
+    }
+    header h1 { margin: 0; font-size: 18px; letter-spacing: 0.02em; }
+    header p { margin: 2px 0 0; font-size: 12px; color: #d5e4e5; }
+    .tools { display: flex; align-items: center; gap: 8px; }
+    button, select, input {
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border-radius: 999px;
+      height: 34px;
+      padding: 0 12px;
+      font: inherit;
+      font-size: 13px;
+    }
+    button { cursor: pointer; }
+    button:hover { background: rgba(255,255,255,0.18); }
+    #zoom-label { min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+    aside, #detail {
+      background: #fff;
+      border-right: 1px solid #e4ddd2;
+      overflow: auto;
+      padding: 14px;
+    }
+    #detail { border-right: 0; border-left: 1px solid #e4ddd2; }
+    h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .legend { display: grid; gap: 6px; margin-bottom: 14px; }
+    .legend span, .entity-btn { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .swatch { width: 10px; height: 10px; border-radius: 99px; }
+    .entity-btn {
+      width: 100%;
+      justify-content: flex-start;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      border-radius: 8px;
+      height: 30px;
+      padding: 0 8px;
+    }
+    .entity-btn.active, .entity-btn:hover { background: #f3efe6; }
+    #viewport { position: relative; overflow: hidden; background: radial-gradient(#e7e1d6 1px, transparent 1px); background-size: 22px 22px; cursor: grab; }
+    #viewport.dragging { cursor: grabbing; }
+    #world { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+    svg.links { position: absolute; overflow: visible; pointer-events: none; }
+    .card {
+      position: absolute;
+      width: 230px;
+      background: var(--card);
+      border: 1px solid #e6dfd4;
+      border-radius: 12px;
+      box-shadow: 0 10px 24px rgba(7, 47, 51, 0.06);
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .card header {
+      display: block;
+      padding: 8px 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .card ul { list-style: none; margin: 0; padding: 6px 10px 8px; }
+    .card li { font-size: 11px; line-height: 1.45; color: #334; display: flex; justify-content: space-between; gap: 8px; }
+    .pk { color: var(--acesso); font-weight: 700; }
+    .fk { color: #9a3412; }
+    .card.selected { outline: 2px solid var(--rede); outline-offset: 2px; }
+    .rel-label { font-size: 11px; fill: var(--muted); }
+    #detail h3 { margin: 0 0 4px; font-size: 18px; }
+    #detail .domain { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #eee6dc; vertical-align: top; }
+    .note { font-size: 12px; color: var(--muted); line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Modelo entidade-relacionamento</h1>
+      <p>Raízes do Nordeste · PostgreSQL · 25 tabelas · cardinalidade implementada no Prisma</p>
+    </div>
+    <div class="tools">
+      <input id="search" placeholder="Buscar tabela" />
+      <button id="zoom-out" type="button">−</button>
+      <span id="zoom-label">70%</span>
+      <button id="zoom-in" type="button">+</button>
+      <button id="fit" type="button">Ajustar</button>
+      <button id="reset" type="button">100%</button>
+    </div>
+  </header>
+  <aside>
+    <h2>Características</h2>
+    <p class="note">Rede de franquias alimentícias. O diagrama reflete o schema Prisma em produção lógica: papéis, unidades, cardápio, estoque, pedidos, pagamento simulado, promoções, fidelidade, atendimento e auditoria.</p>
+    <div class="legend" id="legend"></div>
+    <h2>Tabelas</h2>
+    <div id="entity-list"></div>
+  </aside>
+  <div id="viewport">
+    <div id="world">
+      <svg class="links" id="links"></svg>
+    </div>
+  </div>
+  <section id="detail">
+    <h2>Tabela</h2>
+    <p class="note">Selecione uma entidade no diagrama ou na lista. Use a roda do mouse para zoom e arraste o fundo para mover.</p>
+  </section>
+  <script>
+    const domains = {
+      acesso: { label: 'Acesso e pessoas', color: '#072f33' },
+      rede: { label: 'Rede e estoque', color: '#ff4b00' },
+      catalogo: { label: 'Catálogo', color: '#0f766e' },
+      pedidos: { label: 'Pedidos e pagamento', color: '#9a3412' },
+      promocoes: { label: 'Promoções', color: '#7c3aed' },
+      fidelidade: { label: 'Fidelidade', color: '#b45309' },
+      atendimento: { label: 'Atendimento e auditoria', color: '#1d4ed8' }
+    };
+
+    const entities = [
+      ent('usuario', 'acesso', 40, 40, [
+        ['id_usuario', 'PK', 'int'], ['nome', '', 'texto'], ['email', 'UK', 'texto'],
+        ['senha_hash', '', 'texto'], ['telefone', '', 'texto'], ['status', '', 'enum'], ['data_cadastro', '', 'data']
+      ]),
+      ent('perfil', 'acesso', 40, 280, [
+        ['id_perfil', 'PK', 'int'], ['nome', 'UK', 'texto'], ['descricao', '', 'texto'], ['ativo', '', 'bool']
+      ]),
+      ent('usuario_perfil', 'acesso', 320, 160, [
+        ['id_usuario', 'PK FK', 'int'], ['id_perfil', 'PK FK', 'int']
+      ]),
+      ent('cliente', 'acesso', 620, 40, [
+        ['id_cliente', 'PK', 'int'], ['id_usuario', 'UK FK', 'int'], ['cpf', 'UK', 'texto'],
+        ['data_nascimento', '', 'data'], ['endereco', '', 'texto'], ['cidade', '', 'texto'],
+        ['estado', '', 'texto'], ['cep', '', 'texto'], ['id_unidade_preferida', 'FK', 'int'],
+        ['latitude', '', 'float'], ['longitude', '', 'float'], ['ativo', '', 'bool']
+      ]),
+      ent('funcionario', 'acesso', 620, 360, [
+        ['id_funcionario', 'PK', 'int'], ['id_usuario', 'UK FK', 'int'], ['id_unidade', 'FK', 'int'],
+        ['matricula', 'UK', 'texto'], ['cargo', '', 'texto'], ['ativo', '', 'bool']
+      ]),
+      ent('unidade', 'rede', 960, 180, [
+        ['id_unidade', 'PK', 'int'], ['nome', '', 'texto'], ['endereco', '', 'texto'],
+        ['telefone', '', 'texto'], ['status', '', 'enum'], ['latitude', '', 'float'], ['longitude', '', 'float']
+      ]),
+      ent('estoque', 'rede', 1280, 40, [
+        ['id_estoque', 'PK', 'int'], ['id_unidade', 'UK FK', 'int'], ['status', '', 'texto']
+      ]),
+      ent('produto', 'catalogo', 1280, 280, [
+        ['id_produto', 'PK', 'int'], ['nome', '', 'texto'], ['descricao', '', 'texto'],
+        ['preco', '', 'decimal'], ['categoria', '', 'texto'], ['ativo', '', 'bool']
+      ]),
+      ent('estoque_produto', 'rede', 1600, 140, [
+        ['id_estoque_produto', 'PK', 'int'], ['id_estoque', 'FK', 'int'], ['id_produto', 'FK', 'int'],
+        ['quantidade', '', 'int'], ['estoque_minimo', '', 'int']
+      ]),
+      ent('pedido', 'pedidos', 320, 560, [
+        ['id_pedido', 'PK', 'int'], ['id_cliente', 'FK', 'int'], ['id_unidade', 'FK', 'int'],
+        ['status', '', 'enum'], ['tipo_consumo', '', 'enum'], ['valor_total', '', 'decimal'],
+        ['codigo_pedido', 'UK', 'texto'], ['data_criacao', '', 'data']
+      ]),
+      ent('item_pedido', 'pedidos', 640, 620, [
+        ['id_item_pedido', 'PK', 'int'], ['id_pedido', 'FK', 'int'], ['id_produto', 'FK', 'int'],
+        ['quantidade', '', 'int'], ['preco_unitario', '', 'decimal'], ['subtotal', '', 'decimal']
+      ]),
+      ent('pagamento', 'pedidos', 320, 860, [
+        ['id_pagamento', 'PK', 'int'], ['id_pedido', 'UK FK', 'int'], ['metodo', '', 'enum'],
+        ['valor', '', 'decimal'], ['status', '', 'enum'], ['codigo_transacao', 'UK', 'texto']
+      ]),
+      ent('hist_status_pedido', 'pedidos', 40, 700, [
+        ['id_historico_status', 'PK', 'int'], ['id_pedido', 'FK', 'int'], ['id_usuario', 'FK', 'int'],
+        ['status', '', 'enum'], ['data_hora', '', 'data'], ['observacao', '', 'texto']
+      ]),
+      ent('promocao', 'promocoes', 960, 560, [
+        ['id_promocao', 'PK', 'int'], ['nome', '', 'texto'], ['regra', '', 'texto'],
+        ['data_inicio', '', 'data'], ['data_fim', '', 'data'], ['status', '', 'enum']
+      ]),
+      ent('cupom', 'promocoes', 1280, 560, [
+        ['id_cupom', 'PK', 'int'], ['id_promocao', 'FK', 'int'], ['codigo', 'UK', 'texto'],
+        ['validade', '', 'data'], ['limite_uso', '', 'int'], ['ativo', '', 'bool']
+      ]),
+      ent('promocao_unidade', 'promocoes', 960, 820, [
+        ['id_promocao', 'PK FK', 'int'], ['id_unidade', 'PK FK', 'int']
+      ]),
+      ent('promocao_produto', 'promocoes', 1280, 820, [
+        ['id_promocao', 'PK FK', 'int'], ['id_produto', 'PK FK', 'int']
+      ]),
+      ent('programa_fidelidade', 'fidelidade', 40, 1120, [
+        ['id_programa', 'PK', 'int'], ['nome', '', 'texto'], ['descricao', '', 'texto'], ['status', '', 'texto']
+      ]),
+      ent('cliente_fidelidade', 'fidelidade', 320, 1120, [
+        ['id_cliente_fidelidade', 'PK', 'int'], ['id_cliente', 'FK', 'int'], ['id_programa', 'FK', 'int'],
+        ['saldo_pontos', '', 'int'], ['nivel', '', 'enum'], ['status', '', 'texto']
+      ]),
+      ent('movimentacao_pontos', 'fidelidade', 640, 1120, [
+        ['id_movimentacao', 'PK', 'int'], ['id_cliente_fidelidade', 'FK', 'int'], ['tipo', '', 'enum'],
+        ['pontos', '', 'int'], ['origem', '', 'texto'], ['data_hora', '', 'data']
+      ]),
+      ent('beneficio', 'fidelidade', 960, 1120, [
+        ['id_beneficio', 'PK', 'int'], ['nome', '', 'texto'], ['pontos_necessarios', '', 'int'],
+        ['validade', '', 'data'], ['ativo', '', 'bool']
+      ]),
+      ent('resgate_beneficio', 'fidelidade', 1280, 1120, [
+        ['id_resgate', 'PK', 'int'], ['id_cliente_fidelidade', 'FK', 'int'], ['id_beneficio', 'FK', 'int'],
+        ['codigo_resgate', 'UK', 'texto'], ['status', '', 'texto']
+      ]),
+      ent('atendimento', 'atendimento', 40, 1480, [
+        ['id_atendimento', 'PK', 'int'], ['id_cliente', 'FK', 'int'], ['id_usuario_responsavel', 'FK', 'int'],
+        ['protocolo', 'UK', 'texto'], ['tipo', '', 'enum'], ['status', '', 'enum'], ['descricao', '', 'texto']
+      ]),
+      ent('hist_atendimento', 'atendimento', 360, 1540, [
+        ['id_historico', 'PK', 'int'], ['id_atendimento', 'FK', 'int'], ['id_usuario', 'FK', 'int'],
+        ['status', '', 'enum'], ['observacao', '', 'texto'], ['data_hora', '', 'data']
+      ]),
+      ent('log_auditoria', 'atendimento', 700, 1540, [
+        ['id_log', 'PK', 'int'], ['id_usuario', 'FK', 'int'], ['acao', '', 'enum'],
+        ['entidade', '', 'texto'], ['id_entidade', '', 'int'], ['data_hora', '', 'data'], ['detalhes', '', 'texto']
+      ])
+    ];
+
+    const relations = [
+      rel('usuario', 'usuario_perfil', '1', 'N'),
+      rel('perfil', 'usuario_perfil', '1', 'N'),
+      rel('usuario', 'cliente', '1', '0..1'),
+      rel('usuario', 'funcionario', '1', '0..1'),
+      rel('unidade', 'funcionario', '1', 'N'),
+      rel('unidade', 'cliente', '1', 'N'),
+      rel('unidade', 'estoque', '1', '0..1'),
+      rel('estoque', 'estoque_produto', '1', 'N'),
+      rel('produto', 'estoque_produto', '1', 'N'),
+      rel('cliente', 'pedido', '1', 'N'),
+      rel('unidade', 'pedido', '1', 'N'),
+      rel('pedido', 'item_pedido', '1', 'N'),
+      rel('produto', 'item_pedido', '1', 'N'),
+      rel('pedido', 'pagamento', '1', '0..1'),
+      rel('pedido', 'hist_status_pedido', '1', 'N'),
+      rel('usuario', 'hist_status_pedido', '1', 'N'),
+      rel('promocao', 'cupom', '1', 'N'),
+      rel('promocao', 'promocao_unidade', '1', 'N'),
+      rel('unidade', 'promocao_unidade', '1', 'N'),
+      rel('promocao', 'promocao_produto', '1', 'N'),
+      rel('produto', 'promocao_produto', '1', 'N'),
+      rel('programa_fidelidade', 'cliente_fidelidade', '1', 'N'),
+      rel('cliente', 'cliente_fidelidade', '1', 'N'),
+      rel('cliente_fidelidade', 'movimentacao_pontos', '1', 'N'),
+      rel('beneficio', 'resgate_beneficio', '1', 'N'),
+      rel('cliente_fidelidade', 'resgate_beneficio', '1', 'N'),
+      rel('cliente', 'atendimento', '1', 'N'),
+      rel('usuario', 'atendimento', '1', 'N'),
+      rel('atendimento', 'hist_atendimento', '1', 'N'),
+      rel('usuario', 'hist_atendimento', '1', 'N'),
+      rel('usuario', 'log_auditoria', '1', 'N')
+    ];
+
+    function ent(name, domain, x, y, fields) {
+      return { name, domain, x, y, fields };
+    }
+    function rel(from, to, fromCard, toCard) {
+      return { from, to, fromCard, toCard };
+    }
+
+    const world = document.getElementById('world');
+    const links = document.getElementById('links');
+    const viewport = document.getElementById('viewport');
+    const list = document.getElementById('entity-list');
+    const detail = document.getElementById('detail');
+    const legend = document.getElementById('legend');
+    let scale = 0.72;
+    let originX = 24;
+    let originY = 24;
+    let selected = 'pedido';
+
+    Object.entries(domains).forEach(([key, domain]) => {
+      const row = document.createElement('span');
+      row.innerHTML = `<i class="swatch" style="background:${domain.color}"></i>${domain.label}`;
+      legend.appendChild(row);
+    });
+
+    entities.forEach((entity) => {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.dataset.name = entity.name;
+      card.style.left = `${entity.x}px`;
+      card.style.top = `${entity.y}px`;
+      const rows = entity.fields.slice(0, 6).map((field) => {
+        const mark = field[1].includes('PK') ? 'pk' : field[1].includes('FK') ? 'fk' : '';
+        return `<li class="${mark}"><span>${field[0]}</span><span>${field[1] || field[2]}</span></li>`;
+      }).join('');
+      const extra = entity.fields.length > 6 ? `<li>+ ${entity.fields.length - 6} campos</li>` : '';
+      card.innerHTML = `<header style="background:${domains[entity.domain].color}">${entity.name}</header><ul>${rows}${extra}</ul>`;
+      card.addEventListener('pointerdown', (event) => event.stopPropagation());
+      card.addEventListener('click', () => select(entity.name));
+      world.appendChild(card);
+      entity.width = 230;
+      entity.height = card.offsetHeight;
+    });
+
+    function anchor(entity, other) {
+      const cx = entity.x + entity.width / 2;
+      const cy = entity.y + entity.height / 2;
+      const ox = other.x + other.width / 2;
+      const oy = other.y + other.height / 2;
+      const dx = ox - cx;
+      const dy = oy - cy;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        return dx > 0
+          ? { x: entity.x + entity.width, y: cy }
+          : { x: entity.x, y: cy };
+      }
+      return dy > 0
+        ? { x: cx, y: entity.y + entity.height }
+        : { x: cx, y: entity.y };
+    }
+
+    function drawLinks() {
+      const maxX = Math.max(...entities.map((entity) => entity.x + entity.width)) + 80;
+      const maxY = Math.max(...entities.map((entity) => entity.y + entity.height)) + 80;
+      links.setAttribute('width', String(maxX));
+      links.setAttribute('height', String(maxY));
+      links.innerHTML = relations.map((relation) => {
+        const from = entities.find((entity) => entity.name === relation.from);
+        const to = entities.find((entity) => entity.name === relation.to);
+        const start = anchor(from, to);
+        const end = anchor(to, from);
+        const midX = (start.x + end.x) / 2;
+        const midY = (start.y + end.y) / 2;
+        return `<line x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}" stroke="#8aa0a2" stroke-width="1.4" />
+          <text class="rel-label" x="${start.x + (midX - start.x) * 0.25}" y="${start.y + (midY - start.y) * 0.25}">${relation.fromCard}</text>
+          <text class="rel-label" x="${end.x + (midX - end.x) * 0.25}" y="${end.y + (midY - end.y) * 0.25}">${relation.toCard}</text>`;
+      }).join('');
+    }
+
+    function renderList(query) {
+      const term = query.trim().toLowerCase();
+      list.innerHTML = '';
+      entities.filter((entity) => entity.name.includes(term)).forEach((entity) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `entity-btn${entity.name === selected ? ' active' : ''}`;
+        button.innerHTML = `<i class="swatch" style="background:${domains[entity.domain].color}"></i>${entity.name}`;
+        button.addEventListener('click', () => {
+          select(entity.name);
+          focusEntity(entity);
+        });
+        list.appendChild(button);
+      });
+    }
+
+    function select(name) {
+      selected = name;
+      document.querySelectorAll('.card').forEach((card) => {
+        card.classList.toggle('selected', card.dataset.name === name);
+      });
+      const entity = entities.find((item) => item.name === name);
+      detail.innerHTML = `<h2>Tabela</h2><h3>${entity.name}</h3><div class="domain">${domains[entity.domain].label}</div>
+        <table><thead><tr><th>Coluna</th><th>Papel</th><th>Tipo</th></tr></thead><tbody>
+        ${entity.fields.map((field) => `<tr><td>${field[0]}</td><td>${field[1] || '—'}</td><td>${field[2]}</td></tr>`).join('')}
+        </tbody></table>
+        <p class="note">PK chave primária · UK único · FK chave estrangeira. Nomes físicos em português, conforme o dicionário do projeto.</p>`;
+      renderList(document.getElementById('search').value);
+    }
+
+    function applyTransform() {
+      world.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
+      document.getElementById('zoom-label').textContent = `${Math.round(scale * 100)}%`;
+    }
+
+    function zoomAt(next, clientX, clientY) {
+      const rect = viewport.getBoundingClientRect();
+      const px = clientX - rect.left;
+      const py = clientY - rect.top;
+      const worldX = (px - originX) / scale;
+      const worldY = (py - originY) / scale;
+      scale = Math.min(2.4, Math.max(0.28, next));
+      originX = px - worldX * scale;
+      originY = py - worldY * scale;
+      applyTransform();
+    }
+
+    function focusEntity(entity) {
+      const rect = viewport.getBoundingClientRect();
+      originX = rect.width / 2 - (entity.x + entity.width / 2) * scale;
+      originY = rect.height / 2 - (entity.y + entity.height / 2) * scale;
+      applyTransform();
+    }
+
+    function fit() {
+      const rect = viewport.getBoundingClientRect();
+      const minX = Math.min(...entities.map((entity) => entity.x));
+      const minY = Math.min(...entities.map((entity) => entity.y));
+      const maxX = Math.max(...entities.map((entity) => entity.x + entity.width));
+      const maxY = Math.max(...entities.map((entity) => entity.y + entity.height));
+      const width = maxX - minX + 80;
+      const height = maxY - minY + 80;
+      scale = Math.min((rect.width - 40) / width, (rect.height - 40) / height, 1.2);
+      originX = (rect.width - width * scale) / 2 - (minX - 40) * scale;
+      originY = (rect.height - height * scale) / 2 - (minY - 40) * scale;
+      applyTransform();
+    }
+
+    viewport.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      const factor = event.deltaY < 0 ? 1.1 : 0.9;
+      zoomAt(scale * factor, event.clientX, event.clientY);
+    }, { passive: false });
+
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+    viewport.addEventListener('pointerdown', (event) => {
+      dragging = true;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      viewport.classList.add('dragging');
+      viewport.setPointerCapture(event.pointerId);
+    });
+    viewport.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      originX += event.clientX - lastX;
+      originY += event.clientY - lastY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      applyTransform();
+    });
+    viewport.addEventListener('pointerup', () => {
+      dragging = false;
+      viewport.classList.remove('dragging');
+    });
+
+    document.getElementById('zoom-in').addEventListener('click', () => {
+      const rect = viewport.getBoundingClientRect();
+      zoomAt(scale * 1.15, rect.left + rect.width / 2, rect.top + rect.height / 2);
+    });
+    document.getElementById('zoom-out').addEventListener('click', () => {
+      const rect = viewport.getBoundingClientRect();
+      zoomAt(scale / 1.15, rect.left + rect.width / 2, rect.top + rect.height / 2);
+    });
+    document.getElementById('reset').addEventListener('click', () => {
+      scale = 1;
+      originX = 24;
+      originY = 24;
+      applyTransform();
+    });
+    document.getElementById('fit').addEventListener('click', fit);
+    document.getElementById('search').addEventListener('input', (event) => renderList(event.target.value));
+
+    drawLinks();
+    select('pedido');
+    fit();
+  </script>
+</body>
+</html>

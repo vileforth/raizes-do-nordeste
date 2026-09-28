@@ -22,13 +22,13 @@ describe('loginSchema', () => {
 });
 
 describe('clientSchema', () => {
-  it('requires cpf', () => {
+  it('rejects a payload that only has cpf', () => {
     const result = clientSchema.safeParse({
       userId: 1,
       cpf: '12345678901',
       active: true,
     });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 });
 
