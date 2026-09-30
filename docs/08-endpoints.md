@@ -44,4 +44,12 @@ API local: `http://localhost:3001`. No site o caminho é `http://localhost:4000/
 | GET | /reports/:type | gerente, administrador | UC10 |
 | GET | /health | público | operação |
 
-Parâmetro completo está no Swagger da API. Esta tabela é o mapa das rotas por caso de uso.
+## Swagger
+
+Endereço: `http://localhost:3001/docs`. O navegador pede login e senha antes de abrir a página, o JSON (`/docs-json`) e o YAML (`/docs-yaml`).
+
+As credenciais são `SWAGGER_USER` e `SWAGGER_PASSWORD` no `.env` da API (nomes no `.env.example`). Sem as duas variáveis, a página responde 401.
+
+Esse login só libera a documentação. As rotas da tabela continuam exigindo o bearer de `POST /auth/login`, salvo as públicas (register, login, forgot-password e health).
+
+Esta tabela é o mapa das rotas por caso de uso. O parâmetro de cada rota está no Swagger.

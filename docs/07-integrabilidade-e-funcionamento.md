@@ -74,4 +74,4 @@ pnpm --filter @raizes/shared test
 pnpm dev
 ```
 
-Web em `http://localhost:4000`. API em `http://localhost:3001`. O Swagger lista os endpoints protegidos.
+Web em `http://localhost:4000`. API em `http://localhost:3001`. O Swagger em `/docs` pede login e senha (`SWAGGER_USER` e `SWAGGER_PASSWORD`) e lista os endpoints protegidos.

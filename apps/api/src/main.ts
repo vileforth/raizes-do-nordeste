@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { LoggerService } from './logger/logger.service';
+import { createSwaggerBasicAuth } from './swagger/swagger-basic-auth';
 
 async function bootstrap() {
   if (existsSync('.env')) {
@@ -32,6 +33,10 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  app.use(
+    ['/docs', '/docs-json', '/docs-yaml'],
+    createSwaggerBasicAuth(),
+  );
   SwaggerModule.setup('docs', app, swaggerDocument);
 
   const port = Number(process.env.PORT ?? 3001);
