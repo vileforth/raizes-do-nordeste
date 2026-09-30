@@ -1,77 +1,108 @@
 # Requisitos de qualidade
 
-Oito metas mensuráveis no fluxo de pedido e pagamento.
+Recorte: concluir pedido e pagar. Nove metas mensuráveis. A suíte de 30/09/2026 cobre regra e acesso; não cobre latência de campo.
 
-O canal em operação é o WEB. APP, TOTEM e BALCÃO, se existissem como clientes próprios, usariam a mesma API. O balcão, hoje, é o site com perfil ATENDENTE. Retirada no balcão corresponde a `RETIRADA_NO_BALCAO` no pedido.
+## Canais (vale para RQ01 a RQ09)
 
-Quando a suíte de 30/09/2026 não prova o número, o status fica parcial ou simulado.
+| Canal | Origem do pedido | Status da entrega |
+| --- | --- | --- |
+| WEB | Navegador, papel CLIENTE | Em operação |
+| BALCÃO | Mesmo site, papel ATENDENTE | Em operação |
+| PICKUP | `RETIRADA_NO_BALCAO` | Campo do pedido |
+| Consumo no local | `CONSUMO_NO_LOCAL` | Campo do pedido |
+| APP | Cliente nativo | Ausente; mesma API |
+| TOTEM | Cliente de totem | Ausente; mesma API |
+
+A API, a máquina de status e o pagamento mock não mudam de canal.
 
 ## RQ01 — Tempo de resposta
 
-Meta: criar pedido ou confirmar pagamento em menos de 2 segundos.
+Meta: criar pedido ou confirmar pagamento em menos de 2 s (P95).
 
-Critério de aceitação: P95 abaixo de 2 s em ambiente controlado, sem carga de 500 usuários.
+Aceite: P95 abaixo de 2 s sem os 500 usuários simultâneos.
 
-Canal: WEB. A mesma meta valeria para os demais canais.
+Canais: WEB e BALCÃO medidos no mesmo host. APP e TOTEM herdariam o mesmo SLO.
 
-Evidência: sem medição de latência. A suíte unitária não cronometra resposta.
+Evidência: projeção em TS11. O interceptor já registra `duration`; a suíte não afirma o P95.
 
 ## RQ02 — Conclusão em três ações
 
-Meta: com o carrinho montado, concluir pedido e pagamento em no máximo três ações.
+Meta: carrinho pronto → pedido + pagamento em no máximo três ações.
 
-Critério de aceitação: confirmar itens, criar o pedido e confirmar o pagamento simulado.
+Aceite: confirmar itens, `POST /orders`, `POST /payments/:id/confirm`.
 
-Canal: WEB.
+Canais: WEB e mobile (390 px). BALCÃO usa o mesmo formulário. APP/TOTEM repetiriam a sequência.
 
-Evidência: a tela existe. Não há teste de usabilidade cronometrado.
+Evidência: tela existe. Usabilidade cronometrada: TS10 (projeção).
 
 ## RQ03 — Isolamento por unidade
 
-Meta: estoque e pedido de outra unidade não aparecem para o gerente.
+Meta: gerente não lê estoque nem pedido de outra loja.
 
-Critério de aceitação: a API recusa o acesso.
+Aceite: API recusa.
 
-Evidência: medida. `stock.service.spec.ts` recusa gerente de outra loja.
+Canais: vale para qualquer cliente que chame a API com papel GERENTE.
+
+Evidência: `stock.service.spec.ts`.
 
 ## RQ04 — Pagamento sem adquirente
 
-Meta: confirmar pagamento não chama gateway.
+Meta: confirmar não chama gateway.
 
-Critério de aceitação: `POST /payments/:id/confirm` grava status interno e `paidAt`.
+Aceite: grava `CONFIRMADO` e `paidAt`.
 
-Evidência: medida. `payments.service.spec.ts`.
+Canais: todos. O mock é único.
+
+Evidência: `payments.service.spec.ts`.
 
 ## RQ05 — Cupom inválido recusado
 
-Meta: código inativo, vencido ou inexistente não aplica desconto.
+Meta: inativo, vencido ou inexistente não aplica desconto.
 
-Critério de aceitação: a API devolve erro de negócio e o pedido segue sem o cupom.
+Aceite: erro de negócio; pedido segue sem cupom.
 
-Evidência: medida. `coupons.service.spec.ts`.
+Canais: WEB, BALCÃO e um futuro APP usam `POST /coupons/validate`.
+
+Evidência: `coupons.service.spec.ts`.
 
 ## RQ06 — Estoque insuficiente bloqueado
 
 Meta: quantidade acima do saldo da unidade não grava pedido.
 
-Critério de aceitação: a criação falha antes de nascer o código.
+Aceite: falha antes do código.
 
-Evidência: medida. `orders.service.spec.ts`.
+Canais: mesma regra em WEB, BALCÃO, APP e TOTEM.
+
+Evidência: `orders.service.spec.ts`.
 
 ## RQ07 — Sessão expirada volta ao login
 
-Meta: JWT inválido apaga os cookies e redireciona para `/login`.
+Meta: JWT inválido apaga cookie e redireciona para `/login`.
 
-Critério de aceitação: a interface não permanece no painel com o menu desabilitado.
+Aceite: painel não fica com menu desabilitado.
 
-Evidência: medida no cliente. `session-redirect.test.ts` e `session-refresh.test.ts`.
+Canais: WEB (cookie do BFF). APP/TOTEM precisariam do mesmo contrato de refresh.
+
+Evidência: `session-redirect.test.ts`, `session-refresh.test.ts`.
 
 ## RQ08 — Mesma máquina de status
 
-Meta: RECEBIDO → EM_PREPARACAO → PRONTO → RETIRADO, uma única sequência.
+Meta: RECEBIDO → EM_PREPARACAO → PRONTO → RETIRADO.
 
-Critério de aceitação: transição inválida é recusada, qualquer que seja a origem do pedido.
+Aceite: transição inválida recusada, qualquer origem.
 
-Evidência: medida na regra. `order-status.machine.spec.ts`. Não há aplicativo nativo.
+Canais: WEB e BALCÃO no kanban. APP/TOTEM só enviariam o mesmo `PUT /orders/:id/status`.
 
-A matriz com RQ01 a RQ08 está em [12-rastreabilidade.md](12-rastreabilidade.md).
+Evidência: `order-status.machine.spec.ts`. TS12 descreve o balcão.
+
+## RQ09 — Observabilidade do fluxo
+
+Meta: cada criação de pedido ou pagamento deixa rastro de duração e, nas escritas, linha em `log_auditoria`.
+
+Aceite: log Winston com `method`, `path`, `status`, `duration`; auditoria com usuário, entidade e ação.
+
+Canais: o interceptor é global na API. Independente do cliente.
+
+Evidência: `logging.interceptor.ts`, `audit.interceptor.spec.ts`, `logger.service.spec.ts`. Painel APM não existe.
+
+Matriz em [12-rastreabilidade.md](12-rastreabilidade.md).

@@ -10,16 +10,19 @@ A documentação técnica está na pasta [`docs`](docs/README.md). Este arquivo 
 | --- | --- |
 | [Visão geral](docs/01-visao-geral.md) | Atores, módulos, canais e stack |
 | [Casos de uso](docs/02-casos-de-uso.md) | UC01 a UC10 e o que foi implementado |
-| [Arquitetura](docs/03-arquitetura.md) | BFF, integrações e volume de dados |
+| [Descrições de UC](docs/02-descricoes-casos-de-uso.md) | Fluxo, alternativa e regra |
+| [Diagrama de casos de uso](docs/casos-de-uso.html) | Zoom e ficha de cada UC |
+| [Arquitetura](docs/03-arquitetura.md) | Camadas, ISO 25010 e integrações |
 | [Dicionário de dados](docs/04-dicionario-de-dados.md) | 25 tabelas, colunas e chaves |
 | [Modelo MER](docs/05-modelo-mer.md) | Cardinalidades e domínios |
-| [Diagrama interativo](docs/mer.html) | Zoom, arraste e ficha de cada tabela |
-| [Relatório de testes](docs/06-relatorio-de-testes.md) | 202 testes, suíte a suíte |
-| [Métricas](docs/13-metricas.md) | 202/202 medidos em 30/09/2026 |
+| [Diagrama MER](docs/mer.html) | Zoom, arraste e ficha de cada tabela |
+| [Relatório de testes](docs/06-relatorio-de-testes.md) | 203 testes, suíte a suíte |
+| [Evidência da suíte](docs/evidencias/suite-2026-09-30.md) | Jest, Vitest e cobertura da API |
+| [Métricas](docs/13-metricas.md) | 203/203 e 41,65% de linha na API |
 | [Integrabilidade e funcionamento](docs/07-integrabilidade-e-funcionamento.md) | Cadeias entre módulos e limites |
 | [Endpoints](docs/08-endpoints.md) | Rotas da API por caso de uso |
 
-Abra [`docs/mer.html`](docs/mer.html) no navegador. A roda do mouse dá zoom no ponto do cursor. Arrastar o fundo move o diagrama. `Ajustar` encaixa as 25 tabelas. Clicar numa tabela lista PK, UK, FK e tipo.
+Abra [`docs/mer.html`](docs/mer.html) ou [`docs/casos-de-uso.html`](docs/casos-de-uso.html) no navegador. A roda do mouse dá zoom. Arrastar o fundo move o desenho.
 
 ## Problema
 
@@ -79,11 +82,11 @@ pnpm db:seed
 
 ## Testes
 
-Execução de 30/09/2026: **202 testes, 0 falhas**. Detalhe em [docs/13-metricas.md](docs/13-metricas.md).
+Execução de 30/09/2026: **203 testes, 0 falhas**. Cobertura de linha da API: **41,65%**. Detalhe em [docs/13-metricas.md](docs/13-metricas.md).
 
 | Pacote | Testes |
 | --- | --- |
-| API (Jest) | 132 |
+| API (Jest) | 133 |
 | Web (Vitest) | 68 |
 | Compartilhado (Vitest) | 2 |
 

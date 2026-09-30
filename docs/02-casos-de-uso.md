@@ -1,6 +1,8 @@
 # Casos de uso
 
-A tabela associa cada caso de uso ao que o código cobre. `Implementado` significa fluxo principal disponível no site e na API. `Parcial` significa que a regra existe, mas ainda falta canal extra, gateway ou personalização de item.
+A tabela associa cada caso ao que o código cobre. Descrição formal em [02-descricoes-casos-de-uso.md](02-descricoes-casos-de-uso.md). Diagrama com zoom em [casos-de-uso.html](casos-de-uso.html).
+
+`Implementado` = fluxo principal no site e na API. `Parcial` = a regra existe, mas falta canal extra, gateway ou personalização de item.
 
 | UC | Caso | Atores | Status | Onde está |
 | --- | --- | --- | --- | --- |

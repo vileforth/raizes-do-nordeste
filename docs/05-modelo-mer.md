@@ -1,6 +1,6 @@
 # Modelo entidade-relacionamento
 
-O diagrama está em [mer.html](mer.html). Abra o arquivo no navegador. A roda do mouse aproxima e afasta o ponto sob o cursor. Arrastar o fundo move o diagrama. Os botões `+`, `−`, `Ajustar` e `100%` repetem esses controles. Um clique na tabela mostra colunas, PK, UK, FK e tipo.
+O diagrama está em [mer.html](mer.html). Os casos de uso estão em [casos-de-uso.html](casos-de-uso.html). Abra o arquivo no navegador. A roda do mouse aproxima e afasta o ponto sob o cursor. Arrastar o fundo move o diagrama. Os botões `+`, `−`, `Ajustar` e `100%` repetem esses controles. Um clique na tabela mostra colunas, PK, UK, FK e tipo.
 
 ## Cores
 

@@ -1,22 +1,22 @@
 # Rastreabilidade
 
-Matriz requisito → caso de teste → evidência. Uma linha para cada RQ de [09-requisitos-de-qualidade.md](09-requisitos-de-qualidade.md).
+Requisito → caso → evidência. RQ01 a RQ09 em [09-requisitos-de-qualidade.md](09-requisitos-de-qualidade.md).
 
-Evidência simulada não teve execução anexada. Evidência medida cita arquivo da suíte de 30/09/2026.
-
-| ID | Requisito | Caso de teste | Evidência | Tipo |
+| ID | Requisito | Caso | Evidência | Tipo |
 | --- | --- | --- | --- | --- |
-| RT01 | RQ01 Tempo de resposta abaixo de 2 s | TS11 Carga de 500 usuários | Cenário TS11 no documento 11. Sem ferramenta de carga | Simulada |
-| RT02 | RQ02 Três ações depois do carrinho | TS10 Compra no mobile | Cenário TS10. Sem gravação de sessão | Simulada |
-| RT03 | RQ03 Isolamento por unidade | TS07 Gerente em outra loja | `stock.service.spec.ts`, caso `blocks manager from another unit stock` | Medida |
-| RT04 | RQ04 Pagamento só simulado | TS05 Confirmação mock | `payments.service.spec.ts`, caso `confirms pending payment and sets paidAt` | Medida |
-| RT05 | RQ05 Cupom inválido | TS06 Cupom vencido | `coupons.service.spec.ts`, caso `rejects expired coupon` | Medida |
-| RT06 | RQ06 Estoque insuficiente | TS03 Pedido acima do saldo | `orders.service.spec.ts`, caso `rejects insufficient stock` | Medida |
-| RT07 | RQ07 Sessão expirada | TS08 Refresh inválido | `session-redirect.test.ts` e `session-refresh.test.ts` | Medida |
-| RT08 | RQ08 Mesma máquina de status | TS04 Pedido RECEBIDO e TS12 Balcão | `order-status.machine.spec.ts`. TS12 permanece sem execução | Parcial |
-| RT09 | Consentimento no cadastro | TS02 Checkbox obrigatório | `login.schema.test.ts`, cadastro sem `privacyConsent` | Medida |
-| RT10 | Divergência no pagamento | TS09 Valor diferente | `payments.service.spec.ts`, caso `rejects value mismatch on confirm` | Medida |
+| RT01 | RQ01 P95 abaixo de 2 s | TS11 carga | Projeção no 11. `duration` no interceptor, sem P95 medido | Projeção |
+| RT02 | RQ02 três ações | TS10 mobile | Projeção no 11. Sem gravação de sessão | Projeção |
+| RT03 | RQ03 isolamento | TS07 | `stock.service.spec.ts` — `blocks manager from another unit stock` | Medida |
+| RT04 | RQ04 pagamento mock | TS05 | `payments.service.spec.ts` — `confirms pending payment and sets paidAt` | Medida |
+| RT05 | RQ05 cupom | TS06 | `coupons.service.spec.ts` — `rejects expired coupon` | Medida |
+| RT06 | RQ06 estoque | TS03 | `orders.service.spec.ts` — `rejects insufficient stock` | Medida |
+| RT07 | RQ07 sessão | TS08 | `session-redirect.test.ts`, `session-refresh.test.ts` | Medida |
+| RT08 | RQ08 status | TS04, TS12, TS16 | `order-status.machine.spec.ts`. TS12 e TS16 são projeção de canal | Parcial |
+| RT09 | RQ09 observabilidade | TS14, TS15 | `audit.interceptor.spec.ts`, `logger.service.spec.ts`, interceptor HTTP | Medida |
+| RT10 | Consentimento | TS02 | `login.schema.test.ts` | Medida |
+| RT11 | Valor divergente | TS09 | `payments.service.spec.ts` — `rejects value mismatch on confirm` | Medida |
+| RT12 | Nominatim fora | TS14 | `geo.service.spec.ts` — `returns null and logs when Nominatim fails` | Medida |
+| RT13 | Resend fora | TS15 | `email.service.spec.ts` — falha 502 sem lançar exceção | Medida |
+| RT14 | Estresse | TS13 | Projeção no 11. Sem k6 | Projeção |
 
-RT09 e RT10 reforçam segurança e integração.
-
-Para conferir evidência medida: abrir o arquivo citado e o nome do caso. A contagem está em [06-relatorio-de-testes.md](06-relatorio-de-testes.md). Se a suíte mudar, a data desse relatório e esta matriz precisam ser atualizadas.
+Saída da suíte em [evidencias/suite-2026-09-30.md](evidencias/suite-2026-09-30.md).

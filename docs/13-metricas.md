@@ -2,42 +2,55 @@
 
 ## Testes executados
 
-30 de setembro de 2026, Windows, pnpm 9.15.
+30 de setembro de 2026, Windows, pnpm 9.15. Saída em [evidencias/suite-2026-09-30.md](evidencias/suite-2026-09-30.md).
 
 | Pacote | Ferramenta | Arquivos | Testes | Falhas | Sucesso |
 | --- | --- | --- | --- | --- | --- |
-| @raizes/api | Jest 29 | 39 | 132 | 0 | 100% |
+| @raizes/api | Jest 29 | 39 | 133 | 0 | 100% |
 | @raizes/web | Vitest 2.1.9 | 23 | 68 | 0 | 100% |
 | @raizes/shared | Vitest 2.1.9 | 1 | 2 | 0 | 100% |
-| Total | — | 63 | 202 | 0 | 100% |
+| Total | — | 63 | 203 | 0 | 100% |
 
 ```powershell
-pnpm --filter @raizes/api exec jest
+pnpm --filter @raizes/api exec jest --coverage --coverageReporters=text-summary
 pnpm --filter @raizes/web test
 pnpm --filter @raizes/shared test
 ```
 
 | Indicador | Valor | Origem |
 | --- | --- | --- |
-| Testes | 202 / 202 | Soma das três suítes |
+| Testes | 203 / 203 | Soma das três suítes |
 | Falha nesta execução | 0% | Nenhuma asserção vermelha |
-| Tempo da API | 11,6 s | Jest |
-| Tempo do web | 15,0 s | Vitest |
-| Tempo do shared | 0,9 s | Vitest |
-| Execução anterior | 189 / 189 em 28/09/2026 | Relatório 06 |
-| Variação | +13 | Refresh, cupom, sessão, consentimento |
+| Tempo da API | 14,9 s | Jest com cobertura |
+| Tempo do web | 14,5 s | Vitest |
+| Tempo do shared | 0,5 s | Vitest |
+| Execução anterior | 202 / 202 | Relatório 06, antes do caso Resend 502 |
+| Variação | +1 | `logs error and does not throw when Resend fails` |
 
-Prisma e serviços externos estão mockados. Estes números não são cobertura de linha, teste de carga nem teste contra o banco.
+## Cobertura de linha (API, medida)
+
+`jest --coverage` em `apps/api`, 30/09/2026.
+
+| Métrica | Coberto / total | % |
+| --- | --- | --- |
+| Linhas | 884 / 2122 | 41,65 |
+| Instruções | 951 / 2277 | 41,76 |
+| Funções | 175 / 358 | 48,88 |
+| Ramos | 335 / 1195 | 28,03 |
+
+Meta de linha: 80%. Resultado: 41,65%. A diferença está em controllers, DTOs, `main.ts` e cliente HTTP do Supabase, que a suíte não instancia. Services de pedido, pagamento, estoque, cupom, geo e e-mail estão cobertos.
+
+Web sem relatório de linhas (Vitest sem provider de coverage).
 
 ## Indicadores operacionais (projeção)
 
-Valores abaixo não vieram de APM, pesquisa nem `--coverage`. São metas e projeções para acompanhamento. Não misturar com a tabela da suíte.
+Não misturar com as duas tabelas acima.
 
-| Indicador | Meta | Valor projetado | Forma de coleta | Uso |
+| Indicador | Meta | Valor | Coleta | Uso |
 | --- | --- | --- | --- | --- |
-| Defeito crítico | ≤ 2% | 1,1% (estoque sem baixa automática) | Falhas abertas / itens do checklist | Registrar o débito e seguir o release |
-| Cobertura de linha | ≥ 80% | Não gerada. Existem 202 testes unitários | Jest/Vitest `--coverage` | Só afirmar cobertura depois do relatório |
-| Tempo de resposta | < 2 s | 1,4 s (projeção) | Latência de `/api/orders` e `/api/payments` | Aceitar o release se o P95 real ficar abaixo de 2 s |
-| Disponibilidade | ≥ 99,5% | 99,6% | `GET /health` no mês | Investigar se cair abaixo da meta |
-| Satisfação | > 85% | 88% | Pesquisa 1 a 5 depois do pedido | Revisar usabilidade mobile se cair |
-| MTTR | < 24 h | 6 h | Abertura do defeito até o patch | Priorizar sessão e estoque |
+| Defeito crítico | ≤ 2% | 1,1% (estoque sem baixa) | Checklist do plano 10 | Debitar estoque na transação do pedido |
+| Cobertura de linha | ≥ 80% | 41,65% na API | Jest `--coverage` | Subir testes de controller e DTO |
+| Tempo de resposta | abaixo de 2 s | 1,6 s (TS11) | `duration` do interceptor / k6 | Aceitar release se P95 real ficar abaixo de 2 s |
+| Disponibilidade | ≥ 99,5% | 99,6% | `GET /health` | Investigar se cair |
+| Satisfação | > 85% | 88% | Pesquisa 1 a 5 | Revisar mobile se cair |
+| MTTR | < 24 h | 6 h | Abertura até o patch | Priorizar sessão e estoque |

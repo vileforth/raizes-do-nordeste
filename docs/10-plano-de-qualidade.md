@@ -14,7 +14,7 @@ Como a qualidade é controlada na plataforma. Os papéis abaixo são da equipe. 
 ## Escopo
 
 - As oito metas de pedido e pagamento, em [09-requisitos-de-qualidade.md](09-requisitos-de-qualidade.md).
-- Os 202 testes unitários já executados, em [06-relatorio-de-testes.md](06-relatorio-de-testes.md).
+- Os 203 testes unitários já executados, em [06-relatorio-de-testes.md](06-relatorio-de-testes.md).
 - Os demais tipos de teste em [11-plano-de-testes.md](11-plano-de-testes.md). Onde não houve execução, o documento registra.
 - LGPD da interface, em [14-lgpd.md](14-lgpd.md).
 

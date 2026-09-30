@@ -18,14 +18,14 @@ A suíte é unitária. Prisma e serviços externos estão mockados. Os casos cob
 
 | Pacote | Arquivos | Testes | Falhas |
 | --- | --- | --- | --- |
-| @raizes/api | 39 | 132 | 0 |
+| @raizes/api | 39 | 133 | 0 |
 | @raizes/web | 23 | 68 | 0 |
 | @raizes/shared | 1 | 2 | 0 |
-| Total | 63 | 202 | 0 |
+| Total | 63 | 203 | 0 |
 
 ## Correção antes da execução final
 
-Antes da execução final, um teste do web ainda aceitava cliente só com CPF. O schema já exigia endereço, cidade, UF e CEP. O teste foi ajustado para rejeitar o cadastro incompleto. Em seguida a suíte fechou 202/202. Totais em [13-metricas.md](13-metricas.md).
+Antes da execução final, um teste do web ainda aceitava cliente só com CPF. O schema já exigia endereço, cidade, UF e CEP. O teste foi ajustado para rejeitar o cadastro incompleto. Em 30/09/2026 entrou o caso de Resend HTTP 502. A suíte fechou 203/203. Totais em [13-metricas.md](13-metricas.md). Saída bruta em [evidencias/suite-2026-09-30.md](evidencias/suite-2026-09-30.md).
 
 ## API — suítes e o que cada uma cobre
 
@@ -55,8 +55,8 @@ Antes da execução final, um teste do web ainda aceitava cliente só com CPF. O
 | support-protocol.spec | 1 | Formato do protocolo |
 | reports.service.spec | 4 | Indicadores e tipos de relatório |
 | profiles.service.spec | 1 | Catálogo de perfis |
-| geo.service.spec | 3 | Leitura de latitude e longitude |
-| email.service.spec | 2 | Envio via Resend mockado |
+| geo.service.spec | 3 | Coordenada de Recife, endereço vazio e Nominatim 503 |
+| email.service.spec | 3 | Envio via Resend, chave ausente e HTTP 502 |
 | pagination.spec | 3 | Página, tamanho e metadados |
 | cascade-delete.spec | 8 | Exclusão em grafo sem órfão |
 | http-exception.filter.spec | 2 | Corpo de erro padronizado |
@@ -107,4 +107,4 @@ Antes da execução final, um teste do web ainda aceitava cliente só com CPF. O
 
 ## O que esta suíte não cobre
 
-Não houve, nesta execução, teste de navegador automatizado, teste de carga nem teste contra o banco remoto. Mapa, usuários e estoque foram conferidos manualmente no site e não entram na contagem de 202.
+Não houve, nesta execução, teste de navegador automatizado, teste de carga nem teste contra o banco remoto. Mapa, usuários e estoque foram conferidos manualmente no site e não entram na contagem de 203.

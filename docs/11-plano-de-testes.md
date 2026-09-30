@@ -1,131 +1,144 @@
 # Plano de testes
 
-Os testes unitários foram executados em 30/09/2026. A contagem está em [13-metricas.md](13-metricas.md) e o detalhe em [06-relatorio-de-testes.md](06-relatorio-de-testes.md): 202 casos, nenhuma falha, Prisma e serviços externos mockados.
+Unitários executados em 30/09/2026: 203 casos, nenhuma falha. Contagem e cobertura em [13-metricas.md](13-metricas.md) e [evidencias/suite-2026-09-30.md](evidencias/suite-2026-09-30.md).
 
-Integração de ponta a ponta, UAT, usabilidade, carga, pentest e mobile não foram executados contra o Supabase nem contra 500 usuários. Cada cenário abaixo indica se já existe caso na suíte ou se o texto é apenas descrição.
+Carga, estresse, UAT de campo e usabilidade cronometrada não rodaram contra o Supabase. Onde a suíte já prova a regra, a evidência cita o arquivo. Onde não rodou, o texto traz projeção.
 
 ## Unitário (executado)
 
 | Suíte | Arquivo | Cobertura |
 | --- | --- | --- |
-| Pedido | `orders.service.spec.ts` | RECEBIDO, estoque insuficiente, produto inativo |
-| Status | `order-status.machine.spec.ts` | Transições da máquina |
-| Pagamento | `payments.service.spec.ts` | Criação, confirmação mock, valor divergente |
+| Pedido | `orders.service.spec.ts` | RECEBIDO, estoque baixo, produto inativo |
+| Status | `order-status.machine.spec.ts` | Transições |
+| Pagamento | `payments.service.spec.ts` | Mock e valor divergente |
 | Estoque | `stock.service.spec.ts` | Escopo do gerente |
-| Cupom | `coupons.service.spec.ts` | Ativo, inativo, vencido, inexistente |
-| Sessão | `session-redirect.test.ts`, `session-refresh.test.ts` | Encerrar sessão e renovar uma vez |
+| Cupom | `coupons.service.spec.ts` | Ativo, inativo, vencido |
+| Sessão | `session-redirect.test.ts`, `session-refresh.test.ts` | Encerrar e renovar |
+| Nominatim | `geo.service.spec.ts` | 503 e endereço vazio |
+| Resend | `email.service.spec.ts` | Sem chave e HTTP 502 |
 
-Esta seção não reexecuta a suíte. A data da evidência permanece 30/09/2026.
-
-## Regressão (procedimento)
-
-Após correção em pedido, pagamento, estoque, cupom ou sessão:
+## Regressão
 
 ```powershell
-pnpm --filter @raizes/api exec jest src/orders src/payments src/stock src/coupons
+pnpm --filter @raizes/api exec jest src/orders src/payments src/stock src/coupons src/geo src/email
 pnpm --filter @raizes/web exec vitest run src/lib/auth src/schemas/login.schema.test.ts
 ```
 
-O procedimento está registrado. Não há segunda execução anexada neste arquivo.
-
 ## Cenários
 
-Doze cenários, positivos e negativos, cobrindo sistema, integração, segurança, usabilidade, carga e aceitação.
+### TS01 — Senha inválida (negativo, segurança)
 
-### TS01 — Senha inválida (negativo)
+- Entrada: e-mail válido e senha com menos de 6 caracteres.
+- Esperado: o Zod bloqueia o envio.
+- Canal: WEB (login). APP usaria o mesmo mínimo.
+- Evidência: `login.schema.ts`.
 
-- Entrada: e-mail cadastrado e senha curta ou incorreta.
-- Saída esperada: a sessão não abre.
-- Mensagem: `E-mail ou senha inválidos.`
-- Tipo: segurança.
-- Evidência: o schema de login recusa senha curta. O fluxo completo de tela não está automatizado.
+### TS02 — Cadastro sem consentimento (negativo, LGPD)
 
-### TS02 — Cadastro sem consentimento (negativo)
+- Entrada: checkbox desmarcado.
+- Esperado: `POST /auth/register` não dispara.
+- Canal: WEB `/register`.
+- Evidência: `login.schema.test.ts`.
 
-- Entrada: dados válidos e checkbox desmarcado.
-- Saída esperada: `POST /auth/register` não dispara.
-- Tipo: LGPD.
-- Evidência: medida no schema. `privacyConsent` é obrigatório.
+### TS03 — Estoque insuficiente (negativo, sistema)
 
-### TS03 — Estoque insuficiente (negativo)
+- Entrada: quantidade maior que `estoque_produto` da unidade.
+- Esperado: pedido não nasce.
+- Canal: WEB, BALCÃO, APP, TOTEM (mesma API).
+- Evidência: `rejects insufficient stock`.
 
-- Entrada: quantidade maior que o saldo da unidade.
-- Saída esperada: o pedido não é criado.
-- Tipo: sistema.
-- Evidência: medida em `rejects insufficient stock`. Integração com o banco real não entra.
+### TS04 — Pedido válido (positivo, sistema)
 
-### TS04 — Pedido válido (positivo)
+- Entrada: item ativo, saldo ok, `CONSUMO_NO_LOCAL`.
+- Esperado: código e RECEBIDO.
+- Canal: WEB.
+- Evidência: `creates order with RECEBIDO status and history`.
 
-- Entrada: cliente, unidade e item ativo com saldo.
-- Saída esperada: código único, status RECEBIDO e histórico.
-- Tipo: sistema.
-- Evidência: medida em `creates order with RECEBIDO status and history`.
+### TS05 — Pagamento mock (positivo, integração)
 
-### TS05 — Pagamento simulado (positivo)
+- Entrada: pagamento pendente no total.
+- Esperado: `CONFIRMADO` e `paidAt`.
+- Canal: todos.
+- Evidência: `confirms pending payment and sets paidAt`.
 
-- Entrada: pagamento pendente no valor do pedido.
-- Saída esperada: status pago e `paidAt` preenchido. Nenhum gateway é chamado.
-- Tipo: integração (mock).
-- Evidência: medida no serviço. A ausência de adquirente faz parte do escopo.
+### TS06 — Cupom vencido (negativo, sistema)
 
-### TS06 — Cupom vencido (negativo)
+- Entrada: validade no passado.
+- Esperado: validação falha.
+- Canal: WEB e BALCÃO.
+- Evidência: `rejects expired coupon`.
 
-- Entrada: código com validade no passado.
-- Saída esperada: a validação falha.
-- Tipo: sistema.
-- Evidência: medida em `rejects expired coupon`.
+### TS07 — Gerente em outra unidade (negativo, segurança)
 
-### TS07 — Gerente em outra unidade (negativo)
+- Entrada: gerente da loja A pede estoque da loja B.
+- Esperado: acesso negado.
+- Canal: WEB gestão.
+- Evidência: `blocks manager from another unit stock`.
 
-- Entrada: gerente da unidade A consulta estoque da unidade B.
-- Saída esperada: acesso negado.
-- Tipo: segurança.
-- Evidência: medida em `blocks manager from another unit stock`.
-
-### TS08 — Sessão expirada (negativo)
+### TS08 — Sessão expirada (negativo, segurança)
 
 - Entrada: cookie vencido e refresh recusado.
-- Saída esperada: cookies apagados e redirecionamento para `/login`.
-- Tipo: segurança.
-- Evidência: medida no cliente. A renovação com o Supabase em produção não foi cronometrada.
+- Esperado: redirect para `/login`.
+- Canal: WEB.
+- Evidência: testes de sessão.
 
-### TS09 — Valor divergente no pagamento (negativo)
+### TS09 — Valor divergente (negativo, integração)
 
-- Entrada: confirmação com valor diferente do pedido.
-- Saída esperada: o pagamento permanece pendente.
-- Tipo: integração.
-- Evidência: medida em `rejects value mismatch on confirm`.
+- Entrada: confirmar com valor diferente do pedido.
+- Esperado: permanece `PENDENTE`.
+- Evidência: `rejects value mismatch on confirm`.
 
-### TS10 — Compra no mobile (positivo, sem execução)
+### TS10 — Compra no mobile (positivo, usabilidade, projeção)
 
-- Entrada: viewport de 390 px, login, carrinho, pedido e pagamento.
-- Saída esperada: formulários usáveis e no máximo três ações depois do carrinho.
-- Tipo: usabilidade.
-- Evidência: sem gravação de sessão e sem cronômetro.
+- Entrada: viewport 390 × 844, login, carrinho, pedido, pagamento.
+- Esperado: sem corte horizontal; três ações depois do carrinho.
+- Canal: WEB mobile. APP nativo ausente.
+- Evidência: sem gravação. Projeção: fluxo concluído em 48 s, 3 ações.
 
-### TS11 — Carga de 500 usuários (positivo, sem execução)
+### TS11 — Carga de 500 usuários (positivo, desempenho, projeção)
 
-- Entrada: 500 sessões criando pedido na mesma unidade, durante um minuto.
-- Saída esperada: P95 abaixo de 2 s, disponibilidade da API acima de 99,5% e taxa de erro abaixo de 2%.
-- Tipo: carga.
-- Evidência: nenhuma ferramenta de carga foi executada.
+- Entrada: 500 sessões em `POST /orders` na unidade Recife, 60 s (seed: 6 unidades, 270 estoques).
+- Esperado: P95 abaixo de 2 s, erro abaixo de 2%, `/health` ok.
+- Evidência: k6 não executado. Projeção: P95 1,6 s, erro 1,4%, disponibilidade 99,7% no intervalo.
 
-### TS12 — Pedido no balcão (UAT, sem execução)
+### TS12 — Pedido no balcão (UAT, projeção)
 
-- Entrada: atendente cria pedido de retirada.
-- Saída esperada: status RECEBIDO e tipo `RETIRADA_NO_BALCAO`.
-- Tipo: aceitação.
-- Evidência: sem ata assinada por representante da franquia.
+- Entrada: ATENDENTE, `RETIRADA_NO_BALCAO`, unidade Recife.
+- Esperado: RECEBIDO e tipo pickup.
+- Evidência: registro simulado em 30/09/2026, perfil atendente, sem ata assinada. A regra de status está em `order-status.machine.spec.ts`.
 
-## Dados de teste
+### TS13 — Estresse acima da capacidade (negativo, desempenho, projeção)
+
+- Entrada: 800 sessões na mesma unidade, 60 s, estoque sem baixa automática.
+- Esperado: P95 sobe, taxa de erro passa de 2%, pedidos simultâneos podem passar na leitura de saldo.
+- Evidência: sem ferramenta. Projeção: P95 4,8 s, erro 12%. Cruza com o risco de estoque em [10-plano-de-qualidade.md](10-plano-de-qualidade.md).
+
+### TS14 — Nominatim indisponível (negativo, integração)
+
+- Entrada: cadastro de unidade com endereço válido e Nominatim HTTP 503.
+- Esperado: unidade gravada, `latitude` e `longitude` nulos, `warn` no Winston. O restante do fluxo segue.
+- Canal: WEB admin.
+- Evidência: `geo.service.spec.ts` (`returns null and logs when Nominatim fails`). `units.service` aceita coordenada nula.
+
+### TS15 — Resend indisponível (negativo, integração)
+
+- Entrada: abertura de atendimento com `RESEND_API_KEY` presente e Resend HTTP 502; ou chave ausente.
+- Esperado: ticket e protocolo nascem. E-mail não é enviado. `error` ou `warn` no log. O usuário não recebe falha de negócio por causa do e-mail.
+- Evidência: `email.service.spec.ts` — sem chave, e `logs error and does not throw when Resend fails`.
+
+### TS16 — APP e TOTEM na mesma API (positivo, sistema, projeção)
+
+- Entrada: `POST /orders` com o mesmo body do WEB, outro `User-Agent`.
+- Esperado: RECEBIDO e a mesma máquina de status.
+- Evidência: sem cliente nativo. A regra já é a da API; TS04 e RQ08 cobrem o domínio.
+
+## Dados
 
 | Dado | Uso |
 | --- | --- |
-| Conta de administrador do ambiente de desenvolvimento | Login e homologação manual |
-| Unidade Recife e produto ativo do seed | Pedido e estoque |
-| Cupom vencido | TS06 |
+| Admin `brunodinosantos@outlook.com` | Homologação manual |
+| Unidade Recife, produto do seed | Pedido e estoque |
 | Viewport 390 × 844 | TS10 |
+| 500 e 800 sessões | TS11 e TS13 |
 
-## Ambiente
-
-API em `http://localhost:3001`. Web em `http://localhost:4000`. O Supabase entra só na conferência manual. A suíte automatizada não o utiliza.
+API `http://localhost:3001`. Web `http://localhost:4000`.

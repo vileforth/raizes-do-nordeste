@@ -3,7 +3,6 @@
 | Campo | Conteúdo |
 | --- | --- |
 | Projeto | Raízes do Nordeste |
-| Trilha | Qualidade de software |
 | Tipo | Rede de franquias do setor alimentício |
 | Entrega | Interface web, API e PostgreSQL no mesmo monorepo |
 
@@ -27,7 +26,16 @@ Acesso, clientes, funcionários, unidades, produtos, estoque, pedidos, pagamento
 
 ## Canais
 
-Os canais previstos são APP, WEB, TOTEM e BALCÃO. O canal em operação é o WEB. No pedido é possível marcar retirada no balcão ou consumo no local. APP e TOTEM não existem como aplicativos separados. O balcão usa o mesmo site, com o perfil de atendente.
+| Canal | Situação | Como o pedido entra |
+| --- | --- | --- |
+| WEB | Em operação (`localhost:4000`) | Cliente ou equipe no navegador |
+| BALCÃO | Mesmo site, papel ATENDENTE | Atendente cria o pedido |
+| PICKUP | Campo do pedido | `consumptionType = RETIRADA_NO_BALCAO` |
+| Consumo no local | Campo do pedido | `consumptionType = CONSUMO_NO_LOCAL` |
+| APP | Sem aplicativo nativo | Mesma API Nest, se um cliente mobile for ligado depois |
+| TOTEM | Sem cliente próprio | Mesma API Nest, se um totem for ligado depois |
+
+A máquina de status, o estoque e o pagamento mock são os mesmos em qualquer origem. O que muda é quem autentica e o `consumptionType`.
 
 ## Stack
 

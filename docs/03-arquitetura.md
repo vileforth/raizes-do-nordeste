@@ -1,57 +1,63 @@
 # Arquitetura e integração
 
-## Caminho de uma requisição
+## Camadas (e onde testar)
 
-1. O navegador conversa apenas com o Next.js, na porta 4000.
-2. A página lê e grava dados com React Query.
-3. O serviço do front chama `/api/...`.
-4. O BFF em `apps/web/src/app/api/[...path]/route.ts` encaminha a chamada ao Nest, com o token do cookie.
-5. O Nest valida o JWT do Supabase e o papel.
-6. O serviço persiste com Prisma no PostgreSQL.
-7. Listagens retornam `{ data, pagination }`.
+O monorepo não usa pastas Domain/Application/Infrastructure. A separação abaixo é a que o código pratica.
+
+| Camada | Onde vive | Responsabilidade | Ponto de teste |
+| --- | --- | --- | --- |
+| Interface | `apps/web` (App Router, Zod, React Query) | Telas, formulário, i18n, cookie de sessão | Vitest: schema, sessão, kanban, menu |
+| Aplicação (BFF) | `apps/web/src/app/api/[...path]/route.ts` | Encaminha `/api/*` ao Nest, refresh e redirect | `session-refresh.test.ts`, `session-cookies.test.ts` |
+| API | Controllers Nest + guards | HTTP, Swagger, papel, filtro de erro | `jwt-auth.guard.spec.ts`, `roles.guard.spec.ts` |
+| Domínio | Services e regras (`order-status.machine`, cupom, fidelidade) | Status, estoque, pagamento mock, pontos | `*.service.spec.ts` com Prisma mockado |
+| Infraestrutura | Prisma, Supabase Auth, Resend, Nominatim, Winston | Persistência e serviços externos | `geo.service.spec.ts`, `email.service.spec.ts`, `logger.service.spec.ts` |
+
+Caminho: navegador → Next `:4000` → BFF `/api` → Nest `:3001` → PostgreSQL.
+
+## ISO/IEC 25010 no recorte de pedido e pagamento
+
+| Característica | Como a plataforma trata | Requisito |
+| --- | --- | --- |
+| Adequação funcional | Pedido RECEBIDO, pagamento 1:1, cupom validado | RQ04, RQ05, RQ06 |
+| Eficiência de desempenho | Meta P95 abaixo de 2 s; `LoggingInterceptor` grava `duration` | RQ01, RQ09 |
+| Compatibilidade | Mesma API para WEB, BALCÃO e um futuro APP/TOTEM | RQ08 |
+| Usabilidade | Três ações depois do carrinho; pt-BR e en | RQ02 |
+| Confiabilidade | Estoque insuficiente bloqueia; transição inválida recusada | RQ06, RQ08 |
+| Segurança | JWT, papel, escopo do gerente, sessão expirada | RQ03, RQ07 |
+| Manutenibilidade | Enums em `@raizes/shared`, suíte unitária, Swagger | — |
+| Portabilidade | Canal WEB hoje; APP e TOTEM reutilizariam o Nest | RQ08 |
 
 ## Função do BFF
 
-A URL da API e o token não ficam expostos no bundle do navegador. O Next.js guarda a sessão em cookie e encaminha o bearer. Se o token estiver vencido, o BFF tenta renovar uma vez. Se a renovação falhar, os cookies são apagados e o usuário volta ao login.
+A URL da API e o token não ficam no bundle. O Next guarda cookie e encaminha o bearer. Token vencido: uma tentativa de refresh. Se falhar, os cookies saem e a tela volta ao login.
 
-## Integrações
+## Integrações e falha
 
-| Integração | Uso |
-| --- | --- |
-| Supabase Auth | Login, cadastro e recuperação de senha |
-| Supabase Postgres | Persistência |
-| Resend | E-mail transacional |
-| Nominatim | Coordenadas da unidade |
-| Carto | Fundo do mapa, sem chave |
+| Integração | Uso | Falha observada no código |
+| --- | --- | --- |
+| Supabase Auth | Login, cadastro, senha | Sem chave, o serviço de auth não autentica |
+| Supabase Postgres | Prisma | Fora da suíte automatizada |
+| Resend | E-mail transacional | Sem `RESEND_API_KEY`, o envio é pulado e vira `warn`. HTTP 502 vira `error` e o fluxo segue |
+| Nominatim | Coordenada da unidade | HTTP não ok ou lista vazia: `latitude`/`longitude` ficam nulos; a unidade é gravada |
+| Carto | Fundo do mapa | Sem chave |
+| Pagamento | Fluxo interno | Sem adquirente. Valor divergente mantém `PENDENTE` |
 
-Os nomes das variáveis, sem valores, estão em `apps/api/.env.example` e `apps/web/.env.example`. Segredos não entram neste arquivo.
+Nomes das variáveis, sem valores: `apps/api/.env.example` e `apps/web/.env.example`.
 
-## Portas
+## Observabilidade já no código
+
+- Winston em JSON (`timestamp`, `level`, mensagem).
+- `LoggingInterceptor`: `method`, `path`, `status`, `duration` em cada HTTP.
+- `AuditInterceptor`: escritas (não GET) em `log_auditoria`.
+- `GET /health` público devolve `{ status: "ok" }`.
+
+## Portas e seed
 
 | Processo | Porta |
 | --- | --- |
 | Nest | 3001 |
 | Next | 4000 |
 
-## Volume do seed
+Seed: 120 clientes, 6 unidades, 45 produtos, 270 itens de estoque, 12100 pedidos, 12100 pagamentos, 12 promoções/cupons, 120 fidelidades, 899 atendimentos. Depois, `keep-admin-staff` mantém `brunodinosantos@outlook.com` e esvazia a equipe extra.
 
-| Conjunto | Quantidade |
-| --- | --- |
-| Clientes | 120 |
-| Funcionários do seed | 60 |
-| Unidades | 6 |
-| Produtos | 45 |
-| Estoques | 6 |
-| Itens de estoque | 270 |
-| Pedidos | 12100 |
-| Itens de pedido | 35869 |
-| Pagamentos | 12100 |
-| Promoções e cupons | 12 |
-| Fidelidades | 120 |
-| Atendimentos | 899 |
-
-Depois do seed, o script `keep-admin-staff` remove a equipe extra e mantém o administrador `brunodinosantos@outlook.com`. Os clientes permanecem. A tela de funcionários fica vazia até novos cadastros. Os 270 itens de estoque continuam.
-
-## Mapa
-
-Unidades em laranja e clientes em pin verde-água. Latitude e longitude ficam em `unidade` e `cliente`.
+Mapa: unidade em laranja, cliente em pin verde-água.

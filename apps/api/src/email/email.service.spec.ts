@@ -49,4 +49,26 @@ describe('EmailService', () => {
     );
     expect(logger.info).toHaveBeenCalled();
   });
+
+  it('logs error and does not throw when Resend fails', async () => {
+    process.env.RESEND_API_KEY = 'test-key';
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 502,
+      text: async () => 'bad gateway',
+    });
+
+    await expect(
+      service.sendEmail({
+        to: 'user@test.com',
+        subject: 'Ticket opened',
+        html: '<p>Your ticket was created</p>',
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(logger.error).toHaveBeenCalledWith('Failed to send email', {
+      status: 502,
+      body: 'bad gateway',
+    });
+  });
 });
