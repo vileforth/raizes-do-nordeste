@@ -1,12 +1,12 @@
 # Dicionário de dados
 
-O enunciado lista 23 tabelas. O modelo implementado tem 25: as mesmas entidades, com `cliente` e `unidade` ampliados e os históricos nomeados `hist_status_pedido` e `hist_atendimento`. Colunas novas em relação à contagem original do enunciado estão marcadas.
+O modelo tem 25 tabelas. `cliente` e `unidade` incluem endereço e coordenadas; os históricos se chamam `hist_status_pedido` e `hist_atendimento`. Colunas acrescentadas depois do desenho inicial estão marcadas.
 
-Tipos físicos: inteiro, texto, booleano, decimal(10,2), data/hora, float e enums do Prisma.
+Tipos: inteiro, texto, booleano, decimal(10,2), data/hora, float e enum do Prisma.
 
 ## usuario
 
-Conta de acesso. 7 colunas, alinhado ao enunciado.
+Conta de acesso. 7 colunas.
 
 | Coluna | Tipo | Restrição |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ Associação N:N entre conta e perfil. Chave composta.
 
 ## cliente
 
-Ficha comercial. O enunciado contava 4 colunas. A implementação guarda também nascimento, endereço e posição no mapa.
+Ficha comercial. Além de CPF e vínculo com a conta, guarda nascimento, endereço e posição no mapa.
 
 | Coluna | Tipo | Restrição |
 | --- | --- | --- |

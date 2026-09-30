@@ -14,6 +14,7 @@ describe('session redirect', () => {
   it('treats login screens as public', () => {
     expect(isPublicAuthPath('/login')).toBe(true);
     expect(isPublicAuthPath('/pt-BR/forgot-password')).toBe(true);
+    expect(isPublicAuthPath('/privacidade')).toBe(true);
     expect(isPublicAuthPath('/promotions')).toBe(false);
   });
 

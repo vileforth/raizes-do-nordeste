@@ -22,7 +22,13 @@ export default function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', phone: '', password: '' },
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      privacyConsent: false,
+    },
   });
 
   async function onSubmit(values: RegisterFormValues) {
@@ -31,7 +37,12 @@ export default function RegisterPage() {
       await apiPost<{
         accessToken: string;
         refreshToken: string;
-      }>('/auth/register', values);
+      }>('/auth/register', {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        password: values.password,
+      });
       await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       router.push('/');
       router.refresh();
@@ -92,6 +103,22 @@ export default function RegisterPage() {
           hideLabel={t('hidePassword')}
           {...form.register('password')}
         />
+        <label className="flex items-start gap-2 text-sm text-[var(--raizes-text-primary)]">
+          <input
+            type="checkbox"
+            className="mt-1 h-4 w-4 shrink-0 rounded border-[var(--raizes-border-strong)] accent-[var(--raizes-petrol)]"
+            {...form.register('privacyConsent')}
+          />
+          <span>
+            {t('privacyConsent')}{' '}
+            <Link href="/privacidade" className="font-semibold text-[var(--raizes-petrol)] underline">
+              {t('privacyLink')}
+            </Link>
+          </span>
+        </label>
+        {form.formState.errors.privacyConsent ? (
+          <p className="text-xs text-[var(--raizes-rose-text)]">{t('privacyRequired')}</p>
+        ) : null}
         <AuthSubmit loading={form.formState.isSubmitting} loadingLabel={t('submitting')}>
           {t('register')}
         </AuthSubmit>

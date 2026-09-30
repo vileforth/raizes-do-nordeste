@@ -25,5 +25,7 @@
   "points": "Pontos",
   "lastOrder": "Último pedido",
   "noLastOrder": "Nenhum pedido ainda",
-  "noPreferredUnit": "Nenhuma unidade preferida"
+  "noPreferredUnit": "Nenhuma unidade preferida",
+  "privacyNotice": "CPF e endereço entram no cadastro comercial do cliente, para pedidos, fidelidade e entrega na unidade. O uso está descrito no aviso de privacidade.",
+  "privacyLink": "Aviso de privacidade"
 }

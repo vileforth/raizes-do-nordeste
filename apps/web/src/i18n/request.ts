@@ -18,6 +18,7 @@ const namespaces = [
   'reports',
   'dashboard',
   'status',
+  'privacy',
 ] as const;
 
 async function loadMessages(locale: Locale) {

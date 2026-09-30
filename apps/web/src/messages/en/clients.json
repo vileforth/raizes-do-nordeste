@@ -25,5 +25,7 @@
   "points": "Points",
   "lastOrder": "Last order",
   "noLastOrder": "No orders yet",
-  "noPreferredUnit": "No preferred unit"
+  "noPreferredUnit": "No preferred unit",
+  "privacyNotice": "CPF and address become part of the commercial client record for orders, loyalty and unit delivery. The privacy notice describes this use.",
+  "privacyLink": "Privacy notice"
 }

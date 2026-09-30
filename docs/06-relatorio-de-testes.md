@@ -4,34 +4,34 @@
 
 | Item | Valor |
 | --- | --- |
-| Data | 28 de setembro de 2026 |
+| Data | 30 de setembro de 2026 |
 | Sistema | Windows |
 | Gerenciador | pnpm 9.15.0 |
 | API | Jest 29, 39 suítes |
-| Web | Vitest 2.1.9, 20 arquivos |
+| Web | Vitest 2.1.9, 23 arquivos |
 | Compartilhado | Vitest 2.1.9, 1 arquivo |
 | Comando | `pnpm --filter @raizes/api exec jest`, `pnpm --filter @raizes/web test`, `pnpm --filter @raizes/shared test` |
 
-Os testes são unitários, com Prisma e clientes externos substituídos por mocks. Eles provam regras, validação e escopo de acesso. Não substituem um teste de ponta a ponta contra o Supabase.
+A suíte é unitária. Prisma e serviços externos estão mockados. Os casos cobrem regra, validação e escopo de acesso. Não sobem o PostgreSQL e não abrem o navegador.
 
 ## Resultado consolidado
 
 | Pacote | Arquivos | Testes | Falhas |
 | --- | --- | --- | --- |
-| @raizes/api | 39 | 128 | 0 |
-| @raizes/web | 20 | 59 | 0 |
+| @raizes/api | 39 | 132 | 0 |
+| @raizes/web | 23 | 68 | 0 |
 | @raizes/shared | 1 | 2 | 0 |
-| Total | 60 | 189 | 0 |
+| Total | 63 | 202 | 0 |
 
 ## Correção antes da execução final
 
-`apps/web/src/schemas/login.schema.test.ts` ainda esperava que um cliente só com CPF fosse válido. O schema passou a exigir endereço, cidade, UF e CEP. O teste foi alinhado para rejeitar esse payload incompleto. A suíte web foi executada de novo e fechou 59/59.
+Antes da execução final, um teste do web ainda aceitava cliente só com CPF. O schema já exigia endereço, cidade, UF e CEP. O teste foi ajustado para rejeitar o cadastro incompleto. Em seguida a suíte fechou 202/202. Totais em [13-metricas.md](13-metricas.md).
 
 ## API — suítes e o que cada uma cobre
 
 | Suíte | Testes | O que verifica |
 | --- | --- | --- |
-| auth.service.spec | 3 | Login, cadastro e conflito de e-mail |
+| auth.service.spec | 4 | Login, cadastro, refresh e conflito de e-mail |
 | supabase-jwt.strategy.spec | 3 | Extração de papéis do token |
 | supabase-jwt-key.spec | 3 | Chave de verificação do JWT |
 | jwt-auth.guard.spec | 2 | Rotas públicas e proteção |
@@ -48,7 +48,7 @@ Os testes são unitários, com Prisma e clientes externos substituídos por mock
 | order-status.machine.spec | 3 | Transições RECEBIDO → EM_PREPARACAO → PRONTO → RETIRADO |
 | payments.service.spec | 5 | Criação e confirmação simulada |
 | promotions.service.spec | 4 | Promoção e vínculos |
-| coupons.service.spec | 4 | Validação de cupom |
+| coupons.service.spec | 7 | Validação, listagem, criação e código duplicado |
 | loyalty.service.spec | 4 | Saldo, pontos e resgate |
 | loyalty-level.spec | 3 | Faixas BRONZE, PRATA, OURO |
 | support.service.spec | 3 | Protocolo e status |
@@ -65,7 +65,7 @@ Os testes são unitários, com Prisma e clientes externos substituídos por mock
 | audit-entity.parser.spec | 2 | Entidade a partir da rota |
 | health.controller.spec | 1 | Saúde da API |
 | app.controller.spec | 1 | Rota raiz |
-| schema.spec | 1 | Presença das tabelas do enunciado |
+| schema.spec | 1 | Presença das tabelas do modelo |
 | client-profile.spec | 2 | Endereço coerente com o DDD |
 | realistic-catalog.spec | 4 | Unidades no Nordeste e preços do cardápio |
 | sheet-allowlist.spec | 3 | Abas aceitas na importação |
@@ -76,7 +76,10 @@ Os testes são unitários, com Prisma e clientes externos substituídos por mock
 | Arquivo | Testes | O que verifica |
 | --- | --- | --- |
 | session-cookies.test.ts | 9 | Gravação e leitura da sessão no BFF |
-| login.schema.test.ts | 4 | Login, e-mail inválido, cliente incompleto, pedido sem item |
+| login.schema.test.ts | 6 | Login, e-mail inválido, cadastro com e sem consentimento, cliente incompleto, pedido sem item |
+| coupon.schema.test.ts | 2 | Código em maiúsculas e rejeição de limite inválido |
+| session-redirect.test.ts | 3 | Login público, `/privacidade` e fim de sessão |
+| session-refresh.test.ts | 2 | Renovar uma vez e não renovar login |
 | user.schema.test.ts | 3 | Cadastro com papel, rejeição sem papel, edição sem senha |
 | client.schema.test.ts | 2 | Cliente completo e CPF curto |
 | support.schema.test.ts | 2 | Abertura de atendimento |
@@ -104,4 +107,4 @@ Os testes são unitários, com Prisma e clientes externos substituídos por mock
 
 ## O que esta suíte não cobre
 
-Não houve, nesta execução, teste de browser automatizado, teste de carga nem teste contra o banco remoto. A conferência de tela (mapa, usuários, estoque) foi feita manualmente nas sessões de desenvolvimento e não entra nesta contagem de 189.
+Não houve, nesta execução, teste de navegador automatizado, teste de carga nem teste contra o banco remoto. Mapa, usuários e estoque foram conferidos manualmente no site e não entram na contagem de 202.

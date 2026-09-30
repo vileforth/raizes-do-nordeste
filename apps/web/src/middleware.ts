@@ -13,7 +13,7 @@ const intlMiddleware = createIntlMiddleware({
   localePrefix: 'as-needed',
 });
 
-const PUBLIC_PATHS = ['/login', '/register', '/forgot-password'];
+const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/privacidade'];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some(

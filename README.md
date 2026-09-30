@@ -1,8 +1,8 @@
 # Raízes do Nordeste
 
-Sistema web da rede de franquias alimentícias, feito para a trilha de qualidade de software. Padroniza acesso, pedidos, pagamento, promoções, fidelidade, atendimento e a operação das unidades.
+Sistema web da rede de franquias alimentícias Raízes do Nordeste. Padroniza acesso, pedidos, pagamento, promoções, fidelidade, atendimento e a operação das unidades.
 
-A documentação completa do trabalho está na pasta [`docs`](docs/README.md). Este arquivo é a capa: problema, como rodar, arquitetura, resultado dos testes e o diagrama.
+A documentação técnica está na pasta [`docs`](docs/README.md). Este arquivo resume o problema, como executar, a arquitetura, o resultado dos testes e o diagrama.
 
 ## Documentos
 
@@ -14,7 +14,8 @@ A documentação completa do trabalho está na pasta [`docs`](docs/README.md). E
 | [Dicionário de dados](docs/04-dicionario-de-dados.md) | 25 tabelas, colunas e chaves |
 | [Modelo MER](docs/05-modelo-mer.md) | Cardinalidades e domínios |
 | [Diagrama interativo](docs/mer.html) | Zoom, arraste e ficha de cada tabela |
-| [Relatório de testes](docs/06-relatorio-de-testes.md) | 189 testes, suíte a suíte |
+| [Relatório de testes](docs/06-relatorio-de-testes.md) | 202 testes, suíte a suíte |
+| [Métricas](docs/13-metricas.md) | 202/202 medidos em 30/09/2026 |
 | [Integrabilidade e funcionamento](docs/07-integrabilidade-e-funcionamento.md) | Cadeias entre módulos e limites |
 | [Endpoints](docs/08-endpoints.md) | Rotas da API por caso de uso |
 
@@ -78,12 +79,12 @@ pnpm db:seed
 
 ## Testes
 
-Execução de 28/09/2026: **189 testes, 0 falhas**.
+Execução de 30/09/2026: **202 testes, 0 falhas**. Detalhe em [docs/13-metricas.md](docs/13-metricas.md).
 
 | Pacote | Testes |
 | --- | --- |
-| API (Jest) | 128 |
-| Web (Vitest) | 59 |
+| API (Jest) | 132 |
+| Web (Vitest) | 68 |
 | Compartilhado (Vitest) | 2 |
 
 ```powershell

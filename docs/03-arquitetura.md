@@ -1,46 +1,44 @@
 # Arquitetura e integração
 
-## Fluxo de uma requisição
+## Caminho de uma requisição
 
-1. O navegador fala só com o Next.js, na origem da aplicação web.
-2. A página usa React Query para ler e gravar dados.
+1. O navegador conversa apenas com o Next.js, na porta 4000.
+2. A página lê e grava dados com React Query.
 3. O serviço do front chama `/api/...`.
-4. A rota BFF `apps/web/src/app/api/[...path]/route.ts` repassa a chamada para a API Nest, com o token da sessão.
-5. A API valida o JWT do Supabase, lê os perfis e aplica o guard de papel.
-6. O serviço usa Prisma contra o PostgreSQL.
-7. A resposta volta no formato `{ data, pagination }` nas listagens.
+4. O BFF em `apps/web/src/app/api/[...path]/route.ts` encaminha a chamada ao Nest, com o token do cookie.
+5. O Nest valida o JWT do Supabase e o papel.
+6. O serviço persiste com Prisma no PostgreSQL.
+7. Listagens retornam `{ data, pagination }`.
 
-## Por que o BFF existe
+## Função do BFF
 
-Credencial, URL da API e regras de sessão ficam no servidor Next. O bundle do browser não escolhe o host da API. Isso reduz acoplamento e evita expor a configuração do backend no cliente.
+A URL da API e o token não ficam expostos no bundle do navegador. O Next.js guarda a sessão em cookie e encaminha o bearer. Se o token estiver vencido, o BFF tenta renovar uma vez. Se a renovação falhar, os cookies são apagados e o usuário volta ao login.
 
-## Fronteiras
+## Integrações
 
-| Integração | Papel | Contrato |
-| --- | --- | --- |
-| Supabase Auth | Cadastro, login e recuperação de senha | HTTP na API de auth do Supabase |
-| Supabase Postgres | Persistência | `DATABASE_URL` via Prisma |
-| Resend | E-mail transacional | Chave de API no servidor |
-| Nominatim | Coordenadas a partir do endereço da unidade | HTTP de leitura |
-| Tiles de mapa | Fundo do mapa do painel | Carto Positron, sem chave |
+| Integração | Uso |
+| --- | --- |
+| Supabase Auth | Login, cadastro e recuperação de senha |
+| Supabase Postgres | Persistência |
+| Resend | E-mail transacional |
+| Nominatim | Coordenadas da unidade |
+| Carto | Fundo do mapa, sem chave |
 
-Variáveis esperadas, sem valores: `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET`, `RESEND_API_KEY`, `NOMINATIM_BASE_URL`, `WEB_ORIGIN`, `PORT` na API; `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `API_URL`, `NEXT_PUBLIC_APP_URL` no web. Os exemplos estão em `apps/api/.env.example` e `apps/web/.env.example`.
+Os nomes das variáveis, sem valores, estão em `apps/api/.env.example` e `apps/web/.env.example`. Segredos não entram neste arquivo.
 
-## Portas locais
+## Portas
 
 | Processo | Porta |
 | --- | --- |
-| API Nest | 3001 |
-| Web Next | 4000 |
+| Nest | 3001 |
+| Next | 4000 |
 
-## Volumes do seed
-
-O gerador realista grava a base de demonstração com estas quantidades de projeto:
+## Volume do seed
 
 | Conjunto | Quantidade |
 | --- | --- |
 | Clientes | 120 |
-| Funcionários de seed | 60 |
+| Funcionários do seed | 60 |
 | Unidades | 6 |
 | Produtos | 45 |
 | Estoques | 6 |
@@ -52,8 +50,8 @@ O gerador realista grava a base de demonstração com estas quantidades de proje
 | Fidelidades | 120 |
 | Atendimentos | 899 |
 
-Depois do seed, o script `keep-admin-staff` remove usuários de equipe que não são o administrador, preservando os clientes. A conta operacional de administração permanece `brunodinosantos@outlook.com`. A tela de funcionários fica vazia até novos cadastros. O estoque de 270 itens permanece.
+Depois do seed, o script `keep-admin-staff` remove a equipe extra e mantém o administrador `brunodinosantos@outlook.com`. Os clientes permanecem. A tela de funcionários fica vazia até novos cadastros. Os 270 itens de estoque continuam.
 
 ## Mapa
 
-O painel plota unidades em laranja e clientes em pins verde-água, com latitude e longitude gravadas em `unidade` e `cliente`.
+Unidades em laranja e clientes em pin verde-água. Latitude e longitude ficam em `unidade` e `cliente`.

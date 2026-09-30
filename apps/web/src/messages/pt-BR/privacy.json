@@ -1,0 +1,19 @@
+{
+  "title": "Aviso de privacidade",
+  "subtitle": "Como a rede Raízes do Nordeste trata dados pessoais no canal web.",
+  "backToRegister": "Voltar ao cadastro",
+  "purposeTitle": "Finalidade",
+  "purpose": "Os dados servem para criar a conta, autenticar o acesso, registrar pedidos, controlar fidelidade e localizar a unidade de atendimento. Não usamos os dados para anúncio de terceiros.",
+  "legalTitle": "Base legal",
+  "legal": "O cadastro da conta depende do consentimento explícito neste aviso (LGPD, art. 7º, I). Pedidos e operação da franquia também se apoiam na execução do contrato de consumo (art. 7º, V).",
+  "dataTitle": "Dados coletados",
+  "data": "Na conta: nome, e-mail, telefone e senha (a senha fica no Supabase Auth). No cadastro de cliente: CPF, data de nascimento, endereço, cidade, UF, CEP e unidade preferida. Pedidos, pagamentos simulados e protocolos de atendimento ficam ligados a essa conta.",
+  "retentionTitle": "Retenção",
+  "retention": "A conta permanece enquanto estiver ativa. Pedidos e logs de auditoria ficam o tempo necessário para operação da rede e para cumprir obrigação legal. Não há prazo automático de exclusão nesta versão.",
+  "rightsTitle": "Direitos do titular",
+  "rights": "O titular pode pedir confirmação do tratamento, acesso, correção e informação sobre compartilhamento. Para exercer esses direitos, use o e-mail abaixo.",
+  "contactTitle": "Contato",
+  "contact": "Privacidade — Raízes do Nordeste. Canal acadêmico da trilha de qualidade. E-mail: privacidade@raizes.local",
+  "limitsTitle": "O que esta versão ainda não grava",
+  "limits": "O aceite do checkbox não vira linha no banco. Não há versão da política persistida nem opt-in promocional separado."
+}

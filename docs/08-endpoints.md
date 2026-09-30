@@ -1,6 +1,6 @@
 # Endpoints implementados
 
-Prefixo local da API: `http://localhost:3001`. O browser usa o mesmo caminho em `http://localhost:4000/api`. Salvo `POST /auth/login`, `POST /auth/register`, `POST /auth/forgot-password` e `GET /health`, as rotas exigem bearer.
+API local: `http://localhost:3001`. No site o caminho é `http://localhost:4000/api`. Sem token, só login, register, forgot-password e health.
 
 | Método | Caminho | Papéis | UC |
 | --- | --- | --- | --- |
@@ -44,4 +44,4 @@ Prefixo local da API: `http://localhost:3001`. O browser usa o mesmo caminho em 
 | GET | /reports/:type | gerente, administrador | UC10 |
 | GET | /health | público | operação |
 
-O Swagger gerado pela API é a lista normativa de parâmetros. Esta tabela é o mapa para o trabalho.
+Parâmetro completo está no Swagger da API. Esta tabela é o mapa das rotas por caso de uso.

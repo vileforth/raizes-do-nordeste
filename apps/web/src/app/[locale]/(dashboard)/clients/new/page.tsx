@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
@@ -82,6 +83,12 @@ export default function NewClientPage() {
             ))}
           </select>
         </FormField>
+        <p className="text-xs leading-relaxed text-[var(--raizes-text-secondary)]">
+          {t('privacyNotice')}{' '}
+          <Link href="/privacidade" className="font-semibold text-[var(--raizes-petrol)] underline">
+            {t('privacyLink')}
+          </Link>
+        </p>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" {...form.register('active')} />
           {t('active')}

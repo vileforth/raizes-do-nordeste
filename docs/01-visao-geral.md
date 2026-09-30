@@ -1,28 +1,25 @@
 # Visão geral
 
-## Identificação
-
 | Campo | Conteúdo |
 | --- | --- |
 | Projeto | Raízes do Nordeste |
 | Trilha | Qualidade de software |
-| Autor de referência do enunciado | Bruno Villefort Hostalacio |
 | Tipo | Rede de franquias do setor alimentício |
-| Entrega técnica | Monorepo web + API + banco PostgreSQL |
+| Entrega | Interface web, API e PostgreSQL no mesmo monorepo |
 
 ## Problema
 
-A rede está em expansão e precisa padronizar o atendimento, integrar as unidades e manter pedidos, promoções, fidelização e operação com o mesmo conjunto de regras. O sistema registra o que acontece em cada loja e restringe o que cada perfil pode ver.
+A rede está em expansão e precisa da mesma regra de pedido, promoção, pontos e atendimento em todas as lojas. O sistema registra o que ocorre em cada unidade e restringe o que cada perfil pode ver. O gerente acessa a própria loja. O administrador acessa a rede.
 
 ## Atores
 
-| Ator | Escopo |
+| Ator | Função |
 | --- | --- |
-| Cliente | Cadastro, pedidos, pagamento, acompanhamento, fidelidade e atendimento |
-| Atendente | Operação de balcão, pedidos e protocolos |
-| Cozinheiro | Preparação e mudança de status do pedido |
-| Gerente | Uma unidade: equipe, estoque, pedidos e indicadores daquela loja |
-| Administrador | A rede inteira: unidades, usuários, permissões, promoções e relatórios |
+| Cliente | Conta, pedido, pagamento, acompanhamento, pontos e chamado |
+| Atendente | Balcão, pedido e protocolo |
+| Cozinheiro | Preparo e mudança de status |
+| Gerente | Equipe, estoque, pedidos e indicadores daquela loja |
+| Administrador | Unidades, usuários, permissões, promoções e relatórios |
 
 ## Módulos
 
@@ -30,20 +27,20 @@ Acesso, clientes, funcionários, unidades, produtos, estoque, pedidos, pagamento
 
 ## Canais
 
-O enunciado prevê APP, WEB, TOTEM e BALCÃO. A implementação entregue é o canal WEB. O tipo de consumo do pedido cobre retirada no balcão e consumo no local. APP e TOTEM não são aplicativos separados.
+Os canais previstos são APP, WEB, TOTEM e BALCÃO. O canal em operação é o WEB. No pedido é possível marcar retirada no balcão ou consumo no local. APP e TOTEM não existem como aplicativos separados. O balcão usa o mesmo site, com o perfil de atendente.
 
 ## Stack
 
 | Camada | Tecnologia |
 | --- | --- |
-| Interface | Next.js 16, React, next-intl (pt-BR e en) |
-| BFF | Rotas `/api/*` do Next.js. O navegador não chama a API Nest direto |
-| API | NestJS, Swagger, Winston, guards de papel |
-| Dados | Prisma, PostgreSQL no Supabase |
+| Interface | Next.js 16, React, pt-BR e en |
+| BFF | Rotas `/api/*` no Next.js. O navegador não chama o Nest diretamente |
+| API | NestJS, Swagger, Winston, guard de papel |
+| Dados | Prisma no PostgreSQL do Supabase |
 | Autenticação | Supabase Auth, JWT validado na API |
-| Mapas | Leaflet, tiles Carto Positron |
+| Mapa | Leaflet |
 | E-mail | Resend |
 | Geocodificação | Nominatim |
-| Pagamento | Fluxo interno simulado, sem adquirente real |
+| Pagamento | Fluxo interno simulado, sem adquirente |
 | Testes | Jest na API, Vitest no web e no pacote compartilhado |
 | Monorepo | pnpm 9.15 e Turborepo |

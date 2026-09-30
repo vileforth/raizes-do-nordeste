@@ -1,4 +1,4 @@
-const PUBLIC_AUTH_PATHS = ['/login', '/register', '/forgot-password'];
+const PUBLIC_AUTH_PATHS = ['/login', '/register', '/forgot-password', '/privacidade'];
 
 export function stripLocalePrefix(pathname: string): string {
   const stripped = pathname.replace(/^\/(pt-BR|en)(?=\/|$)/, '');

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { clientSchema } from './client.schema';
-import { loginSchema } from './login.schema';
+import { loginSchema, registerSchema } from './login.schema';
 import { orderSchema } from './order.schema';
 
 describe('loginSchema', () => {
@@ -18,6 +18,26 @@ describe('loginSchema', () => {
       password: 'secret1',
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe('registerSchema', () => {
+  const validRegister = {
+    name: 'Ana Souza',
+    email: 'ana@raizes.com',
+    phone: '81998887766',
+    password: 'secret12',
+    privacyConsent: true,
+  };
+
+  it('accepts a register payload with privacy consent', () => {
+    expect(registerSchema.safeParse(validRegister).success).toBe(true);
+  });
+
+  it('rejects a register payload without privacy consent', () => {
+    expect(
+      registerSchema.safeParse({ ...validRegister, privacyConsent: false }).success,
+    ).toBe(false);
   });
 });
 

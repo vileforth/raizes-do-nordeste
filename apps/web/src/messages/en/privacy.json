@@ -1,0 +1,19 @@
+{
+  "title": "Privacy notice",
+  "subtitle": "How the Raízes do Nordeste network handles personal data on the web channel.",
+  "backToRegister": "Back to sign up",
+  "purposeTitle": "Purpose",
+  "purpose": "We use the data to create the account, authenticate access, record orders, run loyalty and locate the serving unit. We do not use the data for third-party ads.",
+  "legalTitle": "Legal basis",
+  "legal": "Account creation depends on the explicit consent in this notice (LGPD art. 7, I). Orders and franchise operations also rely on performing the consumer contract (art. 7, V).",
+  "dataTitle": "Data we collect",
+  "data": "On the account: name, email, phone and password (the password stays in Supabase Auth). On the client record: CPF, birth date, address, city, state, ZIP and preferred unit. Orders, mocked payments and support tickets stay linked to that account.",
+  "retentionTitle": "Retention",
+  "retention": "The account stays while it is active. Orders and audit logs stay as long as the network needs them and the law requires. This version has no automatic deletion deadline.",
+  "rightsTitle": "Your rights",
+  "rights": "You may request confirmation of processing, access, correction and information about sharing. Use the email below to exercise these rights.",
+  "contactTitle": "Contact",
+  "contact": "Privacy — Raízes do Nordeste. Academic quality-track channel. Email: privacidade@raizes.local",
+  "limitsTitle": "What this version still does not store",
+  "limits": "Checking the box does not create a database row. There is no persisted policy version and no separate promotional opt-in."
+}
