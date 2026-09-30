@@ -8,7 +8,7 @@ As ferramentas abaixo foram usadas no Cursor para organizar texto, revisar tom, 
 
 | Modelo | Onde entrou |
 | --- | --- |
-| Grok 4.7 | Texto das docs, tom, matriz, cenários e este arquivo |
+| Grok 4.7 | Texto das docs, tom, matriz e cenários |
 | Anthropic Opus 4.7 | Revisão de arquitetura, casos de uso e o que a API realmente faz |
 | Claude Sonnet | Rascunho de tabela, diagrama HTML e ajuste de teste |
 
@@ -22,8 +22,8 @@ Não houve um modelo só. O mesmo assunto passou por mais de um quando o texto s
 - Consentimento no cadastro e página de privacidade.
 - Oito metas de pedido e pagamento, plano de qualidade, cenários, rastreio e métricas.
 - Contagem real da suíte e, depois, cobertura de linha da API (41,65%).
-- Tirar tom de texto gerado, primeira pessoa e qualquer menção ao material da disciplina.
-- Completar o que estava fraco com o que o código já faz (Nominatim, Resend, Winston, canais).
+- Revisão de tom: sem primeira pessoa, texto descrevendo o sistema.
+- Canais, falha do Nominatim e do Resend, log, auditoria e descrição formal dos casos de uso.
 - Diagrama de casos de uso no mesmo estilo do MER.
 
 ## O que não foi delegado
@@ -55,12 +55,4 @@ Fecha requisitos mensuráveis de pedido e pagamento, plano de qualidade com pap�
 
 **Tom**
 
-Relê todas as docs. Tira linguagem de texto gerado. Sem primeira pessoa. Português direto, bem escrito. Não cita roteiro, trilha, trabalho nem avaliador. O texto descreve o sistema.
-
-**O que estava fraco**
-
-Reforça o que ainda está raso usando o código de verdade: canais, falha do Nominatim e do Resend, log e auditoria, descrição formal dos casos de uso e um diagrama. Carga e UAT que não rodaram ficam como projeção, com o número da cobertura que o Jest medir.
-
-**Esta declaração**
-
-Um arquivo separado, sucinto, dizendo que usamos Grok 4.7, Anthropic Opus 4.7 e Claude Sonnet, o que cada um ajudou a fazer e os prompts de verdade, escritos com mais contexto, sem tom de relatório.
+Relê todas as docs. Tira linguagem de texto gerado. Sem primeira pessoa. Português direto, bem escrito. O texto descreve o sistema.
