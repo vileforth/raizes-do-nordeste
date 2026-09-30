@@ -39,16 +39,18 @@ A máquina de status, o estoque e o pagamento mock são os mesmos em qualquer or
 
 ## Stack
 
+O inventário com a versão instalada de cada biblioteca está em [03-arquitetura.md](03-arquitetura.md). Resumo:
+
 | Camada | Tecnologia |
 | --- | --- |
-| Interface | Next.js 16, React, pt-BR e en |
+| Interface | Next.js 16.3.5, React 19.3.0, pt-BR e en |
 | BFF | Rotas `/api/*` no Next.js. O navegador não chama o Nest diretamente |
-| API | NestJS, Swagger, Winston, guard de papel |
-| Dados | Prisma no PostgreSQL do Supabase |
-| Autenticação | Supabase Auth, JWT validado na API |
-| Mapa | Leaflet |
-| E-mail | Resend |
-| Geocodificação | Nominatim |
+| API | NestJS 10.4.22, Swagger 8.1.1, Winston 3.19.0, guard de papel |
+| Dados | Prisma 6.19.3 no PostgreSQL do Supabase |
+| Autenticação | Supabase Auth (`supabase-js` 2.116.0), JWT validado na API |
+| Mapa | Leaflet 1.9.4 |
+| E-mail | Resend, via HTTP, sem SDK |
+| Geocodificação | Nominatim, via HTTP, sem SDK |
 | Pagamento | Fluxo interno simulado, sem adquirente |
-| Testes | Jest na API, Vitest no web e no pacote compartilhado |
-| Monorepo | pnpm 9.15 e Turborepo |
+| Testes | Jest 29.7.0 na API, Vitest 2.1.9 no web e no pacote compartilhado |
+| Monorepo | Node.js 22.16.0, pnpm 9.15.0 e Turborepo 2.11.2 |
