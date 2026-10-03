@@ -21,6 +21,13 @@ A documentação técnica está na pasta [`docs`](docs/README.md). Este arquivo 
 | [Métricas](docs/13-metricas.md) | 203/203 e 41,65% de linha na API |
 | [Integrabilidade e funcionamento](docs/07-integrabilidade-e-funcionamento.md) | Cadeias entre módulos e limites |
 | [Endpoints](docs/08-endpoints.md) | Rotas da API por caso de uso |
+| Versão de demonstração publicada: https://raizes-do-nordeste-web.vercel.app/login
+| Usuário
+bruno@raizesdonordeste.com.br
+Senha
+raizes123
+Perfis
+Atendente e administrador |
 
 Abra [`docs/mer.html`](docs/mer.html) ou [`docs/casos-de-uso.html`](docs/casos-de-uso.html) no navegador. A roda do mouse dá zoom. Arrastar o fundo move o desenho.
 
